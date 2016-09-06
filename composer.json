@@ -1,0 +1,27 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.zendframework.com/"
+        }
+    ],
+    "name": "slim_test_1_0/zeyn",
+    "description": "Slim test packege for development",
+    "license": "BSD-3-Clause",
+    "require": {
+        "slim/slim": "2.*",
+        "zendframework/zend-config": "2.*",
+        "zendframework/zend-http": "2.*",
+        "zendframework/zend-log": "2.*",
+        "zendframework/zend-validator": "2.*",
+        "zendframework/zend-i18n": "2.*",
+        "zendframework/zend-cache": "2.*",
+        "zendframework/zend-filter": "2.*",
+        "zendframework/zend-db": "2.*",
+        "videlalvaro/php-amqplib": "2.2.*",
+        "panique/pdo-debug": "0.1",
+        "phpmailer/phpmailer": "~5.2",
+        "foil/foil": "~0.6"
+        
+    }
+}

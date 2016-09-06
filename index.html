@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor. Ğİ
+
+-->
+<html>
+    <head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+     
+
+    <!-- Loading Flat UI -->
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="themes/bootstrap/easyui.css" rel="stylesheet">
+    
+
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.easyui.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    
+</head>
+<body>
+<script>
+    jQuery(document).ready(function() {
+        
+        $.ajax({
+            url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+            data : {
+
+                    url : 'getDynamicForm_test',
+                    pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            type: 'GET',
+            dataType : 'html',
+            success: function(data, textStatus, jqXHR) {
+
+                 $('.result').html(data);
+                 //$('.result').append(data);
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+
+        
+        
+        
+        
+    $('#tt_grid').datagrid({
+             onSelect : function () {
+ 
+             },
+             url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            //url :'index.php/getReports_rpt',
+            queryParams : { 
+                            url : 'getReports_test',
+                            pk : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+                          },
+            method : 'GET',
+            sortName : 'r_date',
+            collapsible:true,
+            idField:'id',
+            //toolbar:'#tb',
+            rownumbers: "true",
+            pagination: "true",
+            remoteSort : true,
+            multiSort : true,
+            singleSelect : true,
+            columns:[[
+                {field:'report_name',title:'Report Name',width:100,sortable:true},
+                {field:'r_date',title:'Report Date',width:100,sortable:true},
+                {field:'company_name',title:'Company',width:100,sortable:true},
+                {field:'company_id',title:'Company ID',width:100,sortable:true,hidden:true},
+                {field:'user_name',title:'User Name',width:100},
+                {field:'name',title:'Name',width:100},
+                {field:'surname',title:'Surname',width:100},
+            ]],
+    });
+    
+    
+     $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+     url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            data : {                              
+                    pk : 'VjLzfZK*B99MP7E',
+                    url : 'pkSessionControl_blLoginLogout',
+                    
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+
+    
+    
+    
+    
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+         
+              url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            data : {  
+                   country_id :91 ,
+                   city_id : 66 ,
+                   boroughs_id : 738 ,
+                   language_code : 'tr',
+                   url : 'fillComboBox_sysvillage',
+                   pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+    
+    
+    
+    
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+         
+              url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            data : {                
+                   url : 'fillComboBox_syslanguage',
+                   pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+    
+    
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+     url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            data : {
+                    parent : 0 ,
+                    language_code : 'tr',
+                    pk : 'Cl68lRxFidrIT4o',
+                    url : 'getLeftMenu_leftnavigation',
+                    
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+    url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php', 
+            data : {                
+                   url : 'getLeftMenuFull_leftnavigation',
+                   pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+        
+        
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+         url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+            data : {
+                    parent : 0 ,
+                    url : 'fillComboBox_syscountryssilinecek',
+                   pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+             
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+        
+    $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+       url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php', 
+            data : {
+                   country_id : 91,  
+                   language_code : 'tr',
+                   url : 'fillComboBox_syscity',
+                   pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+                                  
+            },
+            method : 'GET',
+            
+        
+            success: function(data, textStatus, jqXHR) {
+
+             
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+   
+    $.ajax({
+    //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+     url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',
+      data : {            
+             language_code : 'tr',
+             url : 'fillComboBox_sysborough',
+             pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348',
+             country_id : 91 ,    
+             city_id : 35   
+      },
+      method : 'GET',
+
+
+      success: function(data, textStatus, jqXHR) {
+
+
+      },
+      error: function(jqXHR , textStatus, errorThrown) {
+        console.warn('error text status-->'+textStatus);
+      }
+  });  
+
+      $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+      url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php', 
+            data : {                   
+                language_code : 'tr',
+                url : 'fillComboBox_syscountrys',
+                pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+             
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+
+      $.ajax({
+          //  url : '../Slim_Proxy_SanalFabrika/SlimProxyBoot.php',   
+           url :'../Slim_Proxy_SanalFabrika/SlimProxyBoot.php', 
+            data : {
+                   
+                    language_code : 'tr',
+                    url : 'fillGrid_infoUsers',
+                    pk  : '3441df0babc2a2dda551d7cd39fb235bc4e09cd1e4556bf261bb49188f548348'
+            },
+            method : 'GET',
+        
+            success: function(data, textStatus, jqXHR) {
+
+                
+            },
+            error: function(jqXHR , textStatus, errorThrown) {
+              console.warn('error text status-->'+textStatus);
+            }
+        });  
+    
+    
+
+});
+    
+</script>
+
+        <div id="p2" class="easyui-panel"  
+            title="Reports already prepared" 
+            style="margin: auto 0;height:350px;"
+           data-options="iconCls:'icon-save',collapsible:true,closable:true">
+           <table id="tt_grid" data-options="" 
+                  title="Company Report Sets" 
+                      contenteditable="" style="height:440px;" 
+             accesskey="">
+           </table>
+            
+       </div>
+        <div class="result">
+
+        </div>
+
+</body>
+</html>
