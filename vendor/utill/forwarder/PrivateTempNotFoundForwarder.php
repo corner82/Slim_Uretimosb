@@ -31,7 +31,7 @@ class PrivateTempNotFoundForwarder extends \Utill\Forwarder\AbstractForwarder {
         header("Location: {$newURL}");*/
         
         ob_end_clean();
-        //$ch = curl_init('http://slimRedirect.sanalfabrika.com/index.php/hashNotMatch');
+        //$ch = curl_init('http://slimRedirect.uretimosb.com/index.php/hashNotMatch');
         $ch = curl_init('http://localhost/Slim_Redirect_Uretimosb/index.php/privateTempNotFound');
         //curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
         //curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);

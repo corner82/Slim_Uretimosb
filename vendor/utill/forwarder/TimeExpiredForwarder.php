@@ -32,7 +32,7 @@ class TimeExpiredForwarder extends \Utill\Forwarder\AbstractForwarder {
         
         ob_end_clean();  
         //$ch = curl_init('http://localhost/slim_redirect_test/index.php/timeExpired');
-        $ch = curl_init('http://slimRedirect.sanalfabrika.com/index.php/timeExpired');
+        $ch = curl_init('http://slimRedirect.uretimosb.com/index.php/timeExpired');
         //curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
         //curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
         //curl_setopt($ch,CURLOPT_POSTFIELDS,$content);
