@@ -106,7 +106,6 @@ class FilterChainerFactory extends \Utill\Factories\AbstractFactory {
         return new \Utill\Strip\Chain\StripChainer($app, $value, array(
                     \Services\Filter\FilterServiceNames::FILTER_TRIM,
                     \Services\Filter\FilterServiceNames::FILTER_LOWER_CASE,
-                    \Services\Filter\FilterServiceNames::FILTER_ONLY_ALPHABETIC_ALLOWED,                                                                                             
         ));
     }
     
