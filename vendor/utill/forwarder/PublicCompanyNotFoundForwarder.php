@@ -32,7 +32,7 @@ class PublicCompanyNotFoundForwarder extends \Utill\Forwarder\AbstractForwarder 
         
         ob_end_clean();
         //$ch = curl_init('http://slimRedirect.sanalfabrika.com/index.php/hashNotMatch');
-        $ch = curl_init('http://localhost/slim_Redirect_SanalFabrika/index.php/publicCompanyNotFound?test='.  serialize($this->parameters).'&test2='.$_SERVER['REMOTE_ADDR'].'');
+        $ch = curl_init('http://localhost/Slim_Redirect_Uretimosb/index.php/publicCompanyNotFound?test='.  serialize($this->parameters).'&test2='.$_SERVER['REMOTE_ADDR'].'');
         //curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
         //curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
         //curl_setopt($ch,CURLOPT_POSTFIELDS,$this->parameters);

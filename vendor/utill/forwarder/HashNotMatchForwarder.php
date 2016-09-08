@@ -32,7 +32,7 @@ class HashNotMatchForwarder extends \Utill\Forwarder\AbstractForwarder {
         
         ob_end_clean();
         //$ch = curl_init('http://slimRedirect.sanalfabrika.com/index.php/hashNotMatch');
-        $ch = curl_init('http://localhost/slim_Redirect_SanalFabrika/index.php/hashNotMatch');
+        $ch = curl_init('http://localhost/Slim_Redirect_Uretimosb/index.php/hashNotMatch');
         //curl_setopt($ch,CURLOPT_HTTPHEADER,$headers);
         //curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
         //curl_setopt($ch,CURLOPT_POSTFIELDS,$content);
