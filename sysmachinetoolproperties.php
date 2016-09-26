@@ -80,9 +80,15 @@ $app->get("/pkInsert_sysMachineToolProperties/", function () use ($app ) {
     }
     $vPropertyValue = NULL;
     if (isset($_GET['property_value'])) {
-         $stripper->offsetSet('property_value',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
+         $stripper->offsetSet('property_value',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1,
                                                 $app,
                                                 $_GET['property_value']));
+    } 
+    $vPropertyStringValue = NULL;
+    if (isset($_GET['property_string_value'])) {
+         $stripper->offsetSet('property_string_value',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1,
+                                                $app,
+                                                $_GET['property_string_value']));
     } 
     
     $stripper->strip();
@@ -90,6 +96,7 @@ $app->get("/pkInsert_sysMachineToolProperties/", function () use ($app ) {
     if($stripper->offsetExists('machine_tool_id')) $vMachineToolId = $stripper->offsetGet('machine_tool_id')->getFilterValue();
     if($stripper->offsetExists('property_id')) $vMachineToolPropertyDefinitionId = $stripper->offsetGet('property_id')->getFilterValue();
     if($stripper->offsetExists('property_value')) $vPropertyValue = $stripper->offsetGet('property_value')->getFilterValue();
+    if($stripper->offsetExists('property_string_value')) $vPropertyStringValue = $stripper->offsetGet('property_string_value')->getFilterValue();
     if($stripper->offsetExists('unit_id')) $vUnitId = $stripper->offsetGet('unit_id')->getFilterValue();
      
     $resDataInsert = $BLL->insert(array(
@@ -97,6 +104,7 @@ $app->get("/pkInsert_sysMachineToolProperties/", function () use ($app ) {
             'machine_tool_id' => $vMachineToolId,
             'machine_tool_property_definition_id' => $vMachineToolPropertyDefinitionId,
             'property_value' => $vPropertyValue,
+            'property_string_value' => $vPropertyStringValue,
             'unit_id' => $vUnitId,                
             'pk' => $pk,        
             ));
@@ -156,6 +164,12 @@ $app->get("/pkUpdate_sysMachineToolProperties/", function () use ($app ) {
                                                 $app,
                                                 $_GET['property_value']));
     } 
+    $vPropertyStringValue = NULL;
+    if (isset($_GET['property_string_value'])) {
+         $stripper->offsetSet('property_string_value',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1,
+                                                $app,
+                                                $_GET['property_string_value']));
+    } 
     
     $stripper->strip();
     if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -163,6 +177,7 @@ $app->get("/pkUpdate_sysMachineToolProperties/", function () use ($app ) {
     if($stripper->offsetExists('machine_tool_id')) $vMachineToolId = $stripper->offsetGet('machine_tool_id')->getFilterValue();
     if($stripper->offsetExists('property_id')) $vMachineToolPropertyDefinitionId = $stripper->offsetGet('property_id')->getFilterValue();
     if($stripper->offsetExists('property_value')) $vPropertyValue = $stripper->offsetGet('property_value')->getFilterValue();
+    if($stripper->offsetExists('property_string_value')) $vPropertyStringValue = $stripper->offsetGet('property_string_value')->getFilterValue();    
     if($stripper->offsetExists('unit_id')) $vUnitId = $stripper->offsetGet('unit_id')->getFilterValue();
      
     $resDataInsert = $BLL->update(array(
@@ -171,6 +186,7 @@ $app->get("/pkUpdate_sysMachineToolProperties/", function () use ($app ) {
             'machine_tool_id' => $vMachineToolId,
             'machine_tool_property_definition_id' => $vMachineToolPropertyDefinitionId,
             'property_value' => $vPropertyValue,
+            'property_string_value' => $vPropertyStringValue,
             'unit_id' => $vUnitId,                
             'pk' => $pk,        
             ));
@@ -183,9 +199,9 @@ $app->get("/pkUpdate_sysMachineToolProperties/", function () use ($app ) {
 /**
  *  * Okan CIRAN
  * @since 17-02-2016
+ * kullanılmıyor
  */
 $app->get("/pkFillGrid_sysMachineToolProperties/", function () use ($app ) {
-
     $BLL = $app->getBLLManager()->get('sysMachineToolPropertiesBLL');
    // $headerParams = $app->request()->headers();
    // $vPk = $headerParams['X-Public'];   
@@ -258,14 +274,9 @@ $app->get("/pkFillMachineToolFullProperties_sysMachineToolProperties/", function
 
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();    
-    $BLL = $app->getBLLManager()->get('sysMachineToolPropertiesBLL');
-    
-    $headerParams = $app->request()->headers();
-    
+    $BLL = $app->getBLLManager()->get('sysMachineToolPropertiesBLL');    
+    $headerParams = $app->request()->headers();    
     $componentType = 'bootstrap'; // 'easyui'
-    
-    
-    
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkFillMachineToolFullProperties_sysMachineToolProperties" end point, X-Public variable not found');
     }
@@ -310,7 +321,7 @@ $app->get("/pkFillMachineToolFullProperties_sysMachineToolProperties/", function
         foreach ($resDataGrid['resultSet']  as $flow) {    
             $flows[] = array(
                 "id" => $flow["id"],
-                "text" =>  $flow["property_names"],
+                "text" =>  html_entity_decode($flow["property_names"]),
                 "state" => $flow["state_type"],
                 "checked" => false,
                 "attributes" => array ("notroot"=>true),               
@@ -389,10 +400,10 @@ $app->get("/pkFillPropertyUnits_sysMachineToolProperties/", function () use ($ap
   
     foreach ($resData as $menu) {
             $menus[] = array(
-                "text" => $menu["unitcode"],
+                "text" => html_entity_decode($menu["unitcode"]),
                 "value" =>  intval($menu["id"]),
                 "selected" => false,
-                "description" => $menu["unitcode_eng"],
+                "description" => html_entity_decode($menu["unitcode_eng"]),
              //   "imageSrc" => ""
             );
         }
@@ -510,6 +521,7 @@ $app->get("/pkFillMachinePropertiesSubGridList_sysMachineToolProperties/", funct
             "property_name" => html_entity_decode($flow["property_name"]),
             "property_name_eng" => html_entity_decode($flow["property_name_eng"]),
             "property_value" => $flow["property_value"],
+            "property_string_value" => html_entity_decode($flow["property_string_value"]),
        //     "unit_id" => $flow["unit_id"],
             "unitcode" => html_entity_decode($flow["unitcode"]),
             "unitcode_eng" => html_entity_decode($flow["unitcode_eng"]), 
