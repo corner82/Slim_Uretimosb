@@ -193,37 +193,37 @@ $app->get("/pkcpkUpdate_infoFirmWorkingPersonnel/", function () use ($app ) {
     } 
     $vTitle = NULL;
     if (isset($_GET['title'])) {
-         $stripper->offsetSet('title',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('title',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['title']));
     } 
     $vTitleEng = NULL;
     if (isset($_GET['title_eng'])) {
-         $stripper->offsetSet('title_eng',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('title_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['title_eng']));
     } 
     $vName = NULL;
     if (isset($_GET['name'])) {
-         $stripper->offsetSet('name',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('name',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['name']));
     }
     $vSurname = NULL;
     if (isset($_GET['surname'])) {
-         $stripper->offsetSet('surname',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('surname',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['surname']));
     } 
     $vPositions = NULL;
     if (isset($_GET['positions'])) {
-         $stripper->offsetSet('positions',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('positions',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['positions']));
     } 
     $vPositionsEng = NULL;
     if (isset($_GET['positions_eng'])) {
-         $stripper->offsetSet('positions_eng',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('positions_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['positions_eng']));
     } 
@@ -325,37 +325,37 @@ $app->get("/pkcpkInsert_infoFirmWorkingPersonnel/", function () use ($app ) {
     } 
     $vTitle = NULL;
     if (isset($_GET['title'])) {
-         $stripper->offsetSet('title',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('title',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['title']));
     } 
     $vTitleEng = NULL;
     if (isset($_GET['title_eng'])) {
-         $stripper->offsetSet('title_eng',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('title_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['title_eng']));
     } 
     $vName = NULL;
     if (isset($_GET['name'])) {
-         $stripper->offsetSet('name',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('name',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['name']));
     }
     $vSurname = NULL;
     if (isset($_GET['surname'])) {
-         $stripper->offsetSet('surname',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('surname',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['surname']));
     } 
     $vPositions = NULL;
     if (isset($_GET['positions'])) {
-         $stripper->offsetSet('positions',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('positions',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['positions']));
     } 
     $vPositionsEng = NULL;
     if (isset($_GET['positions_eng'])) {
-         $stripper->offsetSet('positions_eng',$stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED,
+         $stripper->offsetSet('positions_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
                                                 $app,
                                                 $_GET['positions_eng']));
     } 
@@ -603,7 +603,7 @@ $app->get("/pkFillFirmWorkingPersonalListGrid_infoFirmWorkingPersonnel/", functi
     }
     $vOpUserName = NULL;
     if (isset($_GET['op_user_name'])) {
-        $stripper->offsetSet('op_user_name', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED, 
+        $stripper->offsetSet('op_user_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
                 $app, $_GET['op_user_name']));
     }
     

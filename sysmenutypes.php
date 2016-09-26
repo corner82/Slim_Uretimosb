@@ -354,7 +354,7 @@ $app->get("/pkFillMenuTypeListGrid_sysMenuTypes/", function () use ($app ) {
     }
     $vOpUserName = NULL;
     if (isset($_GET['op_user_name'])) {
-        $stripper->offsetSet('op_user_name', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED, 
+        $stripper->offsetSet('op_user_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
                 $app, $_GET['op_user_name']));
     }
     

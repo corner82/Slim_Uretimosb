@@ -78,13 +78,13 @@ $app->get("/pkGetLeftMenu_leftnavigation/", function () use ($app ) {
     }
     $vM = NULL;
     if (isset($_GET['m'])) {
-        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED, 
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                                                                 $app, 
                                                                 $_GET['m']));
     }
     $vA = NULL;
     if (isset($_GET['a'])) {
-        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED, 
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                                                                 $app, 
                                                                 $_GET['a']));
     }
@@ -182,7 +182,7 @@ $app->get("/pkFillGridForAdmin_leftnavigation/", function () use ($app ) {
     
     $vfilterRules = null;
     if(isset($_GET['filterRules'])) {
-        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED ,
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1 ,
                                                 $app,
                                                 $_GET['filterRules']));
     }

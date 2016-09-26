@@ -131,7 +131,7 @@ $app->get("/pkFillWithReference_infoFirmReferences/", function () use ($app ) {
     
     $vfilterRules = null;
     if(isset($_GET['filterRules'])) {
-        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED ,
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2 ,
                                                 $app,
                                                 $_GET['filterRules']));
     }
@@ -239,7 +239,7 @@ $app->get("/pkFillBeReferenced_infoFirmReferences/", function () use ($app ) {
     
     $vfilterRules = null;
     if(isset($_GET['filterRules'])) {
-        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ALPHABETIC_ALLOWED ,
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2 ,
                                                 $app,
                                                 $_GET['filterRules']));
     }
