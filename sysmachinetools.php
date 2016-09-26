@@ -44,6 +44,7 @@ $app->add(new \Slim\Middleware\MiddlewareMQManager());
 /**
  *  * Okan CIRAN
  * @since 17-02-2016
+ * kullanılmıyor
  */
 $app->get("/pkFillGrid1_sysMachineTools/", function () use ($app ) {
     $BLL = $app->getBLLManager()->get('sysMachineToolsBLL');
@@ -57,26 +58,19 @@ $app->get("/pkFillGrid1_sysMachineTools/", function () use ($app ) {
     } else {
         $resCombobox = $BLL->fillMachineToolGroups(array('language_code' => $vLanguageCode));
     }
-
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
             //"text" => strtolower($flow["name"]),
-            "text" => $flow["name"],
+            "text" =>  html_entity_decode($flow["name"]),
             "state" => $flow["state_type"], //   'closed',
             "checked" => false,
             "icon_class" => $flow["icon_class"],
             "attributes" => array("root" => $flow["root_type"], "active" => $flow["active"]),
         );
     }
-
-    $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($flows));
 });
 
@@ -85,15 +79,13 @@ $app->get("/pkFillGrid1_sysMachineTools/", function () use ($app ) {
 /**
  * Okan CIRAN
  * @since 01-02-2016
+ * kullanlmıyor
  */
 $app->get("/pkFillGrid_sysMachineTools/", function () use ($app ) {
-
     $BLL = $app->getBLLManager()->get('sysMachineToolsBLL');
-
     $headerParams = $app->request()->headers();
     $vPk = $headerParams['X-Public'];
     $fPk = $vPk;
-
 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
@@ -102,9 +94,7 @@ $app->get("/pkFillGrid_sysMachineTools/", function () use ($app ) {
     $componentType = 'ddslick';
     if (isset($_GET['component_type'])) {
         $componentType = strtolower(trim($_GET['component_type']));
-    }
-
-
+    } 
     $resDataGrid = $BLL->fillGridSingular(array(
         'pk' => $fPk,
         'language_code' => $vLanguageCode
@@ -119,16 +109,16 @@ $app->get("/pkFillGrid_sysMachineTools/", function () use ($app ) {
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
-            "group_name" => $flow["group_name"],
-            "machine_tool_name" => $flow["machine_tool_name"],
-            "machine_tool_name_eng" => $flow["machine_tool_name_eng"],
-            "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
+            "group_name" =>  html_entity_decode($flow["group_name"]),
+            "machine_tool_name" =>  html_entity_decode($flow["machine_tool_name"]),
+            "machine_tool_name_eng" =>  html_entity_decode($flow["machine_tool_name_eng"]),
+            "machine_tool_grup_id" =>  html_entity_decode($flow["machine_tool_grup_id"]),
             "manufactuer_id" => $flow["manufactuer_id"],
-            "model" => $flow["model"],
+            "model" =>  html_entity_decode($flow["model"]),
             "model_year" => $flow["model_year"],
             "procurement" => $flow["procurement"],
             "qqm" => $flow["qqm"],
-            "machine_code" => $flow["machine_code"],
+            "machine_code" =>  html_entity_decode($flow["machine_code"]),
             "deleted" => $flow["deleted"],
             "state_deleted" => $flow["state_deleted"],
             "active" => $flow["active"],
@@ -136,23 +126,17 @@ $app->get("/pkFillGrid_sysMachineTools/", function () use ($app ) {
             "op_user_id" => $flow["op_user_id"],
             "op_user_name" => $flow["op_user_name"],
             "language_id" => $flow["language_id"],
-            "language_name" => $flow["language_name"],
-            "language_code" => $flow["language_code"],
+            "language_name" =>  html_entity_decode($flow["language_name"]),
+            "language_code" =>  html_entity_decode($flow["language_code"]),
             "picture" => $flow["picture"],
             "attributes" => array("notroot" => true, "active" => $flow["active"]),
         );
     }
 
     $app->response()->header("Content-Type", "application/json");
-
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
     $resultArray['rows'] = $flows;
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
     $app->response()->body(json_encode($resultArray));
 });
 
@@ -265,20 +249,20 @@ $app->get("/pkGetMachineTools_sysMachineTools/", function () use ($app ) {
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
-            "machine_tool_name" => $flow["machine_tool_name"],
-            "machine_tool_name_eng" => $flow["machine_tool_name_eng"],
-            "group_name" => $flow["group_name"],
-            "group_name_eng" => $flow["group_name_eng"],
-            "manufacturer_name" => $flow["manufacturer_name"],
+            "machine_tool_name" =>  html_entity_decode($flow["machine_tool_name"]),
+            "machine_tool_name_eng" =>  html_entity_decode($flow["machine_tool_name_eng"]),
+            "group_name" =>  html_entity_decode($flow["group_name"]),
+            "group_name_eng" =>  html_entity_decode($flow["group_name_eng"]),
+            "manufacturer_name" =>  html_entity_decode($flow["manufacturer_name"]),
             "attributes" => array(
                         "notroot" => true, 
                         "active" => $flow["active"],
                         "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
                         "manufactuer_id" => $flow["manufactuer_id"],
-                        "model" => $flow["model"],
+                        "model" =>  html_entity_decode($flow["model"]),
                         "model_year" => $flow["model_year"],
                         "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-                        "machine_code" => $flow["machine_code"],
+                        "machine_code" =>  html_entity_decode($flow["machine_code"]),
                         "language_id" => $flow["language_id"],
                         "picture" => $flow["picture"],
  
@@ -385,24 +369,23 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
-            "machine_tool_name" => $flow["machine_tool_name"],
-            "machine_tool_name_eng" => $flow["machine_tool_name_eng"],
-            "group_name" => $flow["group_name"],
-            "group_name_eng" => $flow["group_name_eng"],
-            "manufacturer_name" => $flow["manufacturer_name"],
+            "machine_tool_name" =>  html_entity_decode($flow["machine_tool_name"]),
+            "machine_tool_name_eng" =>  html_entity_decode($flow["machine_tool_name_eng"]),
+            "group_name" =>  html_entity_decode($flow["group_name"]),
+            "group_name_eng" =>  html_entity_decode($flow["group_name_eng"]),
+            "manufacturer_name" =>  html_entity_decode($flow["manufacturer_name"]),
             "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
             "manufactuer_id" => $flow["manufactuer_id"],
-            "model" => $flow["model"],
+            "model" =>  html_entity_decode($flow["model"]),
             "model_year" => $flow["model_year"],
             "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-            "machine_code" => $flow["machine_code"],            
+            "machine_code" =>  html_entity_decode($flow["machine_code"]),
             "attributes" => array(            
                         "active" => $flow["active"],
                         "language_id" => $flow["language_id"],
                 ),
         );
-    }                      
-                
+    }           
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
@@ -453,12 +436,13 @@ $app->get("/pkGetMachineProperities_sysMachineTools/", function () use ($app ) {
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
-            "property_name" => $flow["property_name"],
-            "property_name_eng" => $flow["property_name_eng"],
+            "property_name" =>  html_entity_decode($flow["property_name"]),
+            "property_name_eng" =>  html_entity_decode($flow["property_name_eng"]),
             "property_value" => $flow["property_value"],
+            "property_value" =>  html_entity_decode($flow["property_value"]),
             "unit_id" => $flow["unit_id"],
-            "unitcode_eng" => $flow["unitcode_eng"],
-            "unitcode" => $flow["unitcode"],
+            "unitcode_eng" =>  html_entity_decode($flow["unitcode_eng"]),
+            "unitcode" =>  html_entity_decode($flow["unitcode"]),
             "attributes" => array(
                         "notroot" => true, 
                         "active" => $flow["active"],

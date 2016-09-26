@@ -851,8 +851,8 @@ class SysMachineTools extends \DAL\DalSlim {
  
         if ((isset($args['machine_id']) && $args['machine_id'] != "")) {
             $addSql =  " AND mt.machine_tool_id = " .intval($args['machine_id']) ; 
-        }                    
-                        
+        }     
+        
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -861,6 +861,7 @@ class SysMachineTools extends \DAL\DalSlim {
                      COALESCE(NULLIF( (mtpx.property_name), ''), mtp.property_name_eng) AS property_name,   
 		     mtp.property_name_eng,
 		     mt.property_value,
+                     mt.property_string_value,
                      mt.unit_id ,                      
                      COALESCE(NULLIF((sux.unitcode), ''), su.unitcode_eng) AS unitcode,   
                      su.unitcode_eng,

@@ -68,7 +68,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
      */
     public function getAll($params = array()) {
         try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory'); 
             $statement = $pdo->prepare("
                 SELECT 
                     a.id, 
@@ -78,7 +78,8 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                     a.machine_tool_property_definition_id, 
                     COALESCE(NULLIF(mtpd.property_name, ''), mtpd.property_name_eng) AS property_names,  
                     mtpd.property_name_eng,
-                    a.property_value, 
+                    a.property_value,
+                    a.property_string_value,
                     a.unit_id,  			
                     COALESCE(NULLIF(su.unitcode, ''), su.unitcode_eng) AS unitcodes,               
                     su.unitcode_eng,
@@ -131,11 +132,18 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    } else {
-                        $languageIdValue = 647;
+                    $languageId = NULL;
+                    $languageIdValue = 647;
+                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
+                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                            $languageIdValue = $languageId ['resultSet'][0]['id'];
+                        }
+                    }
+                    
+                    $propertyStringValue = "";
+                    if ((isset($params['property_string_value']) && $params['property_string_value'] != "")) {
+                        $propertyStringValue =$params['property_string_value'];
                     }
 
                     $sql = "
@@ -143,6 +151,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                         machine_tool_id, 
                         machine_tool_property_definition_id, 
                         property_value,
+                        property_string_value,
                         unit_id,                         
                         op_user_id,
                         language_id        
@@ -151,6 +160,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                         :machine_tool_id, 
                         :machine_tool_property_definition_id, 
                         ".  floatval($params['property_value']).",
+                        :property_string_value,    
                         :unit_id,                         
                         :op_user_id,                         
                         :language_id  
@@ -159,6 +169,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                     $statement->bindValue(':machine_tool_id', $params['machine_tool_id'], \PDO::PARAM_INT);
                     $statement->bindValue(':machine_tool_property_definition_id', $params['machine_tool_property_definition_id'], \PDO::PARAM_INT);
                     $statement->bindValue(':unit_id', $params['unit_id'], \PDO::PARAM_INT);
+                    $statement->bindValue(':property_string_value', $propertyStringValue, \PDO::PARAM_STR);
                     $statement->bindValue(':language_id', $languageIdValue, \PDO::PARAM_INT);
                     $statement->bindValue(':op_user_id', $opUserIdValue, \PDO::PARAM_INT);                    
                     // echo debugPDO($sql, $params);
@@ -257,11 +268,16 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                             $languageIdValue = $languageId ['resultSet'][0]['id'];
                         }
                     }
+                    $propertyStringValue = "";
+                    if ((isset($params['property_string_value']) && $params['property_string_value'] != "")) {
+                        $propertyStringValue =$params['property_string_value'];
+                    }
 
                     $sql = "
                 UPDATE sys_machine_tool_properties
                 SET                    
                     property_value = ". floatval($params['property_value']).",
+                    property_string_value = '".$propertyStringValue."',  
                     unit_id = " . intval($params['unit_id']). ", 
                     op_user_id = " . intval($opUserIdValue). ", 
                     language_id =" . intval($languageIdValue). " 
@@ -344,7 +360,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
             $languageIdValue = 647;
         }
         $whereSql = " AND a.language_id = " . intval($languageIdValue);
- 
+  
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -357,6 +373,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                     COALESCE(NULLIF(mtpd.property_name, ''), mtpd.property_name_eng) AS property_names,  
                     mtpd.property_name_eng,
                     a.property_value, 
+                    a.property_string_value,
                     a.unit_id,  			
                     COALESCE(NULLIF(su.unitcode, ''), su.unitcode_eng) AS unitcodes,               
                     su.unitcode_eng,
@@ -689,8 +706,8 @@ class SysMachineToolProperties extends \DAL\DalSlim {
             $sorguStr2 = " AND 1 = 2 ";
             if (isset($params['machine_tool_id']) && $params['machine_tool_id'] != "") {
                 $sorguStr2 = " AND a.machine_tool_id = " . $params['machine_tool_id'] ;
-            }
-                            
+            } 
+                         
             $sql = " 
 		 SELECT 
                     a.id, 
@@ -701,6 +718,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                     COALESCE(NULLIF(mtpd.property_name, ''), mtpd.property_name_eng) AS property_name,
                     mtpd.property_name_eng,
                     a.property_value, 
+                    a.property_string_value,
                     a.unit_id,
                     COALESCE(NULLIF(su.unitcode, ''), su.unitcode_eng) AS unitcode,
                     su.unitcode_eng

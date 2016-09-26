@@ -247,12 +247,13 @@ $app->get("/pkFillMachineToolGroupsMachineProperties_sysMachineToolGroups/", fun
             $flows[] = array(
                 "id" => $flow["id"],
                 "machine_id" => $flow["machine_id"], 
-                "machine_names" => $flow["machine_names"],                
-                "property_names" => $flow["property_names"],
-                "property_name_eng" => $flow["property_name_eng"],
+                "machine_names" => html_entity_decode($flow["machine_names"]), 
+                "property_names" => html_entity_decode($flow["property_names"]),
+                "property_name_eng" => html_entity_decode($flow["property_name_eng"]),
                 "property_value" => $flow["property_value"],
+                "property_string_value" =>  html_entity_decode($flow["property_string_value"]),
                 "unit_id" => $flow["unit_id"],
-                "unitcodes" => $flow["unitcodes"],             
+                "unitcodes" => html_entity_decode($flow["unitcodes"]),
                 "attributes" => array("notroot" => true ),
             );
         }
@@ -280,9 +281,7 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
     $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
     $headerParams = $app->request()->headers();
-    $Pk = $headerParams['X-Public'];
-     
-  
+    $Pk = $headerParams['X-Public']; 
     $componentType = 'bootstrap';
     
     $vLanguageCode = 'tr';
@@ -324,7 +323,7 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
         foreach ($resCombobox as $menu) {
             $menus[] = array(
                 "id" => $menu["id"],       
-                "text" => $menu["name"],
+                "text" => html_entity_decode($menu["name"]),
                 "state" => $menu["state_type"],
                 "checked" => false,
                 "attributes" => array("notroot" => true, "active" => $menu["active"] ,
@@ -339,10 +338,10 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
         
         foreach ($resCombobox as $menu) {
             $menus[] = array(
-                "text" => $menu["name"],
+                "text" => html_entity_decode($menu["name"]),
                 "value" =>  intval($menu["id"]),
                 "selected" => false,
-                "description" => $menu["name_eng"],
+                "description" => html_entity_decode($menu["name_eng"]),
              //   "imageSrc" => ""
             );
         }
@@ -412,21 +411,21 @@ $app->get("/pkFillJustMachineToolGroupsNotInProperty_sysMachineToolGroups/", fun
         foreach ($resCombobox as $menu) {
             $menus[] = array(
                 "id" => $menu["id"],       
-                "text" => $menu["name"],
+                "text" => html_entity_decode($menu["name"]),
                 "state" => $menu["state_type"],
                 "checked" => false,
                 "attributes" => array("notroot" => true, "active" => $menu["active"] ,
-                    "icon_class"=>$menu["icon_class"] ,"group_name_eng"=>$menu["group_name_eng"],
-                    "machine"=>$menu["machine"] ,) 
+                    "icon_class"=>$menu["icon_class"] ,"group_name_eng"=>html_entity_decode($menu["group_name_eng"]),
+                    "machine"=>html_entity_decode($menu["machine"]) ,) 
             );
         }
     } else if ($componentType == 'ddslick') {        
         foreach ($resCombobox as $menu) {
             $menus[] = array(
-                "text" => $menu["name"],
+                "text" => html_entity_decode($menu["name"]),
                 "value" =>  intval($menu["id"]),
                 "selected" => false,
-                "description" => $menu["name_eng"],
+                "description" => html_entity_decode($menu["name_eng"]),
              //   "imageSrc" => ""
             );
         }
@@ -439,12 +438,10 @@ $app->get("/pkFillJustMachineToolGroupsNotInProperty_sysMachineToolGroups/", fun
  *  * Okan CIRAN
  * @since 31-03-2016
  */
-$app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {
-    
+$app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {    
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
-   
+    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');   
     $headerParams = $app->request()->headers();
     $Pk = $headerParams['X-Public'];  
     
@@ -503,12 +500,10 @@ $app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {
  *  * Okan CIRAN
  * @since 31-03-2016
  */
-$app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {
-    
+$app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {    
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
-   
+    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');   
     $headerParams = $app->request()->headers();
     $Pk = $headerParams['X-Public'];  
     $vLanguageCode = 'tr';
@@ -577,36 +572,26 @@ $app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {
  * @since 25-02-2016
  */
 $app->get("/pkDelete_sysMachineToolGroups/", function () use ($app ) {
-
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();    
-    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
- 
-   
+    $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');   
     $headerParams = $app->request()->headers();
     $Pk = $headerParams['X-Public'];  
-   
-          
     $vId = NULL;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
                                                 $app,
                                                 $_GET['id']));
     } 
-
-    $stripper->strip();
- 
+    $stripper->strip(); 
     if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }
-     
     
     $resDataDeleted = $BLL->Delete(array(                  
             'id' => $vId ,    
             'pk' => $Pk,        
             ));
 
-
-    $app->response()->header("Content-Type", "application/json");
- 
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resDataDeleted));
 }
 ); 

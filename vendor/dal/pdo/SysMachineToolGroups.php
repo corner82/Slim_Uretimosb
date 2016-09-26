@@ -800,7 +800,7 @@ class SysMachineToolGroups extends \DAL\DalSlim {
             if (isset($params['machine_id']) && $params['machine_id'] != "") {
                 $machineId = $params['machine_id'];
                 $addSql .=" AND a.machine_tool_id= " . intval($machineId);
-            }
+            } 
             $statement = $pdo->prepare("                
                
                 SELECT 
@@ -810,6 +810,7 @@ class SysMachineToolGroups extends \DAL\DalSlim {
                     COALESCE(NULLIF(pdx.property_name, ''), pd.property_name_eng) AS property_names,
                     pd.property_name_eng,
                     a.property_value, 
+                    a.property_string_value,
                     u.id AS unit_id,
                     COALESCE(NULLIF(u.unitcode, ''), u.unitcode_eng) AS unitcodes                  
                 FROM sys_machine_tool_properties a

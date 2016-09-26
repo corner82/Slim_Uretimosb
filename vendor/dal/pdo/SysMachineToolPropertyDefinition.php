@@ -1254,7 +1254,8 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
 		    WHEN 1 THEN true 
 		    ELSE false END AS active ,
                     smtp.unit_id ,
-                    smtp.property_value
+                    smtp.property_value,
+                    smtp.property_string_value
  		FROM sys_machine_tool_property_definition a
                 INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active = 0 
                 LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0
@@ -1263,7 +1264,7 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 LEFT JOIN sys_machine_tool_properties smtp ON smtp.machine_tool_id=smt.id AND smtp.machine_tool_property_definition_id = a.id AND smtp.active =0 AND smtp.deleted =0 
                 " . $whereSql . " 
                 ORDER BY property_name 
-                                 ";
+                                 "; 
              $statement = $pdo->prepare($sql);
          //  echo debugPDO($sql, $params);
             $statement->execute();

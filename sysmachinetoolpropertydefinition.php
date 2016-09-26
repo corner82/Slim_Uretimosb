@@ -143,16 +143,13 @@ $app->get("/pkFillMachineGroupPropertyDefinitions_sysMachineToolPropertyDefiniti
          $stripper->offsetSet('unit_grup_id',$stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
                                                 $app,
                                                 $_GET['unit_grup_id']));
-    }
-    
+    }   
     
     $stripper->strip();
     if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     if($stripper->offsetExists('machine_grup_id')) $vMachineGrupId = $stripper->offsetGet('machine_grup_id')->getFilterValue();
     if($stripper->offsetExists('unit_grup_id')) $vUnitGrupId = $stripper->offsetGet('unit_grup_id')->getFilterValue();
      
-    
-    
     $resCombobox = $BLL->fillMachineGroupPropertyDefinitions(array(
                                     'machine_grup_id' => $vMachineGrupId,
                                     'unit_grup_id' =>$vUnitGrupId,
@@ -300,9 +297,7 @@ $app->get("/pkInsert_sysMachineToolPropertyDefinition/", function () use ($app )
     if ($stripper->offsetExists('unit_grup_id')) {
         $vUnitGrupId = $stripper->offsetGet('unit_grup_id')->getFilterValue();
     }
-   //  print_r('//'.$vMachineGrupId.'//\\'.$vUnitGrupId);
-   // $vMachineGrupId = $_GET['machine_grup_id'];
-   // $vUnitGrupId = $_GET['unit_grup_id'];
+ 
     $resData = $BLL->insert(array(  
             'language_code' => $vLanguageCode, 
             'property_name' => $vPropertyName ,
@@ -310,8 +305,7 @@ $app->get("/pkInsert_sysMachineToolPropertyDefinition/", function () use ($app )
             'machine_grup_id' => $vMachineGrupId , 
             'unit_grup_id' => $vUnitGrupId ,
             'pk' => $Pk,        
-            ));
-
+            )); 
 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
@@ -375,13 +369,10 @@ $app->get("/pkInsertPropertyUnit_sysMachineToolPropertyDefinition/", function ()
             'pk' => $Pk,        
             ));
 
-
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
-); 
-
-
+);  
  
 /**
  *  * Okan CIRAN
@@ -447,9 +438,7 @@ $app->get("/pkUpdate_sysMachineToolPropertyDefinition/", function () use ($app )
             'property_name_eng'=> $vPropertyNameEng,            
             'unit_grup_id' => $vUnitGrupId ,
             'pk' => $Pk,        
-            ));
-
-
+            )); 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
@@ -460,8 +449,7 @@ $app->get("/pkUpdate_sysMachineToolPropertyDefinition/", function () use ($app )
  *  * Okan CIRAN
  * @since 15-02-2016
  */
-$app->get("/pkFillGrid_sysMachineToolPropertyDefinition/", function () use ($app ) {
-
+$app->get("/pkFillGrid_sysMachineToolPropertyDefinition/", function () use ($app ) { 
     $BLL = $app->getBLLManager()->get('sysMachineToolPropertyDefinitionBLL');
     $headerParams = $app->request()->headers();
     $vPk = $headerParams['X-Public'];
@@ -497,24 +485,18 @@ $app->get("/pkFillGrid_sysMachineToolPropertyDefinition/", function () use ($app
             "state_active" => $flow["state_active"],              
             "language_code" => $flow["language_code"],                             
             "language_id" => $flow["language_id"],      
-	    "language_name" => $flow["language_name"],
+	    "language_name" => html_entity_decode($flow["language_name"]),
             "language_parent_id" => $flow["language_parent_id"],                
             "op_user_id" => $flow["op_user_id"],  
-            "op_user_name" => $flow["op_user_name"],  
+            "op_user_name" => html_entity_decode($flow["op_user_name"]), 
             "attributes" => array("notroot" => true, "active" => $flow["active"]),
         );
     }
      
     $app->response()->header("Content-Type", "application/json");
-
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
-    $resultArray['rows'] = $flows;
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
+    $resultArray['rows'] = $flows; 
     $app->response()->body(json_encode($resultArray));
 });
 
@@ -605,14 +587,12 @@ $app->get("/pkDeletePropertyMachineGroup_sysMachineToolPropertyDefinition/", fun
     if ($stripper->offsetExists('property_id')) {
         $vPropertyId = $stripper->offsetGet('property_id')->getFilterValue();
     }
-    
-    
+        
     $resData = $BLL->deletePropertyMachineGroup(array(      
             'machine_grup_id' => $vMachineGrupId , 
             'property_id' => $vPropertyId ,
             'pk' => $Pk,        
             ));
-
 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
@@ -679,6 +659,7 @@ $app->get("/pkFillMachineGroupProperties_sysMachineToolPropertyDefinition/", fun
                 "machine_grup_id" => $flow["machine_grup_id"], 
                 "machine_tool_id" => $flow["machine_tool_id"], 
                 "property_value" => $flow["property_value"],  
+                "property_string_value" => html_entity_decode($flow["property_string_value"]),  
                 "unit_id" => $flow["unit_id"],  
                 "property_name_eng" => html_entity_decode($flow["property_name_eng"]),
                 ),
@@ -722,9 +703,7 @@ $app->get("/pkTransferPropertyMachineGroup_sysMachineToolPropertyDefinition/", f
             'machine_grup_id' => $vMachineGrupId , 
             'property_id' => $vPropertyId ,
             'pk' => $Pk,        
-            ));
-
-
+            )); 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
@@ -848,11 +827,11 @@ $app->get("/pkFillPropertieslist_sysMachineToolPropertyDefinition/", function ()
         foreach ($resDataGrid as $flow) {
             $flows[] = array(
             "id" => $flow["id"],
-            "property_name" => $flow["property_name"],
-            "property_name_eng" => $flow["property_name_eng"],
+            "property_name" =>  html_entity_decode($flow["property_name"]),
+            "property_name_eng" =>  html_entity_decode($flow["property_name_eng"]),
             "unit_grup_id" => $flow["unit_grup_id"],  
-            "unitcode" => $flow["unitcode"],
-            "unitcode_eng" => $flow["unitcode_eng"],              
+            "unitcode" =>  html_entity_decode($flow["unitcode"]),
+            "unitcode_eng" =>  html_entity_decode($flow["unitcode_eng"]),              
             "attributes" => array(
                 "notroot" => true,
                 "active" => $flow["active"], ) );

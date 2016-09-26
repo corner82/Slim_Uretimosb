@@ -1792,6 +1792,7 @@ class InfoFirmMachineTool extends \DAL\DalSlim {
                     COALESCE(NULLIF(pdx.property_name, ''), pd.property_name_eng) AS property_names,
                     pd.property_name_eng,
                     smtp.property_value, 
+                    smtp.property_string_value, 
                     u.id AS unit_id,
                     COALESCE(NULLIF(u.unitcode,''), u.unitcode_eng) AS unitcodes,
                     CASE COALESCE(NULLIF(a.picture, ''),'-') 
