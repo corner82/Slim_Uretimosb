@@ -993,7 +993,7 @@ class InfoUsers extends \DAL\DalSlim {
                     SET
                         c_date = timezone('Europe/Istanbul'::text, ('now'::text)::timestamp(0) with time zone) ,                         
                         operation_type_id = :operation_type_id,
-                        password = :password, 
+                        password = md5(:password), 
                         language_id = :language_id,                        
                         op_user_id = :op_user_id ,
                         active = :active
@@ -2838,16 +2838,16 @@ class InfoUsers extends \DAL\DalSlim {
                                 a.root_id,
                                 a.act_parent_id,
                                 1,
-                                '" . $params['password'] . "' AS password
+                                md5('" . $params['password'] . "') AS password
                             FROM info_users_detail a
                             WHERE root_id  =" . intval($opUserIdValue) . "                               
-                                AND active =1 AND deleted =0 and 
+                                AND active =1 AND deleted =0 AND 
                                 c_date = (SELECT MAX(c_date)  
 						FROM info_users_detail WHERE root_id =a.root_id
 						AND active =1 AND deleted =0)  
                     ";
                     $statementActInsert = $pdo->prepare($sql);
-                    //  echo debugPDO($sql, $params);                                
+                   //  echo debugPDO($sql, $params);                                
                     $insertAct = $statementActInsert->execute();
                     $affectedRows = $statementActInsert->rowCount();
                     $insertID = $pdo->lastInsertId('info_users_detail_id_seq');
