@@ -604,6 +604,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                     su.id, 	
                     COALESCE(NULLIF(sux.unitcode, ''), su.unitcode_eng) AS unitcode,  
                     su.unitcode_eng,
+                    COALESCE(NULLIF(sux.unit, ''), su.unit_eng) AS unit,  
                     su.parent_id,
                     a.active,
                     CASE 
@@ -612,7 +613,7 @@ class SysMachineToolProperties extends \DAL\DalSlim {
                      ELSE 'open'   
                      END AS state_type  
                 FROM sys_unit_groups_property_definition a    
-		INNER JOIN sys_units su ON su.parent_id = a.unit_grup_id AND su.language_parent_id =0 AND su.active =0 AND su.deleted =0 
+		INNER JOIN sys_units su ON su.main = a.unit_grup_id AND su.language_parent_id =0 AND su.active =0 AND su.deleted =0 
                 INNER JOIN sys_language l ON l.id = su.language_id AND l.deleted =0 AND l.active =0  
 		LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue). " AND lx.deleted =0 AND lx.active =0                      		
                 LEFT JOIN sys_units sux ON (sux.id =su.id OR sux.language_parent_id = su.id) AND sux.deleted =0 AND sux.active =0 AND lx.id = sux.language_id   

@@ -403,7 +403,7 @@ $app->get("/pkFillPropertyUnits_sysMachineToolProperties/", function () use ($ap
                 "text" => html_entity_decode($menu["unitcode"]),
                 "value" =>  intval($menu["id"]),
                 "selected" => false,
-                "description" => html_entity_decode($menu["unitcode_eng"]),
+                "description" => html_entity_decode($menu["unit"]),
              //   "imageSrc" => ""
             );
         }
