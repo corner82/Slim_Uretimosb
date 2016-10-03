@@ -484,6 +484,7 @@ class SysMachineTools extends \DAL\DalSlim {
         $sortArr = array();
         $orderArr = array();
         $addSql = NULL;
+                        
         if (isset($args['sort']) && $args['sort'] != "") {
             $sort = trim($args['sort']);
             $sortArr = explode(",", $sort);
@@ -510,18 +511,7 @@ class SysMachineTools extends \DAL\DalSlim {
             if (\Utill\Dal\Helper::haveRecord($languageId)) {
                 $languageIdValue = $languageId ['resultSet'][0]['id'];                    
             }
-        }  
-        
-        if ((isset($args['machine_groups_id']) && $args['machine_groups_id'] != "")) {
-         //   $addSql =  " AND a.id = " .intval($args['machine_groups_id']) ; 
-            $addSql =  " AND machine_tool_grup_id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_each('" . $args['machine_groups_id'] . "'))"; 
-        }  
-        if ((isset($args['manufacturer_id']) && $args['manufacturer_id'] != "")) {
-            $addSql =  " AND manufacturer_id = " .intval($args['manufacturer_id']) ; 
-        }   
-        if ((isset($args['machine_id']) && $args['machine_id'] != "")) {
-            $addSql =  " AND id= " .intval($args['machine_id']) ; 
-        } 
+        }                
         // sql query dynamic for filter operations
         $sorguStr = null;
         if (isset($args['filterRules'])) {
@@ -533,22 +523,22 @@ class SysMachineTools extends \DAL\DalSlim {
                     switch (trim($std['field'])) {
                         case 'machine_tool_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
-                            $sorguStr.=" AND LOWER(machine_tool_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) AS machine_tool_name)" . $sorguExpression . ' ';
                             
                             break;
                         case 'machine_tool_name_eng':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(machine_tool_name_eng)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(mt.machine_tool_name_eng)" . $sorguExpression . ' ';
 
                             break;
                         case 'group_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(group_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF((ax.group_name), ''), a.group_name_eng))" . $sorguExpression . ' ';
 
                             break;
                          case 'manufacturer_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(manufacturer_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF((m.name), ''), ' '))" . $sorguExpression . ' ';
 
                             break;
                         default:
@@ -560,7 +550,13 @@ class SysMachineTools extends \DAL\DalSlim {
             $sorguStr = null;
             $filterRules = "";
         }
-        $sorguStr = rtrim($sorguStr, "AND ");                       
+        $sorguStr = rtrim($sorguStr, "AND ");    
+        
+                        
+        if (isset($args['machine_tool_grup_id']) && $args['machine_tool_grup_id'] != "") {
+            $addSql = " AND mt.machine_tool_grup_id = " . intval($args['machine_tool_grup_id']) ;
+        }
+                        
                         
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
@@ -611,13 +607,14 @@ class SysMachineTools extends \DAL\DalSlim {
                 WHERE 
                     a.deleted = 0 AND 
                     mt.language_parent_id =0 
-                ) AS xtablee WHERE deleted =0     
-                " . $addSql . "
-                " . $sorguStr . " 
+                    ". $addSql ."
+                    " . $sorguStr . ""
+                    . "LIMIT " . $pdo->quote($limit) . " "
+                    . "OFFSET " . $pdo->quote($offset) . " 
+                ) AS xtablee WHERE deleted =0  
                 ORDER BY    " . $sort . " "
                     . "" . $order . " "
-                    . "LIMIT " . $pdo->quote($limit) . " "
-                    . "OFFSET " . $pdo->quote($offset) . " ";
+                   ;
             $statement = $pdo->prepare($sql);
             $parameters = array(
                 'sort' => $sort,
@@ -655,17 +652,7 @@ class SysMachineTools extends \DAL\DalSlim {
             if (\Utill\Dal\Helper::haveRecord($languageId)) {
                 $languageIdValue = $languageId ['resultSet'][0]['id'];                    
             }
-        }        
-        if ((isset($params['machine_groups_id']) && $params['machine_groups_id'] != "")) {
-         //   $addSql =  " AND a.id = " .intval($args['machine_groups_id']) ; 
-            $addSql =  " AND machine_tool_grup_id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_each('" . $params['machine_groups_id'] . "'))"; 
-        }  
-        if ((isset($params['manufacturer_id']) && $params['manufacturer_id'] != "")) {
-            $addSql =  " AND manufacturer_id = " .intval($params['manufacturer_id']) ; 
-        }   
-        if ((isset($params['machine_id']) && $params['machine_id'] != "")) {
-            $addSql =  " AND id = " .intval($params['machine_id']) ; 
-        } 
+        }                 
         // sql query dynamic for filter operations
         $sorguStr = null;
         if (isset($params['filterRules'])) {
@@ -677,22 +664,22 @@ class SysMachineTools extends \DAL\DalSlim {
                     switch (trim($std['field'])) {
                         case 'machine_tool_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
-                            $sorguStr.=" AND LOWER(machine_tool_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) AS machine_tool_name)" . $sorguExpression . ' ';
                             
                             break;
                         case 'machine_tool_name_eng':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(machine_tool_name_eng)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(mt.machine_tool_name_eng)" . $sorguExpression . ' ';
 
                             break;
                         case 'group_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(group_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF((ax.group_name), ''), a.group_name_eng))" . $sorguExpression . ' ';
 
                             break;
                          case 'manufacturer_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
-                            $sorguStr.=" AND LOWER(manufacturer_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF((m.name), ''), ' '))" . $sorguExpression . ' ';
 
                             break;
                         default:
@@ -705,7 +692,10 @@ class SysMachineTools extends \DAL\DalSlim {
             $filterRules = "";
         }
         $sorguStr = rtrim($sorguStr, "AND ");                       
-                        
+          
+        if (isset($params['machine_tool_grup_id']) && $params['machine_tool_grup_id'] != "") {
+            $addSql = " AND mt.machine_tool_grup_id = " . intval($params['machine_tool_grup_id']) ;
+        }
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -719,14 +709,8 @@ class SysMachineTools extends \DAL\DalSlim {
                         group_name_eng,
                         manufacturer_name,
                         active,
-                        deleted,
-                        machine_tool_grup_id, 
-                        manufactuer_id,
-                        model,
-                        model_year,
-                        machine_code,
-                        language_id,
-                        picture
+                        deleted, 
+                        language_id                      
                     FROM (
                         SELECT
                             mt.id, 
@@ -737,15 +721,8 @@ class SysMachineTools extends \DAL\DalSlim {
                             COALESCE(NULLIF((m.name), ''), ' ') AS manufacturer_name,
                             mt.active,
                             mt.deleted,
-                            mt.machine_tool_grup_id, 
-                            mt.manufactuer_id,
-                            COALESCE(NULLIF((mt.model), ''), ' ') AS model,
-                            mt.model_year,
-                            COALESCE(NULLIF((mt.machine_code), ''), ' ') AS machine_code,
-                            mt.language_id,
-                            CASE COALESCE(NULLIF(mt.picture, ''),'-')
-                                WHEN '-' THEN CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.machines_folder,'/' ,COALESCE(NULLIF(mt.picture, ''),'image_not_found.png'))
-                                ELSE CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.machines_folder,'/' ,COALESCE(NULLIF(mt.picture, ''),'image_not_found.png')) END AS picture
+                            mt.machine_tool_grup_id,                        
+                            mt.language_id
                         FROM sys_machine_tool_groups a 
                         INNER JOIN sys_project_settings sps ON sps.op_project_id = 1 AND sps.active =0 AND sps.deleted =0
                         INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0   
@@ -756,14 +733,14 @@ class SysMachineTools extends \DAL\DalSlim {
                         LEFT JOIN sys_manufacturer m ON m.id = mt.manufactuer_id AND m.deleted =0 AND m.active =0 AND m.language_parent_id = 0 
                         WHERE 
                             a.deleted = 0 AND 
-                            mt.language_parent_id =0 
-                ) AS xtablee WHERE deleted =0       
-                " . $addSql . "
-                " . $sorguStr." 
+                            mt.language_parent_id =0  
+                            ". $addSql ."
+                            ". $sorguStr ."                        
+                ) AS xtablee WHERE deleted =0
                 ) AS xxtablee
             ";
             $statement = $pdo->prepare($sql);            
-           // echo debugPDO($sql, $params);
+          //  echo debugPDO($sql, $params);
             $statement->execute();
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
             $errorInfo = $statement->errorInfo();
@@ -914,8 +891,7 @@ class SysMachineTools extends \DAL\DalSlim {
         }
 
         $sortArr = array();
-        $orderArr = array();
-        $addSql = NULL;
+        $orderArr = array(); 
         if (isset($args['sort']) && $args['sort'] != "") {
             $sort = trim($args['sort']);
             $sortArr = explode(",", $sort);
@@ -942,12 +918,7 @@ class SysMachineTools extends \DAL\DalSlim {
             if (\Utill\Dal\Helper::haveRecord($languageId)) {
                 $languageIdValue = $languageId ['resultSet'][0]['id'];                    
             }
-        }  
-        
-        if ((isset($args['machine_groups_id']) && $args['machine_groups_id'] != "")) {         
-            $addSql =  " AND a.id = " . intval($args['machine_groups_id']) ; 
-        }  
-                        
+        }               
                         
         // sql query dynamic for filter operations
         $sorguStr = null;
@@ -1015,8 +986,7 @@ class SysMachineTools extends \DAL\DalSlim {
 		LEFT JOIN sys_manufacturer m ON m.id = mt.manufactuer_id AND m.deleted =0 AND m.active =0 AND m.language_parent_id = 0 
                 WHERE 
                     a.deleted = 0 AND 
-                    mt.language_parent_id =0 
-                " . $addSql . "
+                    mt.language_parent_id =0         
                 " . $sorguStr . " 
                 ORDER BY    " . $sort . " "
                     . "" . $order . " "
@@ -1050,8 +1020,7 @@ class SysMachineTools extends \DAL\DalSlim {
      * @return array
      * @throws \PDOException
      */
-    public function getMachineToolsGridRtc($params = array()) {                           
-        $addSql = NULL; 
+    public function getMachineToolsGridRtc($params = array()) {     
         $languageId = NULL;
         $languageIdValue = 647;
         if ((isset($params['language_code']) && $params['language_code'] != "")) {                
@@ -1060,9 +1029,7 @@ class SysMachineTools extends \DAL\DalSlim {
                 $languageIdValue = $languageId ['resultSet'][0]['id'];                    
             }
         }        
-        if ((isset($params['machine_groups_id']) && $params['machine_groups_id'] != "")) {
-             $addSql =  " AND a.id = " . intval($params['machine_groups_id']) ; 
-        }           
+                        
         // sql query dynamic for filter operations
         $sorguStr = null;
         if (isset($params['filterRules'])) {
@@ -1118,7 +1085,7 @@ class SysMachineTools extends \DAL\DalSlim {
                 WHERE            
                     a.deleted = 0 AND                    
                     mt.language_parent_id =0 
-                " . $addSql . "
+            
                 ".$sorguStr;
             $statement = $pdo->prepare($sql);            
          //  echo debugPDO($sql, $params);
