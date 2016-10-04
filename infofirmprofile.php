@@ -655,35 +655,28 @@ $app->get("/pkUpdateConsAct_infoFirmProfile/", function () use ($app ) {
  * @since 09.02.2016
  */
 $app->get("/pkDeletedAct_infoFirmProfile/", function () use ($app ) {
-
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-
     $headerParams = $app->request()->headers();
-    $vpk = $headerParams['X-Public'];
-    $vID =$_GET['id'];  
-    $vActParentId = 0;
-    if (isset($_GET['act_parent_id'])) {
-        $vActParentId = $_GET['act_parent_id'];
-    }  
-    $vOperationTypeId = 3;
-    if (isset($_GET['operation_type_id'])) {
-        $vOperationTypeId = $_GET['operation_type_id'];
-    }
-    
-    $fpk = $vpk ; 
-    $fID = $vID ; 
-    $fActParentId = $vActParentId ; 
-    $fOperationTypeId = $vOperationTypeId ; 
-    
-    
+    if (!isset($headerParams['X-Public']))
+        throw new Exception('rest api "pkDeletedAct_infoFirmProfile" end point, X-Public variable not found');
+    $pk = $headerParams['X-Public'];   
+    $vId = NULL;
+    if (isset($_GET['id'])) {
+        $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                $app,
+                                                $_GET['id']));
+    } 
+    $stripper->strip(); 
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    } 
     $resDataUpdate = $BLL->deletedAct(array(
-        'id' => $fID,        
-        'operation_type_id' => $fActParentId,
-        'act_parent_id' => $fOperationTypeId,
-        'pk' => $fpk));
- 
+        'url' => $_GET['url'],
+        'id' => $vId,  
+        'pk' => $pk)); 
     $app->response()->header("Content-Type", "application/json");
-
     $app->response()->body(json_encode($resDataUpdate));
 });
  
@@ -706,8 +699,7 @@ $app->get("/pkFillUserAddressesTypes_infoFirmProfile/", function () use ($app ) 
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public']))
         throw new Exception('rest api "pkFillUserAddressesTypes_infoFirmProfile" end point, X-Public variable not found');
-    $pk = $headerParams['X-Public'];
-    
+    $pk = $headerParams['X-Public'];    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -720,8 +712,8 @@ $app->get("/pkFillUserAddressesTypes_infoFirmProfile/", function () use ($app ) 
     $resCombobox = $BLL->fillUserAddressesTypes(array(
         'url' => $_GET['url'],
         'pk' => $pk , 
-        'language_code' => $vLanguageCode ));
-
+        'language_code' => $vLanguageCode 
+                                   ));
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
@@ -742,80 +734,76 @@ $app->get("/pkFillUserAddressesTypes_infoFirmProfile/", function () use ($app ) 
  * @since 02-02-2016
  */
 $app->get("/pktempFillGridSingular_infoFirmProfile/", function () use ($app ) {
-
-
+ $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-
-    $headerParams = $app->request()->headers();
+    $headerParams = $app->request()->headers();    
     $vPkTemp = $headerParams['X-Public-Temp'];
-    $vLanguageCode =$_GET['language_code'] ; 
-    
-    $fPkTemp = $vPkTemp ; 
-    
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                    $app, $_GET['language_code']));
+    }
+    $stripper->strip();
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }    
     $resDataGrid = $BLL->fillGridSingularTemp(array(
         'url' => $_GET['url'],
-        'pktemp' => $fPkTemp,
+        'pktemp' => $vPkTemp,
         'language_code' => $vLanguageCode ));
     $resTotalRowCount = $BLL->fillGridSingularRowTotalCountTemp(array(
         'url' => $_GET['url'],
-        'pktemp' => $fPkTemp,
+        'pktemp' => $vPkTemp,
         'language_code' => $vLanguageCode ));
     $flows = array();
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
-             "id" => $flow["id"],
+            "id" => $flow["id"],
             "profile_public" => $flow["profile_public"],
             "s_date" => $flow["s_date"],
             "c_date" => $flow["c_date"],
             "operation_type_id" => $flow["operation_type_id"],
-            "operation_names" => $flow["operation_names"],
-            "firm_names" => $flow["firm_names"],
-            "web_address" => $flow["web_address"],
-            "tax_office" => $flow["tax_office"],
-            "tax_no" => $flow["tax_no"],
-            "sgk_sicil_no" => $flow["sgk_sicil_no"],
+            "operation_names" => html_entity_decode($flow["operation_names"]),
+            "firm_names" => html_entity_decode($flow["firm_names"]),
+            "web_address" => html_entity_decode($flow["web_address"]),
+            "tax_office" => html_entity_decode($flow["tax_office"]),
+            "tax_no" => html_entity_decode($flow["tax_no"]),
+            "sgk_sicil_no" => html_entity_decode($flow["sgk_sicil_no"]),
             "ownership_status_id" => $flow["ownership_status_id"],
-            "owner_ships" => $flow["owner_ships"],
+            "owner_ships" => html_entity_decode($flow["owner_ships"]),
             "foundation_year" => $flow["foundation_year"],
             "act_parent_id" => $flow["act_parent_id"],
             "language_code" => $flow["language_code"],
             "language_id" => $flow["language_id"],
-            "language_names" => $flow["language_names"],
+            "language_names" => html_entity_decode($flow["language_names"]),
             "active" => $flow["active"],
-            "state_actives" => $flow["state_actives"],
+            "state_actives" => html_entity_decode($flow["state_actives"]),
             "deleted" => $flow["deleted"],
-            "state_deleteds" => $flow["state_deleteds"],
+            "state_deleteds" => html_entity_decode($flow["state_deleteds"]),
             "op_user_id" => $flow["op_user_id"],
-            "username" => $flow["username"],
+            "username" => html_entity_decode($flow["username"]),
             "auth_allow_id" => $flow["auth_allow_id"],
-            "auth_alows" => $flow["auth_alows"],
+            "auth_alows" => html_entity_decode($flow["auth_alows"]),
             "cons_allow_id" => $flow["cons_allow_id"],
-            "cons_allows" => $flow["cons_allows"],
+            "cons_allows" => html_entity_decode($flow["cons_allows"]),
             "language_parent_id" => $flow["language_parent_id"],
-            "firm_name_short" => $flow["firm_name_short"],
+            "firm_name_short" => html_entity_decode($flow["firm_name_short"]),
             "country_id" => $flow["country_id"],
-            "country_names" => $flow["country_names"],
-            "descriptions" => $flow["descriptions"],
-            "duns_number" => $flow["duns_number"],
+            "country_names" => html_entity_decode($flow["country_names"]),
+            "descriptions" => html_entity_decode($flow["descriptions"]),
+            "duns_number" => html_entity_decode($flow["duns_number"]),
             "owner_user_id" => $flow["owner_user_id"],
-            "owner_username" => $flow["owner_username"],
+            "owner_username" => html_entity_decode($flow["owner_username"]),
             "network_key" => $flow["network_key"],
-            "logo" => $flow["logo"],
-            
+            "logo" => $flow["logo"],            
             "attributes" => array("notroot" => true, "active" => $flow["active"]),
         );
-    }
-  
-    $app->response()->header("Content-Type", "application/json");
-   // print_r($resTotalRowCount);
+    }  
+    $app->response()->header("Content-Type", "application/json");   
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
     $resultArray['rows'] = $flows;
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
     $app->response()->body(json_encode($resultArray));
 });
 
