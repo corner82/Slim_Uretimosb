@@ -47,125 +47,202 @@ $app->add(new \Slim\Middleware\MiddlewareMQManager());
 /**
  *  * Okan CIRAN
  * @since 09.02.2016
- */
+ */ 
 $app->get("/pkInsert_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
-    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-    
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
-    $Pk = $headerParams['X-Public'];
-    
-    
-  
-    $vFoundationYear = $_GET['foundation_year'];
-    $vBagkurSicilNo = $_GET['bagkur_sicil_no'];
-    $vFirmNameEng = $_GET['firm_name_eng'];
-    $vFirmNameShort = $_GET['firm_name_short']; 
-    
+    if (!isset($headerParams['X-Public']))
+        throw new Exception('rest api "pkInsert_infoFirmProfile" end point, X-Public variable not found');
+    $pk = $headerParams['X-Public']; 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-         $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
-                                                $app,
-                                                $_GET['language_code']));
-    }  
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                                                                $app, 
+                                                                $_GET['language_code']));
+    }
+    $vDescription = NULL;
+    if (isset($_GET['description'])) {
+        $stripper->offsetSet('description', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description']));
+    }
+    $vDescriptionEng = NULL;
+    if (isset($_GET['description_eng'])) {
+        $stripper->offsetSet('description_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description_eng']));
+    }
     $vProfilePublic = 0;
     if (isset($_GET['profile_public'])) {
-        $stripper->offsetSet('profile_public', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['profile_public']));
-    } 
-    $vCountryId = 0;
+        $stripper->offsetSet('profile_public', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['profile_public']));
+    }
+    $vCountryId = 91;
     if (isset($_GET['country_id'])) {
-        $stripper->offsetSet('country_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['country_id']));
-    } 
+        $stripper->offsetSet('country_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['country_id']));
+    }
+    $vOwnershipStatusId = 0;
+    if (isset($_GET['ownership_status_id'])) {
+        $stripper->offsetSet('ownership_status_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['ownership_status_id']));
+    }
+    $vFirmNameShort = NULL;
+    if (isset($_GET['firm_name_short'])) {
+        $stripper->offsetSet('firm_name_short', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short']));
+    }
+    $vFoundationYear = NULL;
+    if (isset($_GET['foundation_year'])) {
+        $stripper->offsetSet('foundation_year', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_year']));
+    }
+    $vFoundationYearx = NULL;
+    if (isset($_GET['foundation_yearx'])) {
+        $stripper->offsetSet('foundation_yearx', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_yearx']));
+    }
+    $vDunsNumber = NULL;
+    if (isset($_GET['duns_number'])) {
+        $stripper->offsetSet('duns_number', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['duns_number']));
+    }
     $vLogo = NULL;
     if (isset($_GET['logo'])) {
-        $stripper->offsetSet('logo', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['logo']));
+        $stripper->offsetSet('logo', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['logo']));
     }
     $vFirmName = NULL;
     if (isset($_GET['firm_name'])) {
-        $stripper->offsetSet('firm_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['firm_name']));
+        $stripper->offsetSet('firm_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name']));
     }
-    $vWebAddress = NULL;
-    if (isset($_GET['web_address'])) {
-        $stripper->offsetSet('web_address', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['web_address']));
+    $vFirmNameEng = NULL;
+    if (isset($_GET['firm_name_eng'])) {
+        $stripper->offsetSet('firm_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_eng']));
+    }
+    $vFirmNameShortEng = NULL;
+    if (isset($_GET['firm_name_short_eng'])) {
+        $stripper->offsetSet('firm_name_short_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short_eng']));
     }
     $vTaxOffice = NULL;
     if (isset($_GET['tax_office'])) {
-        $stripper->offsetSet('tax_office', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['tax_office']));
-    } 
-    $vTaxNo = 0;
+        $stripper->offsetSet('tax_office', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_office']));
+    }
+    $vTaxNo = NULL;
     if (isset($_GET['tax_no'])) {
-        $stripper->offsetSet('tax_no', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['tax_no']));
-    } 
+        $stripper->offsetSet('tax_no', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_no']));
+    }
     $vSgkSicilNo = NULL;
     if (isset($_GET['sgk_sicil_no'])) {
-        $stripper->offsetSet('sgk_sicil_no', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['sgk_sicil_no']));
+        $stripper->offsetSet('sgk_sicil_no', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['sgk_sicil_no']));
+    }
+    $vWebAddress = NULL;
+    if (isset($_GET['web_address'])) {
+        $stripper->offsetSet('web_address', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['web_address']));
+    }
+    $stripper->strip(); 
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     } 
-    $vOwnershipStatusId = NULL;
-    if (isset($_GET['ownership_status_id'])) {
-        $stripper->offsetSet('ownership_status_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['ownership_status_id']));
+    if ($stripper->offsetExists('web_address')) {
+        $vWebAddress = $stripper->offsetGet('web_address')->getFilterValue();
     } 
- 
-    
- 
-    
-     
-    $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     
-    
+    if ($stripper->offsetExists('sgk_sicil_no')) {
+        $vSgkSicilNo = $stripper->offsetGet('sgk_sicil_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_no')) {
+        $vTaxNo = $stripper->offsetGet('tax_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_office')) {
+        $vTaxOffice = $stripper->offsetGet('tax_office')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short_eng')) {
+        $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_eng')) {
+        $vFirmNameEng = $stripper->offsetGet('firm_name_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name')) {
+        $vFirmName = $stripper->offsetGet('firm_name')->getFilterValue();
+    }
+    if ($stripper->offsetExists('logo')) {
+        $vLogo = $stripper->offsetGet('logo')->getFilterValue();
+    }
+    if ($stripper->offsetExists('duns_number')) {
+        $vDunsNumber = $stripper->offsetGet('duns_number')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_yearx')) {
+        $vFoundationYearx = $stripper->offsetGet('foundation_yearx')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_year')) {
+        $vFoundationYear = $stripper->offsetGet('foundation_year')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short')) {
+        $vFirmNameShort = $stripper->offsetGet('firm_name_short')->getFilterValue();
+    }
+    if ($stripper->offsetExists('ownership_status_id')) {
+        $vOwnershipStatusId = $stripper->offsetGet('ownership_status_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('country_id')) {
+        $vCountryId = $stripper->offsetGet('country_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('profile_public')) {
+        $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description_eng')) {
+        $vDescriptionEng = $stripper->offsetGet('description_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description')) {
+        $vDescription = $stripper->offsetGet('description')->getFilterValue();
+    }     
     $resDataInsert = $BLL->insert(array(  
-            
-        //    'operation_type_id' => $fOperationTypeId,
-        //    'active' => $fActive,        
-        //    'act_parent_id' => $fActParentId,           
-        //    'cons_allow_id' => $fConsAllowId, 
-        //     'consultant_id'  => $fConsultantId,
-        //    'consultant_confirm_type_id' => $fConsultantConfirmTypeId,
-        //    'confirm_id' =>  $fConfirmId,
-            'language_code' => $fLanguageCode,
-            'firm_name' => $vFirmName ,             
-            'profile_public' => $fProfilePublic,   
-            'address_type_id' => $fAddressTypeId , 
-            'address1' => $fAddress1 , 
-            'address2' => $fAddress2 ,
-            'postal_code' => $fPostalCode , 
-            'country_id' => $fCountryId, 
-            'city_id' => $fCityId ,
-            'borough_id' => $fBoroughId ,
-            'city_name' => $fCityName ,        
-            'description' => $fDescription ,
-            'description_eng' => $fDescriptionEng,  
-            'logo' => $vLogo,
+            'url' => $_GET['url'],
+            'language_code' => $vLanguageCode,
+            'profile_public' => $vProfilePublic,        
+            'firm_name' => $vFirmName , 
+            'firm_name_short'=> $vFirmNameShort,
+            'firm_name_eng' => $vFirmNameEng , 
+            'firm_name_short_eng'=> $vFirmNameShortEng,
+        
+            'tax_office' => $vTaxOffice , 
+            'tax_no' => $vTaxNo ,
+            'sgk_sicil_no' => $vSgkSicilNo , 
+            'ownership_status_id' => $vOwnershipStatusId,
+            'country_id' => $vCountryId, 
+            'foundation_year' => $vFoundationYear ,      
+            'foundation_yearx' => $vFoundationYearx,   
+            'description' => $vDescription ,
+            'description_eng' => $vDescriptionEng , 
+            'web_address'=> $vWebAddress,            
+            'duns_number'=>$vDunsNumber,
+            'logo'=>$vLogo,
             'pk' => $pk,        
             ));
-
-    $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resDataInsert));
 }
 ); 
@@ -219,8 +296,7 @@ $app->get("/pkInsertConsAct_infoFirmProfile/", function () use ($app ) {
     if (isset($_GET['firm_name_short_eng'])) {
         $stripper->offsetSet('firm_name_short_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['firm_name_short_eng']));
-    }
-    
+    }    
 
     $stripper->strip();
     if ($stripper->offsetExists('language_code')) {
@@ -245,6 +321,7 @@ $app->get("/pkInsertConsAct_infoFirmProfile/", function () use ($app ) {
         $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
     } 
     $resData = $BLL->insertConsAct(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'firm_name' => $vFirmName,
         'firm_name_eng' => $vFirmNameEng,
@@ -263,137 +340,215 @@ $app->get("/pkInsertConsAct_infoFirmProfile/", function () use ($app ) {
 /**
  *  * Okan CIRAN
  * @since 09.02.2016
- */
+ */ 
 $app->get("/pkUpdate_infoFirmProfile/", function () use ($app ) {
-
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
-    $vpk = $headerParams['X-Public'];    
-    $vID =$_GET['id'];    
-    $vProfilePublic = $_GET['profile_public'];    
-    $vLanguageCode = $_GET['language_code'];   
-    
-    $vAddressTypeId = $_GET['address_type_id'];
-    $vAddress1 = $_GET['address1'];
-    $vAddress2 = $_GET['address2'];
-    $vPostalCode = $_GET['postal_code'];    
-    $vCountryId = $_GET['country_id'];
-    $vCityId = $_GET['city_id'];
-    $vBoroughId = $_GET['borough_id'];
-    $vCityName = $_GET['city_name'];  
-    $vDescription = $_GET['description'];   
-    $vDescriptionEng = $_GET['description_eng'];    
-    
-    
-    $vActive =0; 
-    if (isset($_GET['active'])) {
-        $vActive = $_GET['active'];
+    if (!isset($headerParams['X-Public']))
+        throw new Exception('rest api "pkUpdate_infoFirmProfile" end point, X-Public variable not found');
+    $pk = $headerParams['X-Public'];
+    $vId = 0;
+    if (isset($_GET['id'])) {
+        $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['id']));
     }
-    $vOperationTypeId = 1;
-    if (isset($_GET['operation_type_id'])) {
-        $vOperationTypeId = $_GET['operation_type_id'];
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                                                                $app, 
+                                                                $_GET['language_code']));
     }
-    $vUserId = NULL;
-    if (isset($_GET['user_id'])) {
-        $vUserId = $_GET['user_id'];
-    } 
-    
-    $vConsAllowId = 0;
-    if (isset($_GET['cons_allow_id'])) {
-        $vConsAllowId = $_GET['cons_allow_id'];
-    } 
-    $vActParentId = 0;
-    if (isset($_GET['act_parent_id'])) {
-        $vActParentId = $_GET['act_parent_id'];
-    }  
-    $vConsultantId = 0;
-    if (isset($_GET['consultant_id'])) {
-        $vConsultantId = $_GET['consultant_id'];
-    } 
-    
-    $vConsultantConfirmTypeId = 0;
-    if (isset($_GET['consultant_confirm_type_id'])) {
-        $vConsultantConfirmTypeId = $_GET['consultant_confirm_type_id'];
-    } 
-    
-    $vConfirmId = 0;
-    if (isset($_GET['confirm_id'])) {
-        $vConsultantConfirmTypeId = $_GET['confirm_id'];
-    } 
-    $vLogo = 'logo';
+    $vDescription = NULL;
+    if (isset($_GET['description'])) {
+        $stripper->offsetSet('description', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description']));
+    }
+    $vDescriptionEng = NULL;
+    if (isset($_GET['description_eng'])) {
+        $stripper->offsetSet('description_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description_eng']));
+    }
+    $vProfilePublic = 0;
+    if (isset($_GET['profile_public'])) {
+        $stripper->offsetSet('profile_public', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['profile_public']));
+    }
+    $vCountryId = 91;
+    if (isset($_GET['country_id'])) {
+        $stripper->offsetSet('country_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['country_id']));
+    }
+    $vOwnershipStatusId = 0;
+    if (isset($_GET['ownership_status_id'])) {
+        $stripper->offsetSet('ownership_status_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['ownership_status_id']));
+    }
+    $vFirmNameShort = NULL;
+    if (isset($_GET['firm_name_short'])) {
+        $stripper->offsetSet('firm_name_short', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short']));
+    }
+    $vFoundationYear = NULL;
+    if (isset($_GET['foundation_year'])) {
+        $stripper->offsetSet('foundation_year', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_year']));
+    }
+    $vFoundationYearx = NULL;
+    if (isset($_GET['foundation_yearx'])) {
+        $stripper->offsetSet('foundation_yearx', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_yearx']));
+    }
+    $vDunsNumber = NULL;
+    if (isset($_GET['duns_number'])) {
+        $stripper->offsetSet('duns_number', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['duns_number']));
+    }
+    $vLogo = NULL;
     if (isset($_GET['logo'])) {
-        $vLogo = strtolower(trim($_GET['logo']));
+        $stripper->offsetSet('logo', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['logo']));
     }
-
-     
-    
-      
-    $fID = $vID;   
-    $fUserId = $vUserId ; 
-    $fOperationTypeId = $vOperationTypeId;    
-    $fActive =$vActive;
-    $fActParentId =$vActParentId;
-    $fLanguageCode = $vLanguageCode;
-    $fProfilePublic = $vProfilePublic;
- 
-    $fConsAllowId = $vConsAllowId ; 
-    $fConsultantId = $vConsultantId;
-    $fConsultantConfirmTypeId = $vConsultantConfirmTypeId;
-    $fConfirmId = $vConfirmId ; 
-    $fAddressTypeId = $vAddressTypeId;
-    $fAddress1 =$vAddress1;
-    $fAddress2 = $vAddress2;
-    $fPostalCode = $vPostalCode;    
-    $fCountryId = $vCountryId;
-    $fCityId = $vCityId;
-    $fBoroughId = $vBoroughId;
-    $fCityName = $vCityName;  
-    $fDescription = $vDescription;   
-    $fDescriptionEng = $vDescriptionEng;    
-    $fpk = $vpk ; 
-     
-    /*
-     * filtre işlemleri
-     */
-    
-    $resDataUpdate = $BLL->update(array(
-        'id' =>$fID,  
-        'user_id' =>  $fUserId , 
-        'operation_type_id' => $fOperationTypeId,
-        'active' => $fActive,        
-        'act_parent_id' => $fActParentId,
-        'language_code' => $fLanguageCode,
-        'profile_public' => $fProfilePublic,              
-        'cons_allow_id' => $fConsAllowId,  
-        'consultant_id'  => $fConsultantId,
-        'consultant_confirm_type_id' => $fConsultantConfirmTypeId,
-        'confirm_id' =>  $fConfirmId,
+    $vFirmName = NULL;
+    if (isset($_GET['firm_name'])) {
+        $stripper->offsetSet('firm_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name']));
+    }
+    $vFirmNameEng = NULL;
+    if (isset($_GET['firm_name_eng'])) {
+        $stripper->offsetSet('firm_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_eng']));
+    }
+    $vFirmNameShortEng = NULL;
+    if (isset($_GET['firm_name_short_eng'])) {
+        $stripper->offsetSet('firm_name_short_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short_eng']));
+    }
+    $vTaxOffice = NULL;
+    if (isset($_GET['tax_office'])) {
+        $stripper->offsetSet('tax_office', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_office']));
+    }
+    $vTaxNo = NULL;
+    if (isset($_GET['tax_no'])) {
+        $stripper->offsetSet('tax_no', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_no']));
+    }
+    $vSgkSicilNo = NULL;
+    if (isset($_GET['sgk_sicil_no'])) {
+        $stripper->offsetSet('sgk_sicil_no', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['sgk_sicil_no']));
+    }
+    $vWebAddress = NULL;
+    if (isset($_GET['web_address'])) {
+        $stripper->offsetSet('web_address', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['web_address']));
+    }
+    $stripper->strip(); 
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('web_address')) {
+        $vWebAddress = $stripper->offsetGet('web_address')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('sgk_sicil_no')) {
+        $vSgkSicilNo = $stripper->offsetGet('sgk_sicil_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_no')) {
+        $vTaxNo = $stripper->offsetGet('tax_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_office')) {
+        $vTaxOffice = $stripper->offsetGet('tax_office')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short_eng')) {
+        $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_eng')) {
+        $vFirmNameEng = $stripper->offsetGet('firm_name_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name')) {
+        $vFirmName = $stripper->offsetGet('firm_name')->getFilterValue();
+    }
+    if ($stripper->offsetExists('logo')) {
+        $vLogo = $stripper->offsetGet('logo')->getFilterValue();
+    }
+    if ($stripper->offsetExists('duns_number')) {
+        $vDunsNumber = $stripper->offsetGet('duns_number')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_yearx')) {
+        $vFoundationYearx = $stripper->offsetGet('foundation_yearx')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_year')) {
+        $vFoundationYear = $stripper->offsetGet('foundation_year')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short')) {
+        $vFirmNameShort = $stripper->offsetGet('firm_name_short')->getFilterValue();
+    }
+    if ($stripper->offsetExists('ownership_status_id')) {
+        $vOwnershipStatusId = $stripper->offsetGet('ownership_status_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('country_id')) {
+        $vCountryId = $stripper->offsetGet('country_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('profile_public')) {
+        $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description_eng')) {
+        $vDescriptionEng = $stripper->offsetGet('description_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description')) {
+        $vDescription = $stripper->offsetGet('description')->getFilterValue();
+    }     
+    $resDataInsert = $BLL->update(array(  
+            'url' => $_GET['url'],
+            'id' => $vId,
+            'language_code' => $vLanguageCode,
+            'profile_public' => $vProfilePublic,        
+            'firm_name' => $vFirmName , 
+            'firm_name_short'=> $vFirmNameShort,
+            'firm_name_eng' => $vFirmNameEng , 
+            'firm_name_short_eng'=> $vFirmNameShortEng,
         
-        'address_type_id' => $fAddressTypeId , 
-        'address1' => $fAddress1 , 
-        'address2' => $fAddress2 ,
-        'postal_code' => $fPostalCode , 
-        'country_id' => $fCountryId, 
-        'city_id' => $fCityId ,
-        'borough_id' => $fBoroughId ,
-        'city_name' => $fCityName ,        
-        'description' => $fDescription ,
-        'description_eng' => $fDescriptionEng ,  
-        'logo' => $vLogo , 
-        'pk' => $fpk,
-         ));
-
-    $app->response()->header("Content-Type", "application/json");
-
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
-    $app->response()->body(json_encode($resDataUpdate));
-});
-
+            'tax_office' => $vTaxOffice , 
+            'tax_no' => $vTaxNo ,
+            'sgk_sicil_no' => $vSgkSicilNo , 
+            'ownership_status_id' => $vOwnershipStatusId,
+            'country_id' => $vCountryId, 
+            'foundation_year' => $vFoundationYear ,      
+            'foundation_yearx' => $vFoundationYearx,   
+            'description' => $vDescription ,
+            'description_eng' => $vDescriptionEng , 
+            'web_address'=> $vWebAddress,            
+            'duns_number'=>$vDunsNumber,
+            'logo'=>$vLogo,
+            'pk' => $pk,        
+            ));
+    $app->response()->header("Content-Type", "application/json"); 
+    $app->response()->body(json_encode($resDataInsert));
+}
+);
 /* * x
  *  * Okan CIRAN
  * @since 18-05-2016
@@ -478,6 +633,7 @@ $app->get("/pkUpdateConsAct_infoFirmProfile/", function () use ($app ) {
         $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
     } 
     $resData = $BLL->updateConsAct(array(
+        'url' => $_GET['url'],
         'id' => $vId,
         'language_code' => $vLanguageCode,
         'firm_name' => $vFirmName,
@@ -492,8 +648,7 @@ $app->get("/pkUpdateConsAct_infoFirmProfile/", function () use ($app ) {
     $app->response()->body(json_encode($resData));
 }
 );
-
-
+ 
 
 /**
  *  * Okan CIRAN
@@ -529,10 +684,6 @@ $app->get("/pkDeletedAct_infoFirmProfile/", function () use ($app ) {
  
     $app->response()->header("Content-Type", "application/json");
 
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
     $app->response()->body(json_encode($resDataUpdate));
 });
  
@@ -541,75 +692,7 @@ $app->get("/pkDeletedAct_infoFirmProfile/", function () use ($app ) {
  *  * Okan CIRAN
  * @since 25-01-2016
  */
-$app->get("/pkGetAll_infoFirmProfile/", function () use ($app ) {
-
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-    $headerParams = $app->request()->headers();
-    $vPk = $headerParams['X-Public'];
-    
-    $fPk = $vPk ; 
-    
-    $resDataGrid = $BLL->getAll(array('pk' => $fPk));
-
-    $resTotalRowCount = $BLL->fillGridRowTotalCount();
-
-    $flows = array();
-    foreach ($resDataGrid as $flow) {
-        $flows[] = array(
-            "id" => $flow["id"],
-            "profile_public" => $flow["profile_public"],
-            "s_date" => $flow["s_date"],
-            "c_date" => $flow["c_date"],
-            "operation_type_id" => $flow["operation_type_id"],
-            "operation_names" => $flow["operation_names"],
-            "firm_names" => $flow["firm_names"],
-            "web_address" => $flow["web_address"],
-            "tax_office" => $flow["tax_office"],
-            "tax_no" => $flow["tax_no"],
-            "sgk_sicil_no" => $flow["sgk_sicil_no"],
-            "ownership_status_id" => $flow["ownership_status_id"],
-            "owner_ships" => $flow["owner_ships"],
-            "foundation_year" => $flow["foundation_year"],
-            "act_parent_id" => $flow["act_parent_id"],
-            "language_code" => $flow["language_code"],
-            "language_id" => $flow["language_id"],
-            "language_names" => $flow["language_names"],
-            "active" => $flow["active"],
-            "state_actives" => $flow["state_actives"],
-            "deleted" => $flow["deleted"],
-            "state_deleteds" => $flow["state_deleteds"],
-            "op_user_id" => $flow["op_user_id"],
-            "username" => $flow["username"],
-            "auth_allow_id" => $flow["auth_allow_id"],
-            "auth_alows" => $flow["auth_alows"],
-            "cons_allow_id" => $flow["cons_allow_id"],
-            "cons_allows" => $flow["cons_allows"],
-            "language_parent_id" => $flow["language_parent_id"],
-            "firm_name_short" => $flow["firm_name_short"],
-            "country_id" => $flow["country_id"],
-            "country_names" => $flow["country_names"],
-            "descriptions" => $flow["descriptions"],
-            "duns_number" => $flow["duns_number"],
-            "owner_user_id" => $flow["owner_user_id"],
-            "owner_username" => $flow["owner_username"],
-            "network_key" => $flow["network_key"],   
-            "logo" => $flow["logo"],
-            
-            "attributes" => array("notroot" => true, "active" => $flow["active"]),
-        );
-    }
-
-    $app->response()->header("Content-Type", "application/json");
-
-    $resultArray = array();
-    $resultArray['total'] = $resTotalRowCount[0]['count'];
-    $resultArray['rows'] = $flows;
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
-    $app->response()->body(json_encode($resultArray));
+$app->get("/pkGetAll_infoFirmProfile/", function () use ($app ) {   
 });
 
 /**
@@ -617,36 +700,39 @@ $app->get("/pkGetAll_infoFirmProfile/", function () use ($app ) {
  * @since 09.02.2016
  */
 $app->get("/pkFillUserAddressesTypes_infoFirmProfile/", function () use ($app ) {
-
-
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
     $headerParams = $app->request()->headers();
-    $vPk = $headerParams['X-Public'];
-    $fPk =$vPk ; 
+    if (!isset($headerParams['X-Public']))
+        throw new Exception('rest api "pkFillUserAddressesTypes_infoFirmProfile" end point, X-Public variable not found');
+    $pk = $headerParams['X-Public'];
     
-    $vLanguageCode =$_GET['language_code'] ; 
-    
-    $resCombobox = $BLL->fillUserAddressesTypes(array('pk' => $fPk , 
-                                                        'language_code' => $vLanguageCode ));
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                    $app, $_GET['language_code']));
+    }
+    $stripper->strip();
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }    
+    $resCombobox = $BLL->fillUserAddressesTypes(array(
+        'url' => $_GET['url'],
+        'pk' => $pk , 
+        'language_code' => $vLanguageCode ));
 
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
-            "id" => $flow["id"],
-            //"text" => strtolower($flow["name"]),
-            "text" => $flow["name"],
+            "id" => $flow["id"],            
+            "text" => html_entity_decode($flow["name"]),
             "state" => 'open',
             "checked" => false,
             "attributes" => array("notroot" => true,   ),
         );
     }
-
-    $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($flows));
 });
  
@@ -666,12 +752,14 @@ $app->get("/pktempFillGridSingular_infoFirmProfile/", function () use ($app ) {
     
     $fPkTemp = $vPkTemp ; 
     
-    $resDataGrid = $BLL->fillGridSingularTemp(array('pktemp' => $fPkTemp,
-                                                    'language_code' => $vLanguageCode ));
-
-    $resTotalRowCount = $BLL->fillGridSingularRowTotalCountTemp(array('pktemp' => $fPkTemp,
-                                                                    'language_code' => $vLanguageCode ));
-
+    $resDataGrid = $BLL->fillGridSingularTemp(array(
+        'url' => $_GET['url'],
+        'pktemp' => $fPkTemp,
+        'language_code' => $vLanguageCode ));
+    $resTotalRowCount = $BLL->fillGridSingularRowTotalCountTemp(array(
+        'url' => $_GET['url'],
+        'pktemp' => $fPkTemp,
+        'language_code' => $vLanguageCode ));
     $flows = array();
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
@@ -736,104 +824,197 @@ $app->get("/pktempFillGridSingular_infoFirmProfile/", function () use ($app ) {
  * @since 02-02-2016
  */
 $app->get("/pktempInsert_infoFirmProfile/", function () use ($app ) {
-
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-   
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
-    $vPkTemp = $headerParams['X-Public-Temp'];
-   // print_r($vPkTemp);
-    
-    
-   
+    $vPkTemp = $headerParams['X-Public-Temp']; 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-        $vLanguageCode = strtolower(trim($_GET['language_code']));
-    }     
-    $vDescriptionEng = '';
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                                                                $app, 
+                                                                $_GET['language_code']));
+    }
+    $vDescription = NULL;
+    if (isset($_GET['description'])) {
+        $stripper->offsetSet('description', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description']));
+    }
+    $vDescriptionEng = NULL;
     if (isset($_GET['description_eng'])) {
-        $vDescriptionEng = strtolower(trim($_GET['description_eng']));
+        $stripper->offsetSet('description_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description_eng']));
     }
     $vProfilePublic = 0;
     if (isset($_GET['profile_public'])) {
-        $vProfilePublic = strtolower(trim($_GET['profile_public']));
-    }  
+        $stripper->offsetSet('profile_public', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['profile_public']));
+    }
     $vCountryId = 91;
     if (isset($_GET['country_id'])) {
-        $vCountryId = $_GET['country_id'];
-    }   
+        $stripper->offsetSet('country_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['country_id']));
+    }
     $vOwnershipStatusId = 0;
     if (isset($_GET['ownership_status_id'])) {
-        $vOwnershipStatusId = $_GET['ownership_status_id'];
-    } 
-    $vFirmNameShort = "";
-    if (isset($_GET['firm_name_short'])) {
-        $vFirmNameShort = $_GET['firm_name_short'];
-    } 
-    $vFoundationYear= "";
-    if (isset($_GET['foundation_year'])) {
-        $vFoundationYear = $_GET['foundation_year'];
-    } 
-    $vFoundationYearx= "";
-    if (isset($_GET['foundation_yearx'])) {
-        $vFoundationYearx = $_GET['foundation_yearx'];
-    } 
-    $vDunsNumber= "";
-    if (isset($_GET['duns_number'])) {
-        $vDunsNumber = $_GET['duns_number'];
-    } 
-    $vLogo  = 'logo';
-    if (isset($_GET['logo'])) {
-        $vLogo = strtolower(trim($_GET['logo']));
+        $stripper->offsetSet('ownership_status_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['ownership_status_id']));
     }
-    
-    
-    $vFirmName = $_GET['firm_name'];
-    $vTaxOffice = $_GET['tax_office'];
-    $vTaxNo = $_GET['tax_no'];
-    $vSgkSicilNo = $_GET['sgk_sicil_no'];   
-    $vDescription = $_GET['description'];   
-    $vWebAddress = $_GET['web_address']; 
-    
-    
-    $fLanguageCode = $vLanguageCode;
-    $fProfilePublic = $vProfilePublic;   
-    $fFirmName = $vFirmName;
-    $fTaxOffice =$vTaxOffice;
-    $fTaxNo = $vTaxNo;
-    $fSgkSicilNo = $vSgkSicilNo;    
-    $fCountryId = $vCountryId;
-    $fOwnershipStatusId = $vOwnershipStatusId; 
-    $fFoundationYear = $vFoundationYear;  
-    $fDescription = $vDescription;   
-    $fDescriptionEng = $vDescriptionEng;
-    $fWebAddress = $vWebAddress ;    
-    $fFirmNameShort=$vFirmNameShort;
-    $fDunsNumber=$vDunsNumber;
-   
-  //  print_r($vFoundationYearx);
+    $vFirmNameShort = NULL;
+    if (isset($_GET['firm_name_short'])) {
+        $stripper->offsetSet('firm_name_short', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short']));
+    }
+    $vFoundationYear = NULL;
+    if (isset($_GET['foundation_year'])) {
+        $stripper->offsetSet('foundation_year', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_year']));
+    }
+    $vFoundationYearx = NULL;
+    if (isset($_GET['foundation_yearx'])) {
+        $stripper->offsetSet('foundation_yearx', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_yearx']));
+    }
+    $vDunsNumber = NULL;
+    if (isset($_GET['duns_number'])) {
+        $stripper->offsetSet('duns_number', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['duns_number']));
+    }
+    $vLogo = NULL;
+    if (isset($_GET['logo'])) {
+        $stripper->offsetSet('logo', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['logo']));
+    }
+    $vFirmName = NULL;
+    if (isset($_GET['firm_name'])) {
+        $stripper->offsetSet('firm_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name']));
+    }
+    $vFirmNameEng = NULL;
+    if (isset($_GET['firm_name_eng'])) {
+        $stripper->offsetSet('firm_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_eng']));
+    }
+    $vFirmNameShortEng = NULL;
+    if (isset($_GET['firm_name_short_eng'])) {
+        $stripper->offsetSet('firm_name_short_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short_eng']));
+    }
+    $vTaxOffice = NULL;
+    if (isset($_GET['tax_office'])) {
+        $stripper->offsetSet('tax_office', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_office']));
+    }
+    $vTaxNo = NULL;
+    if (isset($_GET['tax_no'])) {
+        $stripper->offsetSet('tax_no', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_no']));
+    }
+    $vSgkSicilNo = NULL;
+    if (isset($_GET['sgk_sicil_no'])) {
+        $stripper->offsetSet('sgk_sicil_no', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['sgk_sicil_no']));
+    }
+    $vWebAddress = NULL;
+    if (isset($_GET['web_address'])) {
+        $stripper->offsetSet('web_address', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['web_address']));
+    }
+    $stripper->strip(); 
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('web_address')) {
+        $vWebAddress = $stripper->offsetGet('web_address')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('sgk_sicil_no')) {
+        $vSgkSicilNo = $stripper->offsetGet('sgk_sicil_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_no')) {
+        $vTaxNo = $stripper->offsetGet('tax_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_office')) {
+        $vTaxOffice = $stripper->offsetGet('tax_office')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short_eng')) {
+        $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_eng')) {
+        $vFirmNameEng = $stripper->offsetGet('firm_name_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name')) {
+        $vFirmName = $stripper->offsetGet('firm_name')->getFilterValue();
+    }
+    if ($stripper->offsetExists('logo')) {
+        $vLogo = $stripper->offsetGet('logo')->getFilterValue();
+    }
+    if ($stripper->offsetExists('duns_number')) {
+        $vDunsNumber = $stripper->offsetGet('duns_number')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_yearx')) {
+        $vFoundationYearx = $stripper->offsetGet('foundation_yearx')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_year')) {
+        $vFoundationYear = $stripper->offsetGet('foundation_year')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short')) {
+        $vFirmNameShort = $stripper->offsetGet('firm_name_short')->getFilterValue();
+    }
+    if ($stripper->offsetExists('ownership_status_id')) {
+        $vOwnershipStatusId = $stripper->offsetGet('ownership_status_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('country_id')) {
+        $vCountryId = $stripper->offsetGet('country_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('profile_public')) {
+        $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description_eng')) {
+        $vDescriptionEng = $stripper->offsetGet('description_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description')) {
+        $vDescription = $stripper->offsetGet('description')->getFilterValue();
+    }     
     $resDataInsert = $BLL->insertTemp(array(  
-            'language_code' => $fLanguageCode,
-            'profile_public' => $fProfilePublic,        
-            'firm_name' => $fFirmName , 
-            'tax_office' => $fTaxOffice , 
-            'tax_no' => $fTaxNo ,
-            'sgk_sicil_no' => $fSgkSicilNo , 
-            'ownership_status_id' => $fOwnershipStatusId,
-            'country_id' => $fCountryId, 
-            'foundation_year' => $fFoundationYear ,      
+            'url' => $_GET['url'],
+            'language_code' => $vLanguageCode,
+            'profile_public' => $vProfilePublic,        
+            'firm_name' => $vFirmName , 
+            'firm_name_short'=> $vFirmNameShort,
+            'firm_name_eng' => $vFirmNameEng , 
+            'firm_name_short_eng'=> $vFirmNameShortEng,        
+            'tax_office' => $vTaxOffice , 
+            'tax_no' => $vTaxNo ,
+            'sgk_sicil_no' => $vSgkSicilNo , 
+            'ownership_status_id' => $vOwnershipStatusId,
+            'country_id' => $vCountryId, 
+            'foundation_year' => $vFoundationYear ,      
             'foundation_yearx' => $vFoundationYearx,   
-            'description' => $fDescription ,
-            'description_eng' => $fDescriptionEng , 
-            'web_address'=> $fWebAddress,
-            'firm_name_short'=> $fFirmNameShort,
-            'duns_number'=>$fDunsNumber,
+            'description' => $vDescription ,
+            'description_eng' => $vDescriptionEng , 
+            'web_address'=> $vWebAddress,            
+            'duns_number'=>$vDunsNumber,
             'logo'=>$vLogo,
             'pktemp' => $vPkTemp,        
             ));
-
-
-    $app->response()->header("Content-Type", "application/json");
- 
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resDataInsert));
 }
 ); 
@@ -841,98 +1022,236 @@ $app->get("/pktempInsert_infoFirmProfile/", function () use ($app ) {
 /**x
  *  * Okan CIRAN
  * @since 02-02-2016
- */
+ */ 
 $app->get("/pktempUpdate_infoFirmProfile/", function () use ($app ) {
-
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
-    $vPkTemp = $headerParams['X-Public-Temp'];  
-    
-    $vID =$_GET['id'];    
-    $vProfilePublic = $_GET['profile_public'];    
-    $vLanguageCode = $_GET['language_code'];
- 
-    $vAddressTypeId = $_GET['address_type_id'];
-    $vAddress1 = $_GET['address1'];
-    $vAddress2 = $_GET['address2'];
-    $vPostalCode = $_GET['postal_code'];    
-    $vCountryId = $_GET['country_id'];
-    $vCityId = $_GET['city_id'];
-    $vBoroughId = $_GET['borough_id'];
-    $vCityName = $_GET['city_name'];  
-    $vDescription = $_GET['description'];   
-    $vDescriptionEng = $_GET['description_eng'];       
-  
-      
-    $fID = $vID;       
-    $fLanguageCode = $vLanguageCode;
-    $fProfilePublic = $vProfilePublic;
-   
-    $fAddressTypeId = $vAddressTypeId;
-    $fAddress1 =$vAddress1;
-    $fAddress2 = $vAddress2;
-    $fPostalCode = $vPostalCode;    
-    $fCountryId = $vCountryId;
-    $fCityId = $vCityId;
-    $fBoroughId = $vBoroughId;
-    $fCityName = $vCityName;  
-    $fDescription = $vDescription;   
-    $fDescriptionEng = $vDescriptionEng;
-    $fPkTemp = $vPkTemp ; 
-   
-    
-    $resDataUpdate = $BLL->updateTemp(array(
-        'id' =>$fID,         
-        'language_code' => $fLanguageCode,
-        'profile_public' => $fProfilePublic, 
-        'address_type_id' => $fAddressTypeId , 
-        'address1' => $fAddress1 , 
-        'address2' => $fAddress2 ,
-        'postal_code' => $fPostalCode , 
-        'country_id' => $fCountryId, 
-        'city_id' => $fCityId ,
-        'borough_id' => $fBoroughId ,
-        'city_name' => $fCityName ,        
-        'description' => $fDescription ,
-        'description_eng' => $fDescriptionEng , 
-        'logo' => $vLogo,
-        'pktemp' => $fPkTemp,
-         )); 
-  
-    $app->response()->header("Content-Type", "application/json");
-    $app->response()->body(json_encode($resDataUpdate));
-});
-
+    $vPkTemp = $headerParams['X-Public-Temp']; 
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                                                                $app, 
+                                                                $_GET['language_code']));
+    }
+    $vId = 0;
+    if (isset($_GET['id'])) {
+        $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['id']));
+    }    
+    $vDescription = NULL;
+    if (isset($_GET['description'])) {
+        $stripper->offsetSet('description', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description']));
+    }
+    $vDescriptionEng = NULL;
+    if (isset($_GET['description_eng'])) {
+        $stripper->offsetSet('description_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['description_eng']));
+    }
+    $vProfilePublic = 0;
+    if (isset($_GET['profile_public'])) {
+        $stripper->offsetSet('profile_public', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['profile_public']));
+    }
+    $vCountryId = 91;
+    if (isset($_GET['country_id'])) {
+        $stripper->offsetSet('country_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['country_id']));
+    }
+    $vOwnershipStatusId = 0;
+    if (isset($_GET['ownership_status_id'])) {
+        $stripper->offsetSet('ownership_status_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['ownership_status_id']));
+    }
+    $vFirmNameShort = NULL;
+    if (isset($_GET['firm_name_short'])) {
+        $stripper->offsetSet('firm_name_short', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short']));
+    }
+    $vFoundationYear = NULL;
+    if (isset($_GET['foundation_year'])) {
+        $stripper->offsetSet('foundation_year', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_year']));
+    }
+    $vFoundationYearx = NULL;
+    if (isset($_GET['foundation_yearx'])) {
+        $stripper->offsetSet('foundation_yearx', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
+                                                                $app, 
+                                                                $_GET['foundation_yearx']));
+    }
+    $vDunsNumber = NULL;
+    if (isset($_GET['duns_number'])) {
+        $stripper->offsetSet('duns_number', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['duns_number']));
+    }
+    $vLogo = NULL;
+    if (isset($_GET['logo'])) {
+        $stripper->offsetSet('logo', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['logo']));
+    }
+    $vFirmName = NULL;
+    if (isset($_GET['firm_name'])) {
+        $stripper->offsetSet('firm_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name']));
+    }
+    $vFirmNameEng = NULL;
+    if (isset($_GET['firm_name_eng'])) {
+        $stripper->offsetSet('firm_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_eng']));
+    }
+    $vFirmNameShortEng = NULL;
+    if (isset($_GET['firm_name_short_eng'])) {
+        $stripper->offsetSet('firm_name_short_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+                                                                $app, 
+                                                                $_GET['firm_name_short_eng']));
+    }
+    $vTaxOffice = NULL;
+    if (isset($_GET['tax_office'])) {
+        $stripper->offsetSet('tax_office', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_office']));
+    }
+    $vTaxNo = NULL;
+    if (isset($_GET['tax_no'])) {
+        $stripper->offsetSet('tax_no', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['tax_no']));
+    }
+    $vSgkSicilNo = NULL;
+    if (isset($_GET['sgk_sicil_no'])) {
+        $stripper->offsetSet('sgk_sicil_no', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['sgk_sicil_no']));
+    }
+    $vWebAddress = NULL;
+    if (isset($_GET['web_address'])) {
+        $stripper->offsetSet('web_address', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                                                                $app, 
+                                                                $_GET['web_address']));
+    }
+    $stripper->strip(); 
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('web_address')) {
+        $vWebAddress = $stripper->offsetGet('web_address')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('sgk_sicil_no')) {
+        $vSgkSicilNo = $stripper->offsetGet('sgk_sicil_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_no')) {
+        $vTaxNo = $stripper->offsetGet('tax_no')->getFilterValue();
+    }
+    if ($stripper->offsetExists('tax_office')) {
+        $vTaxOffice = $stripper->offsetGet('tax_office')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short_eng')) {
+        $vFirmNameShortEng = $stripper->offsetGet('firm_name_short_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_eng')) {
+        $vFirmNameEng = $stripper->offsetGet('firm_name_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name')) {
+        $vFirmName = $stripper->offsetGet('firm_name')->getFilterValue();
+    }
+    if ($stripper->offsetExists('logo')) {
+        $vLogo = $stripper->offsetGet('logo')->getFilterValue();
+    }
+    if ($stripper->offsetExists('duns_number')) {
+        $vDunsNumber = $stripper->offsetGet('duns_number')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_yearx')) {
+        $vFoundationYearx = $stripper->offsetGet('foundation_yearx')->getFilterValue();
+    }
+    if ($stripper->offsetExists('foundation_year')) {
+        $vFoundationYear = $stripper->offsetGet('foundation_year')->getFilterValue();
+    }
+    if ($stripper->offsetExists('firm_name_short')) {
+        $vFirmNameShort = $stripper->offsetGet('firm_name_short')->getFilterValue();
+    }
+    if ($stripper->offsetExists('ownership_status_id')) {
+        $vOwnershipStatusId = $stripper->offsetGet('ownership_status_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('country_id')) {
+        $vCountryId = $stripper->offsetGet('country_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('profile_public')) {
+        $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description_eng')) {
+        $vDescriptionEng = $stripper->offsetGet('description_eng')->getFilterValue();
+    }
+    if ($stripper->offsetExists('description')) {
+        $vDescription = $stripper->offsetGet('description')->getFilterValue();
+    }     
+    $resDataInsert = $BLL->insertTemp(array(  
+            'url' => $_GET['url'],
+            'id' => $vId,
+            'language_code' => $vLanguageCode,
+            'profile_public' => $vProfilePublic,        
+            'firm_name' => $vFirmName , 
+            'firm_name_short'=> $vFirmNameShort,
+            'firm_name_eng' => $vFirmNameEng , 
+            'firm_name_short_eng'=> $vFirmNameShortEng,        
+            'tax_office' => $vTaxOffice , 
+            'tax_no' => $vTaxNo ,
+            'sgk_sicil_no' => $vSgkSicilNo , 
+            'ownership_status_id' => $vOwnershipStatusId,
+            'country_id' => $vCountryId, 
+            'foundation_year' => $vFoundationYear ,      
+            'foundation_yearx' => $vFoundationYearx,   
+            'description' => $vDescription ,
+            'description_eng' => $vDescriptionEng , 
+            'web_address'=> $vWebAddress,            
+            'duns_number'=>$vDunsNumber,
+            'logo'=>$vLogo,
+            'pktemp' => $vPkTemp,        
+            ));
+    $app->response()->header("Content-Type", "application/json"); 
+    $app->response()->body(json_encode($resDataInsert));
+}
+); 
 /**x
  *  * Okan CIRAN
  * @since 02-02-2016
  */
 $app->get("/pktempDeletedAct_infoFirmProfile/", function () use ($app ) {
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
     $headerParams = $app->request()->headers();
-    $vPkTemp = $headerParams['X-Public-Temp'];  
-    
-    $vID =$_GET['id'];  
-    $vActParentId = 0;
-    if (isset($_GET['act_parent_id'])) {
-        $vActParentId = $_GET['act_parent_id'];
-    }  
-    $vOperationTypeId = 3;
-    if (isset($_GET['operation_type_id'])) {
-        $vOperationTypeId = $_GET['operation_type_id'];
-    }
-    
-    $fPkTemp = $vPkTemp ; 
-    $fID = $vID ; 
-    $fActParentId = $vActParentId ; 
-    $fOperationTypeId = $vOperationTypeId ;     
-    
+    $vPkTemp = $headerParams['X-Public-Temp'];      
+    $vId = 0;
+    if (isset($_GET['id'])) {
+        $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                                                                $app, 
+                                                                $_GET['id']));
+    }        
+    $stripper->strip();  
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    }     
     $resDataUpdate = $BLL->deletedActTemp(array(
-        'id' => $fID,        
-        'operation_type_id' => $fActParentId,
-        'act_parent_id' => $fOperationTypeId,
-        'pktemp' => $fPkTemp));
- 
+        'url' => $_GET['url'],
+        'id' => $vId,  
+        'pktemp' => $vPkTemp)); 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resDataUpdate));
 });
@@ -942,32 +1261,36 @@ $app->get("/pktempDeletedAct_infoFirmProfile/", function () use ($app ) {
  * @since 02-02-2016
  */
 $app->get("/pktempFillUserAddressesTypes_infoFirmProfile/", function () use ($app ) { 
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $headerParams = $app->request()->headers();
-    $vPkTemp = $headerParams['X-Public-Temp'];   
-    $vLanguageCode =$_GET['language_code'] ; 
-   
-    $resCombobox = $BLL->fillUserAddressesTypesTemp(array('pktemp' => $vPkTemp , 
-                                                        'language_code' => $vLanguageCode ));
- 
+    $vPkTemp = $headerParams['X-Public-Temp'];      
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                                                                $app, 
+                                                                $_GET['language_code']));
+    }
+    $stripper->strip();  
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }   
+    $resCombobox = $BLL->fillUserAddressesTypesTemp(array(
+        'url' => $_GET['url'],
+        'pktemp' => $vPkTemp , 
+        'language_code' => $vLanguageCode )); 
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
-            //"text" => strtolower($flow["name"]),
             "text" => html_entity_decode($flow["name"]),
             "state" => 'open',
             "checked" => false,
             "attributes" => array("notroot" => true,   ),
         );
     }
-
     $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
     $app->response()->body(json_encode($flows));
 });
   
@@ -976,16 +1299,72 @@ $app->get("/pktempFillUserAddressesTypes_infoFirmProfile/", function () use ($ap
  * @since 25-01-2016
  */
 $app->get("/fillCompanyListsGuest_infoFirmProfile/", function () use ($app ) {
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-    $vLanguageCode =$_GET['language_code'] ; 
-    $resDataGrid = $BLL->fillCompanyListsGuest(array('page' => $_GET['page'],
-        'rows' => $_GET['rows'],
-        'sort' => $_GET['sort'],
-        'order' => $_GET['order'],
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');    
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                $app, 
+                $_GET['language_code']));
+    }
+    $vPage = NULL;
+    if (isset($_GET['page'])) {
+        $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['page']));
+    }
+    $vRows = NULL;
+    if (isset($_GET['rows'])) {
+        $stripper->offsetSet('rows', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rows']));
+    }
+    $vSort = NULL;
+    if (isset($_GET['sort'])) {
+        $stripper->offsetSet('sort', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['sort']));
+    }
+    $vOrder = NULL;
+    if (isset($_GET['order'])) {
+        $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER, 
+                $app, $_GET['order']));
+    }
+    $filterRules = null;
+    if (isset($_GET['filterRules'])) {
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, 
+                $app, $_GET['filterRules']));
+    }
+    $stripper->strip();
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }     
+    if ($stripper->offsetExists('page')) {
+        $vPage = $stripper->offsetGet('page')->getFilterValue();
+    }
+    if ($stripper->offsetExists('rows')) {
+        $vRows = $stripper->offsetGet('rows')->getFilterValue();
+    }
+    if ($stripper->offsetExists('sort')) {
+        $vSort = $stripper->offsetGet('sort')->getFilterValue();
+    }
+    if ($stripper->offsetExists('order')) {
+        $vOrder = $stripper->offsetGet('order')->getFilterValue();
+    }
+    if ($stripper->offsetExists('filterRules')) {
+        $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
+    }
+    $resDataGrid = $BLL->fillCompanyListsGuest(array(
+        'url' => $_GET['url'],
+        'page' => $vPage,
+        'rows' => $vRows,
+        'sort' => $vSort,
+        'order' => $vOrder,
         'language_code' => $vLanguageCode,
         ));
 
-    $resTotalRowCount = $BLL->fillCompanyListsGuestRtc( );
+    $resTotalRowCount = $BLL->fillCompanyListsGuestRtc(array(
+        'url' => $_GET['url'],        
+        'language_code' => $vLanguageCode,
+        ));
     $flows = array();
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
@@ -1000,7 +1379,6 @@ $app->get("/fillCompanyListsGuest_infoFirmProfile/", function () use ($app ) {
             "attributes" => array("notroot" => true, ),
         );
     }
-
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
@@ -1050,8 +1428,7 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
         $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER,
                                                 $app,
                                                 $_GET['order']));
-    }    
- 
+    }     
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     }    
@@ -1069,6 +1446,7 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
     }    
    
     $resDataGrid = $BLL->fillCompanyListsGuest(array( 
+        'url' => $_GET['url'],
         'page' => $vPage,
         'rows' => $vRows,
         'sort' => $vSort,
@@ -1076,8 +1454,11 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
         'language_code' => $vLanguageCode,
         'pk' => $pk,
         ));
-
-    $resTotalRowCount = $BLL->fillCompanyListsGuestRtc( );
+    $resTotalRowCount = $BLL->fillCompanyListsGuestRtc(array( 
+        'url' => $_GET['url'],        
+        'language_code' => $vLanguageCode,
+        'pk' => $pk,
+        ));
     $flows = array();
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
@@ -1092,7 +1473,6 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
             "attributes" => array("notroot" => true, ),
         );
     }
-
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
@@ -1107,8 +1487,7 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
 $app->get("/fillCompanyInfoEmployeesGuest_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1121,16 +1500,18 @@ $app->get("/fillCompanyInfoEmployeesGuest_infoFirmProfile/", function () use ($a
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoEmployeesGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoEmployeesGuest(array(
+        'url' => $_GET['url'],  
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(            
@@ -1144,8 +1525,7 @@ $app->get("/fillCompanyInfoEmployeesGuest_infoFirmProfile/", function () use ($a
             "number_of_foreign_trade_staff" => $flow["number_of_foreign_trade_staff"],            
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1175,16 +1555,19 @@ $app->get("/pkFillCompanyInfoEmployees_infoFirmProfile/", function () use ($app 
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoEmployeesGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoEmployeesGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,    
         'pk' => $pk,    
-        ));    
-  
+        ));     
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(            
@@ -1198,8 +1581,7 @@ $app->get("/pkFillCompanyInfoEmployees_infoFirmProfile/", function () use ($app 
             "number_of_foreign_trade_staff" => $flow["number_of_foreign_trade_staff"],            
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1211,8 +1593,7 @@ $app->get("/pkFillCompanyInfoEmployees_infoFirmProfile/", function () use ($app 
 $app->get("/fillCompanyInfoSocialediaGuest_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1225,15 +1606,18 @@ $app->get("/fillCompanyInfoSocialediaGuest_infoFirmProfile/", function () use ($
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoSocialediaGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+     $result = $BLL->fillCompanyInfoSocialediaGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
-        ));    
-  
+        ));      
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1242,8 +1626,7 @@ $app->get("/fillCompanyInfoSocialediaGuest_infoFirmProfile/", function () use ($
             "abbreviation" => html_entity_decode($flow["abbreviation"]),
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1273,16 +1656,19 @@ $app->get("/pkFillCompanyInfoSocialedia_infoFirmProfile/", function () use ($app
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoSocialediaGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoSocialediaGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,     
         'pk' => $pk,  
-        ));    
-  
+        ));      
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1291,8 +1677,7 @@ $app->get("/pkFillCompanyInfoSocialedia_infoFirmProfile/", function () use ($app
             "abbreviation" => html_entity_decode($flow["abbreviation"]),  
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1304,8 +1689,7 @@ $app->get("/pkFillCompanyInfoSocialedia_infoFirmProfile/", function () use ($app
 $app->get("/fillCompanyInfoReferencesGuest_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1318,15 +1702,18 @@ $app->get("/fillCompanyInfoReferencesGuest_infoFirmProfile/", function () use ($
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoReferencesGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoReferencesGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
-        ));    
-  
+        ));     
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1337,8 +1724,7 @@ $app->get("/fillCompanyInfoReferencesGuest_infoFirmProfile/", function () use ($
             "firm_logo" => $flow["firm_logo"],               
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1354,8 +1740,7 @@ $app->get("/pkFillCompanyInfoReferences_infoFirmProfile/", function () use ($app
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkFillCompanyInfoReferences_infoFirmProfile" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
- 
+    $pk = $headerParams['X-Public']; 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1370,15 +1755,18 @@ $app->get("/pkFillCompanyInfoReferences_infoFirmProfile/", function () use ($app
     }
 
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoReferencesGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoReferencesGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey, 
         'pk' => $pk,       
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1389,8 +1777,7 @@ $app->get("/pkFillCompanyInfoReferences_infoFirmProfile/", function () use ($app
             "firm_logo" => $flow["firm_logo"],    
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1400,11 +1787,9 @@ $app->get("/pkFillCompanyInfoReferences_infoFirmProfile/", function () use ($app
  * @since 23-03-2016
  */
 $app->get("/fillCompanyInfoCustomersGuest_infoFirmProfile/", function () use ($app ) {
-
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1417,24 +1802,25 @@ $app->get("/fillCompanyInfoCustomersGuest_infoFirmProfile/", function () use ($a
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoCustomersGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoCustomersGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
             "customer_names" => html_entity_decode($flow["customer_names"]),            
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1464,25 +1850,26 @@ $app->get("/pkFillCompanyInfoCustomers_infoFirmProfile/", function () use ($app 
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoCustomersGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoCustomersGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,    
         'pk' => $pk,  
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
             "customer_names" => html_entity_decode($flow["customer_names"]),            
             "attributes" => array("notroot" => true, ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1492,11 +1879,9 @@ $app->get("/pkFillCompanyInfoCustomers_infoFirmProfile/", function () use ($app 
  * @since 15-04-2016
  */
 $app->get("/fillCompanyInfoProductsGuest_infoFirmProfile/", function () use ($app ) {
-
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1509,16 +1894,18 @@ $app->get("/fillCompanyInfoProductsGuest_infoFirmProfile/", function () use ($ap
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoProductsGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();        
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue(); 
+    }
+     $result = $BLL->fillCompanyInfoProductsGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1530,8 +1917,7 @@ $app->get("/fillCompanyInfoProductsGuest_infoFirmProfile/", function () use ($ap
             "product_video_link" => $flow["product_video_link"],              
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1560,16 +1946,19 @@ $app->get("/pkFillCompanyInfoProducts_infoFirmProfile/", function () use ($app )
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoProductsGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoProductsGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,  
-         'pk' => $pk,
-        ));    
-  
+        'pk' => $pk,
+        ));      
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1581,8 +1970,7 @@ $app->get("/pkFillCompanyInfoProducts_infoFirmProfile/", function () use ($app )
             "product_video_link" => $flow["product_video_link"],              
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1594,8 +1982,7 @@ $app->get("/pkFillCompanyInfoProducts_infoFirmProfile/", function () use ($app )
 $app->get("/fillCompanyInfoSectorsGuest_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
-    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
- 
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL'); 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1608,16 +1995,18 @@ $app->get("/fillCompanyInfoSectorsGuest_infoFirmProfile/", function () use ($app
                                                 $app,
                                                 $_GET['npk']));
     }
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoSectorsGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoSectorsGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1626,8 +2015,7 @@ $app->get("/fillCompanyInfoSectorsGuest_infoFirmProfile/", function () use ($app
             "logo" => $flow["logo"],              
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1658,14 +2046,18 @@ $app->get("/pkFillCompanyInfoSectors_infoFirmProfile/", function () use ($app ) 
                                                 $_GET['npk']));
     }
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoSectorsGuest(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoSectorsGuest(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,  
         'pk' => $pk,
-        ));    
-  
+        ));      
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1691,8 +2083,7 @@ $app->get("/pkFillCompanyInfoBuildingNpk_infoFirmProfile/", function () use ($ap
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkFillCompanyInfoBuildingNpk_infoFirmProfile" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
-    
+    $pk = $headerParams['X-Public'];    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1711,19 +2102,23 @@ $app->get("/pkFillCompanyInfoBuildingNpk_infoFirmProfile/", function () use ($ap
                                                 $app,
                                                 $_GET['building_type_id']));
     } 
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
-    if($stripper->offsetExists('building_type_id')) $vBuildingTypeId = $stripper->offsetGet('building_type_id')->getFilterValue();
- 
-     $result = $BLL->fillCompanyInfoBuildingNpk(array('language_code' => $vLanguageCode,
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();
+    }
+    if($stripper->offsetExists('building_type_id')) {
+        $vBuildingTypeId = $stripper->offsetGet('building_type_id')->getFilterValue();
+    } 
+    $result = $BLL->fillCompanyInfoBuildingNpk(array(
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,
         'building_type_id' => $vBuildingTypeId,
         'pk' => $pk,
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1735,12 +2130,10 @@ $app->get("/pkFillCompanyInfoBuildingNpk_infoFirmProfile/", function () use ($ap
             "building_address" => html_entity_decode($flow["building_address"]),
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
-
   
 /**
  *  * Okan CIRAN
@@ -1754,8 +2147,7 @@ $app->get("/pkFillFirmFullVerbal_infoFirmProfile/", function () use ($app ) {
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkFillFirmFullVerbal_infoFirmProfile" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
-    
+    $pk = $headerParams['X-Public'];    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1768,19 +2160,19 @@ $app->get("/pkFillFirmFullVerbal_infoFirmProfile/", function () use ($app ) {
                                                 $app,
                                                 $_GET['npk']));
     }
-     
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();    
- 
-     $result = $BLL->fillFirmFullVerbal(array(
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();    
+    } 
+    $result = $BLL->fillFirmFullVerbal(array(
+        'url' => $_GET['url'], 
         'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         'pk' => $pk,
         ));
-    
-  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1822,23 +2214,22 @@ $app->get("/pkFillFirmFullVerbal_infoFirmProfile/", function () use ($app ) {
             "operation_name" => html_entity_decode($flow["operation_name"]),
             "operation_name_eng" => html_entity_decode($flow["operation_name_eng"]),
             "active" => $flow["active"],
-            "state_active" => $flow["state_active"],
+            "state_active" => html_entity_decode($flow["state_active"]),
             "deleted" => $flow["deleted"],
-            "state_deleted" => $flow["state_deleted"],
+            "state_deleted" => html_entity_decode($flow["state_deleted"]),
             "op_user_id" => $flow["op_user_id"],
             "username" => $flow["username"],
             "auth_allow_id" => $flow["auth_allow_id"],
-            "auth_alow" => $flow["auth_alow"],
+            "auth_alow" => html_entity_decode($flow["auth_alow"]),
             "cons_allow_id" => $flow["cons_allow_id"], 
-            "cons_allow" => $flow["cons_allow"],
+            "cons_allow" => html_entity_decode($flow["cons_allow"]),
             "language_parent_id" => $flow["language_parent_id"],
             "network_key" => $flow["network_key"],
             "logo" => $flow["logo"],
             "place_point" => $flow["place_point"],              
             "attributes" => array("notroot" => true,"active" => $flow["active"], ),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1856,8 +2247,7 @@ $app->get("/pkGetFirmProfileConsultant_infoFirmProfile/", function () use ($app 
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkgetFirmProfileConsultant_infoFirmProfile" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
-    
+    $pk = $headerParams['X-Public'];    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
@@ -1870,18 +2260,19 @@ $app->get("/pkGetFirmProfileConsultant_infoFirmProfile/", function () use ($app 
                                                 $app,
                                                 $_GET['npk']));
     }     
-
     $stripper->strip();
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('npk')) $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();    
- 
-     $result = $BLL->getFirmProfileConsultant(array(
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('npk')) {
+        $vNetworkKey = $stripper->offsetGet('npk')->getFilterValue();    
+    } 
+    $result = $BLL->getFirmProfileConsultant(array(
+        'url' => $_GET['url'], 
         'language_code' => $vLanguageCode,
         'network_key' => $vNetworkKey,        
         'pk' => $pk,
-        ));
-    
-  
+        ));  
     $flows = array();
     foreach ($result['resultSet'] as $flow) {
         $flows[] = array(
@@ -1894,13 +2285,10 @@ $app->get("/pkGetFirmProfileConsultant_infoFirmProfile/", function () use ($app 
            // "communications_type_name" => $flow["communications_type_name"],             
          //   "communications_no" => $flow["communications_no"],
             "cons_picture" => $flow["cons_picture"],
-            "npk" => $flow["network_key"],
-            
-             
+            "npk" => $flow["network_key"],  
             "attributes" => array(),
         );
-    }
- 
+    } 
     $app->response()->header("Content-Type", "application/json");    
     $app->response()->body(json_encode($flows));
 });
@@ -1917,27 +2305,30 @@ $app->get("/pkFillConsultantAllowFirmListDds_infoFirmProfile/", function () use 
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkFillConsultantAllowFirmListDds_infoFirmProfile" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
+    $pk = $headerParams['X-Public'];  
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-        $vLanguageCode = strtolower(trim($_GET['language_code']));
-    }
+         $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
+                                                $app,
+                                                $_GET['language_code']));
+    }       
+    $stripper->strip();
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    } 
     $componentType = 'ddslick';
     if (isset($_GET['component_type'])) {
         $componentType = strtolower(trim($_GET['component_type']));
     }
-
     $stripper->strip();
     if($stripper->offsetExists('language_code')){
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
         }
-    
- 
     $resCombobox = $BLL->fillConsultantAllowFirmListDds(array(
-                                'language_code' => $vLanguageCode,
-                                'pk' => $pk,
+        'url' => $_GET['url'], 
+        'language_code' => $vLanguageCode,
+        'pk' => $pk,
     ));
-
         $menus = array();
         $menus[] = array("text" => "Lütfen Seçiniz", "value" => 0, "selected" => true, "imageSrc" => "", "description" => "Lütfen Seçiniz",); 
     if ($componentType == 'bootstrap') {
@@ -1945,7 +2336,7 @@ $app->get("/pkFillConsultantAllowFirmListDds_infoFirmProfile/", function () use 
             $menus[] = array(
                 "id" => $menu["id"],
                 "text" => html_entity_decode($menu["name"]),
-                "state" => $menu["state_type"], //   'closed',
+                "state" => html_entity_decode($menu["state_type"]), //   'closed',
                 "checked" => false,
                 "attributes" => array("notroot" => true, "active" => $menu["active"]),
             );
@@ -1961,7 +2352,6 @@ $app->get("/pkFillConsultantAllowFirmListDds_infoFirmProfile/", function () use 
             );
         }
     }
-
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($menus));
 });
@@ -1974,13 +2364,11 @@ $app->get("/pkFillConsultantAllowFirmListDds_infoFirmProfile/", function () use 
 $app->get("/pkFillConsCompanyLists_infoFirmProfile/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
-   $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
-
+    $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public']))
         throw new Exception('rest api "pkFillConsCompanyLists_infoFirmProfile" end point, X-Public variable not found');
-    $pk = $headerParams['X-Public'];
-          
+    $pk = $headerParams['X-Public'];          
     $vPage = NULL;
     if (isset($_GET['page'])) {
         $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
@@ -2005,8 +2393,7 @@ $app->get("/pkFillConsCompanyLists_infoFirmProfile/", function () use ($app ) {
     if (isset($_GET['filterRules'])) {
         $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, 
                 $app, $_GET['filterRules']));
-    }
-    
+    }    
     $stripper->strip();    
     if ($stripper->offsetExists('page')) {
         $vPage = $stripper->offsetGet('page')->getFilterValue();
@@ -2023,23 +2410,21 @@ $app->get("/pkFillConsCompanyLists_infoFirmProfile/", function () use ($app ) {
     if ($stripper->offsetExists('filterRules')) {
         $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
     } 
-
-    $resDataGrid = $BLL->fillConsCompanyLists(array(        
-        'page' => $vPage,
+    $resDataGrid = $BLL->fillConsCompanyLists(array( 
         'url' => $_GET['url'],
+        'page' => $vPage,      
         'rows' => $vRows,
         'sort' => $vSort,
         'order' => $vOrder,        
         'filterRules' => $filterRules,
         'pk' => $pk,
-    ));
-  
-    $resTotalRowCount = $BLL->fillConsCompanyListsRtc(array(        
+    ));  
+    $resTotalRowCount = $BLL->fillConsCompanyListsRtc(array( 
+        'url' => $_GET['url'],
         'filterRules' => $filterRules,
         'pk' => $pk,
     ));
-    $counts=0;
-  
+    $counts=0;  
     $menu = array();            
     if (isset($resDataGrid[0]['id'])) {      
         foreach ($resDataGrid as $menu) {
@@ -2058,7 +2443,6 @@ $app->get("/pkFillConsCompanyLists_infoFirmProfile/", function () use ($app ) {
         }
        $counts = $resTotalRowCount[0]['count'];
       } ELSE { $menus = array(); }   
-
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
     $resultArray['total'] = $counts;
@@ -2087,8 +2471,11 @@ $app->get("/pkUpdateMakeActiveOrPassive_infoFirmProfile/", function () use ($app
                                                 $_GET['id']));
     } 
     $stripper->strip(); 
-    if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }
-    $resData = $BLL->makeActiveOrPassive(array(                  
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();         
+    }
+    $resData = $BLL->makeActiveOrPassive(array(     
+            'url' => $_GET['url'],
             'id' => $vId ,    
             'pk' => $Pk,        
             ));

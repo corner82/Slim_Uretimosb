@@ -144,9 +144,7 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 LEFT JOIN sys_specific_definitions sd16x ON (sd16x.id = sd16.id OR sd16x.language_parent_id = sd16.id) AND sd16x.language_id = lx.id  AND sd16x.deleted = 0 AND sd16x.active = 0                
 		LEFT JOIN sys_specific_definitions sd1x ON (sd1x.id = sd1.id OR sd1x.language_parent_id = sd1.id) AND sd1x.language_id = lx.id  AND sd1x.deleted = 0 AND sd1x.active = 0                
 		LEFT JOIN info_firm_profile ax ON (ax.act_parent_id = a.act_parent_id OR ax.language_parent_id = a.act_parent_id) AND ax.language_id = lx.id AND ax.active =0 AND ax.deleted =0                 
-
-               
-               
+ 
                 ORDER BY a.firm_name   
                           ");
             $statement->execute();
@@ -249,9 +247,8 @@ class InfoFirmProfile extends \DAL\DalSlim {
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
-                if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                 
-                    $operationIdValue = -1;
+                if (!\Utill\Dal\Helper::haveRecord($kontrol)) {                 
+                    $operationIdValue = 1;
                     $operationId = SysOperationTypes::getTypeIdToGoOperationId(
                                 array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 23, 'type_id' => 1,));
                     if (\Utill\Dal\Helper::haveRecord($operationId)) {
@@ -272,8 +269,7 @@ class InfoFirmProfile extends \DAL\DalSlim {
                     $ConsultantId = 1001;
                     if (\Utill\Dal\Helper::haveRecord($getConsultant)) {
                         $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
-                    }      
-                    
+                    }                          
                     $foundationYear = NULL;
                     if ((isset($params['foundation_year']) && $params['foundation_year'] != "")) {
                         $foundationYear = $params['foundation_year'];
@@ -284,9 +280,8 @@ class InfoFirmProfile extends \DAL\DalSlim {
                     }
                     $profilePublic = 0;
                     if ((isset($params['profile_public']) && $params['profile_public'] != "")) {
-                        $active = intval($params['profile_public']);
-                    }
-       
+                        $profilePublic = intval($params['profile_public']);
+                    }       
                     $statement = $pdo->prepare("
                    INSERT INTO info_firm_profile(
                         profile_public, 
@@ -410,19 +405,16 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-
                     $operationIdValue = 1;
                     $operationId = SysOperationTypes::getTypeIdToGoOperationId(
                                     array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 23, 'type_id' => 1,));
                     if (\Utill\Dal\Helper::haveRecord($operationId)) {
                         $operationIdValue = $operationId ['resultSet'][0]['id'];
                     }
-
                     $countryId = 91;
                     $languageIdValue = 647;
                     $ConsultantId = $opUserIdValue;
                     $profilePublic = 0;
-
                     $sql = "
                    INSERT INTO info_firm_profile(
                         profile_public,                         
@@ -517,7 +509,6 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 $Id = $params['id'];
                 $addSql = " (SELECT act_parent_id FROM info_firm_profile WHERE id = " . intval($Id) . ") ";
             }
-
             $sql = "              
                     INSERT INTO info_firm_clusters (
                         firm_id, 
@@ -572,26 +563,24 @@ class InfoFirmProfile extends \DAL\DalSlim {
             if ((isset($params['id']) && $params['id'] != "")) {
                 $Id = $params['id'];
                 $addSql ="(SELECT act_parent_id FROM info_firm_profile WHERE id = ".intval($Id).") " ; 
-            }
-            
-            
-                $sql = "
-                UPDATE info_firm_clusters
-                SET active =1, 
-                    deleted =1,
-                    cons_allow_id =1, 
-                    op_user_id = " . intval( $params['op_user_id']) . "
-                WHERE 
-                    firm_id = " .$addSql . "  AND 
-                    osb_cluster_id IN (
-                        SELECT 
-                            id AS cluster_id 
-                        FROM sys_osb_clusters 
-                        WHERE 
-                            cons_allow_id = 2 AND 
-                            id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_each('" . $params['clusters_id'] . "'))
-                                ) 
-                    ";
+            }            
+            $sql = "
+            UPDATE info_firm_clusters
+            SET active =1, 
+                deleted =1,
+                cons_allow_id =1, 
+                op_user_id = " . intval( $params['op_user_id']) . "
+            WHERE 
+                firm_id = " .$addSql . "  AND 
+                osb_cluster_id IN (
+                    SELECT 
+                        id AS cluster_id 
+                    FROM sys_osb_clusters 
+                    WHERE 
+                        cons_allow_id = 2 AND 
+                        id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_each('" . $params['clusters_id'] . "'))
+                            ) 
+                ";
                 $statement = $pdo->prepare($sql);
               //echo debugPDO($sql, $params);
                 $result = $statement->execute();
