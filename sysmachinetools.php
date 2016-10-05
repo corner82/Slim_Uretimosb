@@ -185,7 +185,6 @@ $app->get("/pkGetMachineTools_sysMachineTools/", function () use ($app ) {
     if (isset($_GET['filterRules'])) {
         $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['filterRules']));
     }
-
     $stripper->strip();
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -208,9 +207,6 @@ $app->get("/pkGetMachineTools_sysMachineTools/", function () use ($app ) {
     if ($stripper->offsetExists('filterRules')) {
         $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
     }
-
-    //  if(isset($_GET['filterRules'])) $filterRules = $_GET['filterRules'];
-
     $resDataGrid = $BLL->getMachineTools(array(
         'language_code' => $vLanguageCode,
         'machine_tool_grup_id' => $vMachineToolGrupId,
@@ -224,36 +220,39 @@ $app->get("/pkGetMachineTools_sysMachineTools/", function () use ($app ) {
         'language_code' => $vLanguageCode,        
         'machine_tool_grup_id' => $vMachineToolGrupId,
         'filterRules' => $filterRules,
-    ));
-
-    $flows = array();
-    foreach ($resDataGrid as $flow) {
-        $flows[] = array(
-            "id" => $flow["id"],
-            "machine_tool_name" =>  html_entity_decode($flow["machine_tool_name"]),
-            "machine_tool_name_eng" =>  html_entity_decode($flow["machine_tool_name_eng"]),
-            "group_name" =>  html_entity_decode($flow["group_name"]),
-            "group_name_eng" =>  html_entity_decode($flow["group_name_eng"]),
-            "manufacturer_name" =>  html_entity_decode($flow["manufacturer_name"]),
-            "attributes" => array(
-                        "notroot" => true, 
-                        "active" => $flow["active"],
-                        "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-                        "manufactuer_id" => $flow["manufactuer_id"],
-                        "model" =>  html_entity_decode($flow["model"]),
-                        "model_year" => $flow["model_year"],
-                        "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-                        "machine_code" =>  html_entity_decode($flow["machine_code"]),
-                        "language_id" => $flow["language_id"],
-                        "picture" => $flow["picture"],
- 
+    ));    
+    $counts = 0;
+    $flows = array();  
+    if (isset($resDataGrid[0]['id'])) {
+        foreach ($resDataGrid as $flow) {
+            $flows[] = array(
+                "id" => $flow["id"],
+                "machine_tool_name" => html_entity_decode($flow["machine_tool_name"]),
+                "machine_tool_name_eng" => html_entity_decode($flow["machine_tool_name_eng"]),
+                "group_name" => html_entity_decode($flow["group_name"]),
+                "group_name_eng" => html_entity_decode($flow["group_name_eng"]),
+                "manufacturer_name" => html_entity_decode($flow["manufacturer_name"]),
+                "attributes" => array(
+                    "notroot" => true,
+                    "active" => $flow["active"],
+                    "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
+                    "manufactuer_id" => $flow["manufactuer_id"],
+                    "model" => html_entity_decode($flow["model"]),
+                    "model_year" => $flow["model_year"],
+                    "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
+                    "machine_code" => html_entity_decode($flow["machine_code"]),
+                    "language_id" => $flow["language_id"],
+                    "picture" => $flow["picture"],
                 ),
-        );
-    }                      
-                
+            );
+        }
+        $counts = $resTotalRowCount[0]['count'];
+    } ELSE {
+        $flows = array();
+    }
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
-    $resultArray['total'] = $resTotalRowCount[0]['count'];
+    $resultArray['total'] = $counts;    
     $resultArray['rows'] = $flows;
     $app->response()->body(json_encode($resultArray));
 });
@@ -273,8 +272,6 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
         throw new Exception('rest api "pkGetMachineToolsGrid_sysMachineTools" end point, X-Public variable not found');
     }
     $pk = $headerParams['X-Public'];
-
-
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
@@ -282,8 +279,7 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
     $vMachineGroupsId = NULL;
     if (isset($_GET['machine_groups_id'])) {
         $stripper->offsetSet('machine_groups_id', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['machine_groups_id']));
-    }
-    
+    }    
     $vPage = NULL;
     if (isset($_GET['page'])) {
         $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, $app, $_GET['page']));
@@ -304,7 +300,6 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
     if (isset($_GET['filterRules'])) {
         $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['filterRules']));
     }
-
     $stripper->strip();
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -327,9 +322,7 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
     if ($stripper->offsetExists('filterRules')) {
         $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
     }
-
     //  if(isset($_GET['filterRules'])) $filterRules = $_GET['filterRules'];
-
     $resDataGrid = $BLL->getMachineToolsGrid(array(
         'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
@@ -341,41 +334,45 @@ $app->get("/pkGetMachineToolsGrid_sysMachineTools/", function () use ($app ) {
         'filterRules' => $filterRules,
     ));
     $resTotalRowCount = $BLL->getMachineToolsGridRtc(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'machine_groups_id' => $vMachineGroupsId,        
         'filterRules' => $filterRules,
     ));
-
+    $counts = 0;
     $flows = array();
-    foreach ($resDataGrid as $flow) {
-        $flows[] = array(
-            "id" => $flow["id"],
-            "machine_tool_name" =>  html_entity_decode($flow["machine_tool_name"]),
-            "machine_tool_name_eng" =>  html_entity_decode($flow["machine_tool_name_eng"]),
-            "group_name" =>  html_entity_decode($flow["group_name"]),
-            "group_name_eng" =>  html_entity_decode($flow["group_name_eng"]),
-            "manufacturer_name" =>  html_entity_decode($flow["manufacturer_name"]),
-            "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-            "manufactuer_id" => $flow["manufactuer_id"],
-            "model" =>  html_entity_decode($flow["model"]),
-            "model_year" => $flow["model_year"],
-            "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
-            "machine_code" =>  html_entity_decode($flow["machine_code"]),
-            "attributes" => array(            
-                        "active" => $flow["active"],
-                        "language_id" => $flow["language_id"],
+    if (isset($resDataGrid[0]['id'])) {
+        foreach ($resDataGrid as $flow) {
+            $flows[] = array(
+                "id" => $flow["id"],
+                "machine_tool_name" => html_entity_decode($flow["machine_tool_name"]),
+                "machine_tool_name_eng" => html_entity_decode($flow["machine_tool_name_eng"]),
+                "group_name" => html_entity_decode($flow["group_name"]),
+                "group_name_eng" => html_entity_decode($flow["group_name_eng"]),
+                "manufacturer_name" => html_entity_decode($flow["manufacturer_name"]),
+                "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
+                "manufactuer_id" => $flow["manufactuer_id"],
+                "model" => html_entity_decode($flow["model"]),
+                "model_year" => $flow["model_year"],
+                "machine_tool_grup_id" => $flow["machine_tool_grup_id"],
+                "machine_code" => html_entity_decode($flow["machine_code"]),
+                "attributes" => array(
+                    "active" => $flow["active"],
+                    "language_id" => $flow["language_id"],
                 ),
-        );
-    }           
+            );
+        } $counts = $resTotalRowCount[0]['count'];
+    } ELSE {
+        $flows = array();
+    }
+
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
-    $resultArray['total'] = $resTotalRowCount[0]['count'];
+    $resultArray['total'] = $counts;
     $resultArray['rows'] = $flows;
     $app->response()->body(json_encode($resultArray));
 });
-
-
-
+  
 /**
  *  * Okan CIRAN
  * @since 08-06-2016
@@ -389,8 +386,7 @@ $app->get("/pkGetMachineProperities_sysMachineTools/", function () use ($app ) {
     if (!isset($headerParams['X-Public'])) {
         throw new Exception('rest api "pkGetMachineProperities_sysMachineTools" end point, X-Public variable not found');
     }
-    $pk = $headerParams['X-Public'];
- 
+    $pk = $headerParams['X-Public']; 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
@@ -398,8 +394,7 @@ $app->get("/pkGetMachineProperities_sysMachineTools/", function () use ($app ) {
     $vMachineId = NULL;
     if (isset($_GET['machine_id'])) {
         $stripper->offsetSet('machine_id', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['machine_id']));
-    }
-    
+    }    
     $stripper->strip();
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -407,13 +402,15 @@ $app->get("/pkGetMachineProperities_sysMachineTools/", function () use ($app ) {
     if ($stripper->offsetExists('machine_id')) {
         $vMachineId = $stripper->offsetGet('machine_id')->getFilterValue();
     } 
-
     $resDataGrid = $BLL->getMachineProperities(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,    
         'machine_id' => $vMachineId,        
     )); 
 
+   
     $flows = array();
+   
     foreach ($resDataGrid as $flow) {
         $flows[] = array(
             "id" => $flow["id"],
@@ -429,8 +426,7 @@ $app->get("/pkGetMachineProperities_sysMachineTools/", function () use ($app ) {
                         "active" => $flow["active"],
                 ),
         );
-    }       
-    
+    }   
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($flows));
 });

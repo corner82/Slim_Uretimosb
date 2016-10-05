@@ -358,7 +358,7 @@ class InfoUsers extends \DAL\DalSlim {
                     $statement = $pdo->prepare($sql);
                     $statement->bindValue(':operation_type_id', $operationIdValue, \PDO::PARAM_INT);
                     $statement->bindValue(':username', $params['username'], \PDO::PARAM_STR);
-                    $statement->bindValue(':password', $params['password'], \PDO::PARAM_STR);
+                    $statement->bindValue(':password', md5($params['password']), \PDO::PARAM_STR);
                     $statement->bindValue(':role_id', $roleId, \PDO::PARAM_INT);
                     // echo debugPDO($sql, $params);
                     $result = $statement->execute();
@@ -487,7 +487,7 @@ class InfoUsers extends \DAL\DalSlim {
                 $statement->bindValue(':name', $params['name'], \PDO::PARAM_STR);
                 $statement->bindValue(':surname', $params['surname'], \PDO::PARAM_STR);
                 $statement->bindValue(':auth_email', $params['auth_email'], \PDO::PARAM_STR);                
-                $statement->bindValue(':password', $params['password'], \PDO::PARAM_STR);
+                $statement->bindValue(':password', md5($params['password']), \PDO::PARAM_STR);
                 $statement->bindValue(':language_id', $params['language_id'], \PDO::PARAM_INT);
                 $statement->bindValue(':root_id', $params['root_id'], \PDO::PARAM_INT);
                 $statement->bindValue(':op_user_id', $params['op_user_id'], \PDO::PARAM_INT);
@@ -552,9 +552,7 @@ class InfoUsers extends \DAL\DalSlim {
                     $languageIdValue = 647;                    
                     if ((isset($params['preferred_language']) && $params['preferred_language'] != "")) {                                    
                         $languageIdValue = $params['preferred_language'];
-                    }                   
-                    
-                   
+                    }     
                     
                     $CountryCode = NULL;
                     $CountryCodeValue = 'TR';
@@ -578,7 +576,7 @@ class InfoUsers extends \DAL\DalSlim {
                             )      
                 VALUES (".intval($operationIdValue).",
                         :username,
-                        :password,
+                        :password,                        
                         (SELECT last_value FROM info_users_id_seq),
                         ".intval($languageIdValue).", 
                         ".intval($roleId).",
@@ -588,7 +586,7 @@ class InfoUsers extends \DAL\DalSlim {
                     
                     $statement = $pdo->prepare($sql);
                     $statement->bindValue(':username', $params['username'], \PDO::PARAM_STR);
-                    $statement->bindValue(':password', $params['password'], \PDO::PARAM_STR);                    
+                    $statement->bindValue(':password', md5($params['password']), \PDO::PARAM_STR);
                   //echo debugPDO($sql, $params);
                     $result = $statement->execute();
                     $insertID = $pdo->lastInsertId('info_users_id_seq');
@@ -731,7 +729,7 @@ class InfoUsers extends \DAL\DalSlim {
                                 " . intval($opUserIdValue) . " AS user_id,
                                 a.root_id AS root_id,
                                 a.act_parent_id,
-                                '" . $params['password'] . "' AS password ,
+                                '" . md5($params['password']) . "' AS password ,
                                 CASE
                                     (CASE 
                                         (SELECT (z.auth_email = '" . $params['auth_email'] . "') FROM info_users_detail z WHERE z.id = a.id)    
@@ -878,7 +876,7 @@ class InfoUsers extends \DAL\DalSlim {
                                 " . intval($opUserIdValue) . " AS user_id,
                                 a.root_id,
                                 a.act_parent_id,
-                                '" . $params['password'] . "' AS password
+                                '" . md5($params['password']) . "' AS password
                             FROM info_users_detail a
                             WHERE root_id  =" . intval($opUserIdValue) . "                               
                                 AND active =1 AND deleted =0 and 

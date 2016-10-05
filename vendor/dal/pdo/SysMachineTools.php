@@ -523,7 +523,7 @@ class SysMachineTools extends \DAL\DalSlim {
                     switch (trim($std['field'])) {
                         case 'machine_tool_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
-                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) AS machine_tool_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) )" . $sorguExpression . ' ';
                             
                             break;
                         case 'machine_tool_name_eng':
@@ -608,13 +608,13 @@ class SysMachineTools extends \DAL\DalSlim {
                     a.deleted = 0 AND 
                     mt.language_parent_id =0 
                     ". $addSql ."
-                    " . $sorguStr . ""
-                    . "LIMIT " . $pdo->quote($limit) . " "
-                    . "OFFSET " . $pdo->quote($offset) . " 
+                    " . $sorguStr . "  
+                    ORDER BY    " . $sort . " 
+                    " . $order . " 
+                    LIMIT " . $pdo->quote($limit) . " 
+                    OFFSET " . $pdo->quote($offset) . "                     
                 ) AS xtablee WHERE deleted =0  
-                ORDER BY    " . $sort . " "
-                    . "" . $order . " "
-                   ;
+                            ";
             $statement = $pdo->prepare($sql);
             $parameters = array(
                 'sort' => $sort,
@@ -622,7 +622,7 @@ class SysMachineTools extends \DAL\DalSlim {
                 'limit' => $pdo->quote($limit),
                 'offset' => $pdo->quote($offset),
             );
-          //echo debugPDO($sql, $parameters);
+         // echo debugPDO($sql, $parameters);
             $statement->execute();
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
             $errorInfo = $statement->errorInfo();
@@ -664,7 +664,7 @@ class SysMachineTools extends \DAL\DalSlim {
                     switch (trim($std['field'])) {
                         case 'machine_tool_name':
                             $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
-                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) AS machine_tool_name)" . $sorguExpression . ' ';
+                            $sorguStr.=" AND LOWER(COALESCE(NULLIF( (mtx.machine_tool_name), ''), mt.machine_tool_name_eng) )" . $sorguExpression . ' ';
                             
                             break;
                         case 'machine_tool_name_eng':

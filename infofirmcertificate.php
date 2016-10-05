@@ -66,14 +66,12 @@ $app->get("/pkGetAll_infoFirmCertificate/", function () use ($app ) {
     $stripper->strip(); 
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    } 
-
+    }  
     $resDataMenu = $BLL->getAll(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'pk' => $pk,
-            ));
-
-
+            ));  
     $menus = array();
     if (isset($resDataGrid['resultSet'][0]['id'])) {
         foreach ($resDataMenu as $menu) {
@@ -81,29 +79,28 @@ $app->get("/pkGetAll_infoFirmCertificate/", function () use ($app ) {
                 "id" => $menu["id"],
                 "firm_id" => $menu["firm_id"],
                 "certificate_id" => $menu["certificate_id"],
-                "certificate" => $menu["certificate"],
-                "certificate_short" => $menu["certificate_short"],
-                "certificate_short_eng" => $menu["certificate_short_eng"],
+                "certificate" => html_entity_decode($menu["certificate"]),
+                "certificate_short" => html_entity_decode($menu["certificate_short"]),
+                "certificate_short_eng" => html_entity_decode($menu["certificate_short_eng"]),
                 "consultant_id" => $menu["consultant_id"],
                 "cons_allow_id" => $menu["cons_allow_id"],
-                "cons_allow" => $menu["cons_allow"], 
-                "act_parent_id" => intval($flow["act_parent_id"]),
+                "cons_allow" =>html_entity_decode( $menu["cons_allow"]), 
+                "act_parent_id" => intval($menu["act_parent_id"]),
                 "deleted" => $menu["deleted"],
-                "state_deleted" => $menu["state_deleted"],
+                "state_deleted" => html_entity_decode($menu["state_deleted"]),
                 "active" => $menu["active"],
-                "state_active" => $menu["state_active"],
+                "state_active" => html_entity_decode($menu["state_active"]),
                 "language_id" => $menu["language_id"],
-                "language_name" => $menu["language_names"],
+                "language_name" => html_entity_decode($menu["language_names"]),
                 "op_user_id" => $menu["op_user_id"],
                 "op_username" => $menu["op_username"],
                 "operation_type_id" => $menu["operation_type_id"],
-                "operation_name" => $menu["operation_name"],
+                "operation_name" => html_entity_decode($menu["operation_name"]),
                 "s_date" => $menu["s_date"],
                 "c_date" => $menu["c_date"],
             );
         }
     }
-
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($menus));
 });
@@ -130,7 +127,8 @@ $app->get("/pkDeletedAct_infoFirmCertificate/", function () use ($app ) {
     $stripper->strip(); 
     if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }     
     
-    $resDataDeleted = $BLL->DeletedAct(array(                  
+    $resDataDeleted = $BLL->DeletedAct(array(   
+            'url' => $_GET['url'],
             'id' => $vId ,    
             'pk' => $pk,        
             ));
@@ -199,8 +197,8 @@ $app->get("/pkUpdate_infoFirmCertificate/", function () use ($app ) {
     if ($stripper->offsetExists('certificate_id')) {
         $vCertificateId = $stripper->offsetGet('certificate_id')->getFilterValue();
     }  
-
     $resData = $BLL->update(array(  
+            'url' => $_GET['url'],
             'id' => $vId , 
             'active' => $vActive,    
             'language_code' => $vLanguageCode,    
@@ -208,8 +206,6 @@ $app->get("/pkUpdate_infoFirmCertificate/", function () use ($app ) {
             'certificate_id' => $vCertificateId, 
             'pk' => $pk,        
             ));
-
-
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
@@ -278,6 +274,7 @@ $app->get("/pkInsert_infoFirmCertificate/", function () use ($app ) {
   
 
     $resData = $BLL->insert(array(  
+            'url' => $_GET['url'],
             'network_key' => $vNetworkKey,             
             'language_code' => $vLanguageCode,    
             'profile_public' => $vProfilePublic ,                         
@@ -324,12 +321,14 @@ $app->get("/pkFillFirmCertificateNpk_infoFirmCertificate/", function () use ($ap
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
 
     $resDataGrid = $BLL->fillFirmCertificateNpk(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'network_key' => $vNpk,
         'pk' => $pk,
     ));
    
     $resTotalRowCount = $BLL->fillFirmCertificateNpkRtc(array(
+        'url' => $_GET['url'],
         'network_key' => $vNpk,
         'pk' => $pk,
     ));
@@ -341,13 +340,13 @@ $app->get("/pkFillFirmCertificateNpk_infoFirmCertificate/", function () use ($ap
                 "id" => intval($flow["id"]),                
                 "firm_id" => intval($flow["firm_id"]),
                 "certificate_id" => $flow["certificate_id"],
-                "certificate" => $flow["certificate"],
-                "certificate_eng" => $flow["certificate_eng"],
-                "certificate_short" => $flow["certificate_short_eng"],
-                "certificate_short_eng" => $flow["certificate_short_eng"],
+                "certificate" => html_entity_decode($flow["certificate"]),
+                "certificate_eng" => html_entity_decode($flow["certificate_eng"]),
+                "certificate_short" => html_entity_decode($flow["certificate_short_eng"]),
+                "certificate_short_eng" => html_entity_decode($flow["certificate_short_eng"]),
                 "act_parent_id" => $flow["act_parent_id"],
                 "language_id" => $flow["language_id"],
-                "language_name" => $flow["language_name"],
+                "language_name" => html_entity_decode($flow["language_name"]),
                 "network_key" => $flow["network_key"],
                 "attributes" => array("notroot" => true,),
             );
@@ -389,6 +388,7 @@ $app->get("/FillFirmCertificateNpkQuest_infoFirmCertificate/", function () use (
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
 
     $resDataGrid = $BLL->fillFirmCertificateNpkQuest(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'network_key' => $vNpk,
   
@@ -401,10 +401,10 @@ $app->get("/FillFirmCertificateNpkQuest_infoFirmCertificate/", function () use (
                // "id" => intval($flow["id"]),                
                 "firm_id" => intval($flow["firm_id"]),
                 "certificate_id" => $flow["certificate_id"],
-                "certificate" => $flow["certificate"],
-                "certificate_eng" => $flow["certificate_eng"],
-                "certificate_short" => $flow["certificate_short_eng"],
-                "certificate_short_eng" => $flow["certificate_short_eng"],
+                "certificate" => html_entity_decode($flow["certificate"]),
+                "certificate_eng" => html_entity_decode($flow["certificate_eng"]),
+                "certificate_short" => html_entity_decode($flow["certificate_short_eng"]),
+                "certificate_short_eng" => html_entity_decode($flow["certificate_short_eng"]),
                 //"act_parent_id" => $flow["act_parent_id"],
                // "language_id" => $flow["language_id"],
                // "language_name" => $flow["language_name"],

@@ -48,69 +48,7 @@ $app->add(new \Slim\Middleware\MiddlewareMQManager());
  * Okan CIRAN
  * @since 17-05-2016
  */
-$app->get("/pkGetAll_infoFirmAddress/", function () use ($app ) {
-    $stripper = $app->getServiceManager()->get('filterChainerCustom');
-    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
-    $BLL = $app->getBLLManager()->get('infoFirmAddressBLL');
-    $headerParams = $app->request()->headers();
-    if (!isset($headerParams['X-Public']))
-        throw new Exception('rest api "pkGetAll_infoFirmAddress" end point, X-Public variable not found');
-  //  $pk = $headerParams['X-Public'];
-
-    $vLanguageCode = 'tr';
-    if (isset($_GET['language_code'])) {
-        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
-                                                                $app, 
-                                                                $_GET['language_code']));
-    }
-    $stripper->strip(); 
-    if ($stripper->offsetExists('language_code')) {
-        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    } 
-    $resDataMenu = $BLL->getAll(array(
-        'language_code' => $vLanguageCode,        
-            ));
-    $menus = array();
-    if (isset($resDataGrid['resultSet'][0]['id'])) {
-        foreach ($resDataMenu as $menu) {
-            $menus[] = array(
-                "id" => $menu["id"],
-                "act_parent_id" => intval($flow["act_parent_id"]),
-                "firm_id" => $menu["firm_id"],
-                "firm_name" => $menu["firm_name"],
-                "firm_name_eng" => $menu["firm_name_eng"],
-                "firm_building_type_id" => $menu["firm_building_type_id"],
-                "firm_building_type" => $menu["firm_building_type"],
-                "firm_building_name" => $menu["firm_building_name"], 
-                "firm_building_name_eng" => $menu["firm_building_name_eng"],
-                "address" => $menu["address"],
-                "osb_id" => $menu["osb_id"],
-                "osb_name" => $menu["osb_name"],
-                "cons_allow_id" => $menu["cons_allow_id"],
-                "cons_allow" => $menu["cons_allow"],
-                "country_id" => $menu["country_id"],
-                "country_name" => $menu["country_name"],
-                "city_id" => $menu["city_id"],
-                "city_name" => $menu["city_name"],
-                "borough_id" => $menu["borough_id"],
-                "borough_name" => $menu["borough_name"], 
-                "deleted" => $menu["deleted"],
-                "state_deleted" => $menu["state_deleted"],
-                "active" => $menu["active"],
-                "state_active" => $menu["state_active"],
-                "language_id" => $menu["language_id"],
-                "language_name" => $menu["language_name"],
-                "op_user_id" => $menu["op_user_id"],
-                "op_username" => $menu["op_user_name"],
-                "operation_type_id" => $menu["operation_type_id"],
-                "operation_name" => $menu["operation_name"],
-                "s_date" => $menu["s_date"],
-                "c_date" => $menu["c_date"],
-            );
-        }
-    }
-    $app->response()->header("Content-Type", "application/json");
-    $app->response()->body(json_encode($menus));
+$app->get("/pkGetAll_infoFirmAddress/", function () use ($app ) {  
 });
   
 /**x
@@ -125,18 +63,27 @@ $app->get("/pkDeletedAct_infoFirmAddress/", function () use ($app ) {
     if (!isset($headerParams['X-Public']))
         throw new Exception('rest api "pkDeletedAct_infoFirmAddress" end point, X-Public variable not found');
     $pk = $headerParams['X-Public'];
- 
+    $vLanguageCode = 'tr';
+    if (isset($_GET['language_code'])) {
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                    $app, $_GET['language_code']));
+    }   
     $vId = NULL;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
                                                 $app,
                                                 $_GET['id']));
     } 
-
     $stripper->strip(); 
-    if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }     
-    
-    $resDataDeleted = $BLL->DeletedAct(array(                  
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    }     
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }    
+    $resDataDeleted = $BLL->DeletedAct(array( 
+            'url' => $_GET['url'],  
+            'language_code' => $vLanguageCode,
             'id' => $vId ,    
             'pk' => $pk,        
             ));
@@ -144,7 +91,6 @@ $app->get("/pkDeletedAct_infoFirmAddress/", function () use ($app ) {
     $app->response()->body(json_encode($resDataDeleted));
 }
 ); 
-
   
 /**x
  *  * Okan CIRAN
@@ -156,7 +102,7 @@ $app->get("/pkcpkUpdate_infoFirmAddress/", function () use ($app ) {
     $BLL = $app->getBLLManager()->get('infoFirmAddressBLL');   
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public']))
-        throw new Exception('rest api "pkUpdate_infoFirmAddress" end point, X-Public variable not found');
+        throw new Exception('rest api "pkcpkUpdate_infoFirmAddress" end point, X-Public variable not found');
     $pk = $headerParams['X-Public'];    
     $vLanguageCode = 'tr'; 
     if (isset($_GET['language_code'])) {
@@ -314,9 +260,8 @@ $app->get("/pkcpkUpdate_infoFirmAddress/", function () use ($app ) {
     if ($stripper->offsetExists('email')) {
         $vEmail= $stripper->offsetGet('email')->getFilterValue();
     } 
-
-
     $resData = $BLL->update(array(  
+            'url' => $_GET['url'],  
             'id' => $vId,
             'cpk' => $vcpk,
             'active' => $vActive,
@@ -339,8 +284,7 @@ $app->get("/pkcpkUpdate_infoFirmAddress/", function () use ($app ) {
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
-); 
- 
+);  
 
 /**x
  *  * Okan CIRAN
@@ -401,8 +345,7 @@ $app->get("/pkInsert_infoFirmAddress/", function () use ($app ) {
          $stripper->offsetSet('country_id',$stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
                                                 $app,
                                                 $_GET['country_id']));
-    }
-    
+    }    
     $vOsbId = NULL;
     if (isset($_GET['osb_id'])) {
          $stripper->offsetSet('osb_id',$stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
@@ -491,8 +434,8 @@ $app->get("/pkInsert_infoFirmAddress/", function () use ($app ) {
     if ($stripper->offsetExists('npk')) {
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
     } 
-
-    $resData = $BLL->insert(array(    
+    $resData = $BLL->insert(array(   
+            'url' => $_GET['url'],  
             'network_key' => $vNpk, 
             'language_code' => $vLanguageCode,    
             'profile_public' => $vProfilePublic,  
@@ -507,15 +450,13 @@ $app->get("/pkInsert_infoFirmAddress/", function () use ($app ) {
             'description_eng' => $vDescriptionEng,
             'tel' => $vTel,  
             'fax' => $vFax,  
-            'email' => $vEmail,  
-        
+            'email' => $vEmail,          
             'pk' => $pk,        
             )); 
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
-); 
- 
+);  
   
 /**
  *  * Okan CIRAN
@@ -529,7 +470,6 @@ $app->get("/pkFillUsersFirmAddressNpk_infoFirmAddress/", function () use ($app )
     if (!isset($headerParams['X-Public']))
         throw new Exception('rest api "pkFillUsersFirmAddressNpk_infoFirmAddress" end point, X-Public variable not found');
     $pk = $headerParams['X-Public'];
-
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
@@ -541,59 +481,55 @@ $app->get("/pkFillUsersFirmAddressNpk_infoFirmAddress/", function () use ($app )
                                                         $_GET['npk']));
     }
     $stripper->strip();
-    if ($stripper->offsetExists('language_code'))
+    if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();    
-    if ($stripper->offsetExists('npk'))
+    }
+    if ($stripper->offsetExists('npk')){
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
-
+    }
     $resDataGrid = $BLL->fillUsersFirmAddressNpk(array(
+        'url' => $_GET['url'],  
         'language_code' => $vLanguageCode,
         'network_key' => $vNpk,
         'pk' => $pk,
-    ));    
-  
+    ));      
     $flows = array();            
     if (isset($resDataGrid[0]['id'])) {      
         foreach ($resDataGrid as $flow) {
             $flows[] = array(
                 "id" => $flow["id"],
                 "firm_id" => $flow["firm_id"],
-                "firm_name" => $flow["firm_name"],
-                "firm_name_eng" => $flow["firm_name_eng"],
+                "firm_name" => html_entity_decode($flow["firm_name"]),
+                "firm_name_eng" => html_entity_decode($flow["firm_name_eng"]),
                 "firm_building_type_id" => $flow["firm_building_type_id"],
-                "firm_building_type" => $flow["firm_building_type"],
-                "firm_building_name" => $flow["firm_building_name"],
-                "firm_building_name_eng" => $flow["firm_building_name_eng"],
-                "address" => $flow["address"],
+                "firm_building_type" => html_entity_decode($flow["firm_building_type"]),
+                "firm_building_name" => html_entity_decode($flow["firm_building_name"]),
+                "firm_building_name_eng" => html_entity_decode($flow["firm_building_name_eng"]),
+                "address" => html_entity_decode($flow["address"]),
                 "country_id" => $flow["country_id"],
-                "country_name" => $flow["country_name"],
+                "country_name" => html_entity_decode($flow["country_name"]),
                 "city_id" => $flow["city_id"],
-                "city_name" => $flow["city_name"],
+                "city_name" => html_entity_decode($flow["city_name"]),
                 "borough_id" => $flow["borough_id"],
-                "borough_name" => $flow["borough_name"],
+                "borough_name" => html_entity_decode($flow["borough_name"]),
                 "osb_id" => $flow["osb_id"],
-                "osb_name" => $flow["osb_name"],
+                "osb_name" => html_entity_decode($flow["osb_name"]),
                 "network_key" => $flow["network_key"],
                 "language_id" => $flow["language_id"],
-                "language_name" => $flow["language_name"],
+                "language_name" => html_entity_decode($flow["language_name"]),
                 "email" => $flow["email"],
                 "tel" => $flow["tel"],
                 "fax" => $flow["fax"],
-                "web_address" => $flow["web_address"],
-        
-                
+                "web_address" => html_entity_decode($flow["web_address"]),
                 "attributes" => array("notroot" => true,),
             );
         }       
-     }    
-
+     }
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();  
     $resultArray['rows'] = $flows;
     $app->response()->body(json_encode($resultArray));
 });
-
-
   
 /**
  *  * Okan CIRAN
@@ -603,7 +539,6 @@ $app->get("/FillUsersFirmAddressNpkQuest_infoFirmAddress/", function () use ($ap
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoFirmAddressBLL');  
-
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
@@ -615,57 +550,54 @@ $app->get("/FillUsersFirmAddressNpkQuest_infoFirmAddress/", function () use ($ap
                                                         $_GET['npk']));
     }
     $stripper->strip();
-    if ($stripper->offsetExists('language_code'))
+    if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();    
-    if ($stripper->offsetExists('npk'))
+    }
+    if ($stripper->offsetExists('npk')) {
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
-
+    }
     $resDataGrid = $BLL->fillUsersFirmAddressNpk(array(
+        'url' => $_GET['url'],  
         'language_code' => $vLanguageCode,
-        'network_key' => $vNpk,
-  
-    ));    
-  
+        'network_key' => $vNpk,  
+    ));      
     $flows = array();            
     if (isset($resDataGrid[0]['id'])) {      
         foreach ($resDataGrid as $flow) {
             $flows[] = array(
                // "id" => $flow["id"],
                 //"firm_id" => $flow["firm_id"],
-                "firm_name" => $flow["firm_name"],
-                "firm_name_eng" => $flow["firm_name_eng"],
+                "firm_name" => html_entity_decode($flow["firm_name"]),
+                "firm_name_eng" => html_entity_decode($flow["firm_name_eng"]),
                 //"firm_building_type_id" => $flow["firm_building_type_id"],
-                "firm_building_type" => $flow["firm_building_type"],
-                "firm_building_name" => $flow["firm_building_name"],
-                "firm_building_name_eng" => $flow["firm_building_name_eng"],
-                "address" => $flow["address"],
+                "firm_building_type" => html_entity_decode($flow["firm_building_type"]),
+                "firm_building_name" => html_entity_decode($flow["firm_building_name"]),
+                "firm_building_name_eng" => html_entity_decode($flow["firm_building_name_eng"]),
+                "address" => html_entity_decode($flow["address"]),
                 //"country_id" => $flow["country_id"],
-                "country_name" => $flow["country_name"],
+                "country_name" => html_entity_decode($flow["country_name"]),
                 //"city_id" => $flow["city_id"],
-                "city_name" => $flow["city_name"],
+                "city_name" => html_entity_decode($flow["city_name"]),
                 //"borough_id" => $flow["borough_id"],
-                "borough_name" => $flow["borough_name"],
+                "borough_name" => html_entity_decode($flow["borough_name"]),
                 //"osb_id" => $flow["osb_id"],
-                "osb_name" => $flow["osb_name"],
+                "osb_name" => html_entity_decode($flow["osb_name"]),
                 "network_key" => $flow["network_key"],
                 //"language_id" => $flow["language_id"],
-                "language_name" => $flow["language_name"],
+                "language_name" => html_entity_decode($flow["language_name"]),
                  "tel" => $flow["tel"],
                 "fax" => $flow["fax"],
                 "email" => $flow["email"],
-                "web_address" => $flow["web_address"],
+                "web_address" => html_entity_decode($flow["web_address"]),
                 "attributes" => array("notroot" => true,),
             );
         }       
      }    
-
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();  
     $resultArray['rows'] = $flows;
     $app->response()->body(json_encode($resultArray));
 });
-
-
   
 /**
  *  * Okan CIRAN
@@ -679,43 +611,48 @@ $app->get("/pkFillSingularFirmAddress_infoFirmAddress/", function () use ($app )
     if (!isset($headerParams['X-Public']))
         throw new Exception('rest api "pkFillSingularFirmAddress_infoFirmAddress" end point, X-Public variable not found');
     $pk = $headerParams['X-Public'];
-
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                $app, $_GET['language_code']));
     }
     $vNpk = NULL;
     if (isset($_GET['npk'])) {
         $stripper->offsetSet('npk', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
-                                                        $app, 
-                                                        $_GET['npk']));
+                $app, $_GET['npk']));
     }
     $vPage = NULL;
     if (isset($_GET['page'])) {
-        $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, $app, $_GET['page']));
+        $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['page']));
     }
     $vRows = NULL;
     if (isset($_GET['rows'])) {
-        $stripper->offsetSet('rows', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, $app, $_GET['rows']));
+        $stripper->offsetSet('rows', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rows']));
     }
     $vSort = NULL;
     if (isset($_GET['sort'])) {
-        $stripper->offsetSet('sort', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, $app, $_GET['sort']));
+        $stripper->offsetSet('sort', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['sort']));
     }
     $vOrder = NULL;
     if (isset($_GET['order'])) {
-        $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER, $app, $_GET['order']));
+        $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER, 
+                $app, $_GET['order']));
     }
     $filterRules = null;
     if (isset($_GET['filterRules'])) {
-        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['filterRules']));
-    }
-    
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, 
+                $app, $_GET['filterRules']));
+    }    
     $stripper->strip();
-    if ($stripper->offsetExists('language_code'))
-        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();    
-    if ($stripper->offsetExists('npk'))
-        $vNpk = $stripper->offsetGet('npk')->getFilterValue();
+    if ($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();  
+    } 
+    if ($stripper->offsetExists('npk')){
+        $vNpk = $stripper->offsetGet('npk')->getFilterValue();        
+    }
     if ($stripper->offsetExists('page')) {
         $vPage = $stripper->offsetGet('page')->getFilterValue();
     }
@@ -731,8 +668,8 @@ $app->get("/pkFillSingularFirmAddress_infoFirmAddress/", function () use ($app )
     if ($stripper->offsetExists('filterRules')) {
         $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
     } 
-
     $resDataGrid = $BLL->fillSingularFirmAddress(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'page' => $vPage,
         'rows' => $vRows,
@@ -741,9 +678,9 @@ $app->get("/pkFillSingularFirmAddress_infoFirmAddress/", function () use ($app )
         'network_key' => $vNpk,
         'filterRules' => $filterRules,
         'pk' => $pk,
-    ));
-   
+    ));   
     $resTotalRowCount = $BLL->fillSingularFirmAddressRtc(array(
+        'url' => $_GET['url'],
         'language_code' => $vLanguageCode,
         'page' => $vPage,
         'rows' => $vRows,
@@ -753,38 +690,36 @@ $app->get("/pkFillSingularFirmAddress_infoFirmAddress/", function () use ($app )
         'filterRules' => $filterRules,
         'pk' => $pk,
     ));
-    $counts=0;
-  
+    $counts=0;  
     $menu = array();            
     if (isset($resDataGrid[0]['id'])) {      
         foreach ($resDataGrid as $menu) {
             $menus[] = array(
                 "id" => $menu["id"],
                 "firm_id" => $menu["firm_id"],
-                "firm_name" => $menu["firm_name"],
-                "firm_name_eng" => $menu["firm_name_eng"],          
+                "firm_name" => html_entity_decode($menu["firm_name"]),
+                "firm_name_eng" => html_entity_decode($menu["firm_name_eng"]),
                 "firm_building_type_id" => $menu["firm_building_type_id"],                
-                "firm_building_type" => $menu["firm_building_type"],
-                "firm_building_name" => $menu["firm_building_name"], 
-                "firm_building_name_eng" => $menu["firm_building_name_eng"],
-                "address" => $menu["address"], 
+                "firm_building_type" => html_entity_decode($menu["firm_building_type"]),
+                "firm_building_name" => html_entity_decode($menu["firm_building_name"]), 
+                "firm_building_name_eng" => html_entity_decode($menu["firm_building_name_eng"]),
+                "address" => html_entity_decode($menu["address"]), 
                 "osb_id" => $menu["osb_id"],
-                "osb_name" => $menu["osb_name"],
-                "cons_allow" => $menu["cons_allow"],
+                "osb_name" => html_entity_decode($menu["osb_name"]),
+                "cons_allow" => html_entity_decode($menu["cons_allow"]),
                 "country_id" => $menu["country_id"],
                 "city_id" => $menu["city_id"],
                 "borough_id" => $menu["borough_id"],
-                "country_name" => $menu["country_name"],
-                "city_name" => $menu["city_name"],
-                "borough_name" => $menu["borough_name"],
-                "state_deleted" => $menu["state_deleted"],
-                "state_active" => $menu["state_active"],
-                "language_name" => $menu["language_name"],
+                "country_name" => html_entity_decode($menu["country_name"]),
+                "city_name" => html_entity_decode($menu["city_name"]),
+                "borough_name" => html_entity_decode($menu["borough_name"]),
+                "state_deleted" => html_entity_decode($menu["state_deleted"]),
+                "state_active" => html_entity_decode($menu["state_active"]),
+                "language_name" => html_entity_decode($menu["language_name"]),
                 "op_username" => $menu["op_user_name"],
-                "operation_name" => $menu["operation_name"],  
+                "operation_name" => html_entity_decode($menu["operation_name"]),  
                 "s_date" => $menu["s_date"],
-                "c_date" => $menu["c_date"],
-                
+                "c_date" => $menu["c_date"],                
                 "attributes" => array("notroot" => true,
                     "active" => $menu["active"],                     
                     "act_parent_id" => intval($menu["act_parent_id"]),                                        
@@ -798,15 +733,12 @@ $app->get("/pkFillSingularFirmAddress_infoFirmAddress/", function () use ($app )
             );
         }
        $counts = $resTotalRowCount[0]['count'];
-      } ELSE  $menus = array();       
-
+      } ELSE $menus = array(); 
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();
     $resultArray['total'] = $counts;
     $resultArray['rows'] = $menus;
     $app->response()->body(json_encode($resultArray));
 });
-
-
 
 $app->run();

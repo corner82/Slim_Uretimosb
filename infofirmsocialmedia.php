@@ -126,7 +126,8 @@ $app->get("/pkDeletedAct_infoFirmSocialmedia/", function () use ($app ) {
     $stripper->strip(); 
     if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }     
     
-    $resDataDeleted = $BLL->DeletedAct(array(                  
+    $resDataDeleted = $BLL->DeletedAct(array(  
+            'url' => $_GET['url'],  
             'id' => $vId ,    
             'pk' => $pk,        
             ));
@@ -206,6 +207,7 @@ $app->get("/pkUpdate_infoFirmSocialmedia/", function () use ($app ) {
     }      
 
     $resData = $BLL->update(array(  
+            'url' => $_GET['url'],  
             'id' => $vId ,    
             'active' => $vActive ,  
             'language_code' => $vLanguageCode,    
@@ -280,7 +282,8 @@ $app->get("/pkInsert_infoFirmSocialmedia/", function () use ($app ) {
         $vFirmLink = $stripper->offsetGet('firm_link')->getFilterValue();
     } 
       
-    $resData = $BLL->insert(array(              
+    $resData = $BLL->insert(array(     
+            'url' => $_GET['url'],  
             'language_code' => $vLanguageCode,    
             'network_key' => $vNetworkKey,
             'profile_public' => $vProfilePublic ,                         
@@ -324,12 +327,14 @@ $app->get("/pkFillSingularFirmSocialMedia_infoFirmSocialmedia/", function () use
         $vNpk = $stripper->offsetGet('npk')->getFilterValue();
 
     $resDataGrid = $BLL->fillSingularFirmSocialMedia(array(
+        'url' => $_GET['url'],  
         'language_code' => $vLanguageCode,
         'network_key' => $vNpk,
         'pk' => $pk,
     ));
    
     $resTotalRowCount = $BLL->fillSingularFirmSocialMediaRtc(array(
+        'url' => $_GET['url'],  
         'network_key' => $vNpk,
         'pk' => $pk,
     ));
@@ -340,15 +345,15 @@ $app->get("/pkFillSingularFirmSocialMedia_infoFirmSocialmedia/", function () use
             $flows[] = array(
                 "id" => $flow["id"],
                 "firm_id" => $flow["firm_id"],
-                "firm_name" => $flow["firm_name"],
-                "firm_name_eng" => $flow["firm_name_eng"],
-                "socialmedia_name" => $flow["socialmedia_name"],
-                "socialmedia_eng" => $flow["socialmedia_eng"],
-                "firm_link" => $flow["firm_link"],     
+                "firm_name" => html_entity_decode($flow["firm_name"]),
+                "firm_name_eng" => html_entity_decode($flow["firm_name_eng"]),
+                "socialmedia_name" => html_entity_decode($flow["socialmedia_name"]),
+                "socialmedia_eng" => html_entity_decode($flow["socialmedia_eng"]),
+                "firm_link" => html_entity_decode($flow["firm_link"]),     
                 "network_key" => $flow["network_key"],
                 "logo" => $flow["logo"],         
                 "language_id" => $flow["language_id"],
-                "language_name" => $flow["language_name"],
+                "language_name" => html_entity_decode($flow["language_name"]),
                 "attributes" => array("notroot" => true,"active" => $flow["active"],  ),
             );
         }
