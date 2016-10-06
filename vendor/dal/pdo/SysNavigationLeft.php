@@ -526,10 +526,24 @@ class SysNavigationLeft extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $languageId = NULL;
+            $opUserIdValue =0;
+            $opUserRoleIdValue=0;
             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];
+            }
+            $a='0';           
+            if ((isset($params['a']) && $params['a'] != "")) {           
+                $a = $params['a'];               
+            }
+            $m='0';           
+            if ((isset($params['m']) && $params['m'] != "")) {           
+                $m = $params['m'];               
+            }
+            $parent=0;
+            if ((isset($params['parent']) && $params['parent'] != "")) {           
+                $parent = $params['parent'];               
             }
             
             $languageIdValue = 647;
@@ -590,20 +604,20 @@ class SysNavigationLeft extends \DAL\DalSlim {
                                                         SELECT DISTINCT c.id 
                                                         FROM sys_acl_actions c
                                                         WHERE   c.active =0 AND c.deleted =0 AND 
-                                                                LOWER(c.name) = LOWER('".$params['a']."') AND 
+                                                                LOWER(c.name) = LOWER('".$a."') AND 
                                                                 c.module_id = 
                                                                     (
                                                                         SELECT DISTINCT m.id
                                                                         FROM sys_acl_modules m
                                                                         WHERE m.active= 0 AND m.deleted =0 AND
-                                                                            LOWER(m.name) = LOWER('".$params['m']."') 
+                                                                            LOWER(m.name) = LOWER('".$m."') 
                                                                         LIMIT 1
                                                                     ) 
                                                         LIMIT 1 
                                                             )
                                                 LIMIT 1 
                                             ) AND  
-                            a.parent = ".intval($params['parent'])." AND
+                            a.parent = ".intval($parent)." AND
                             a.menu_type = ".intval($opUserRoleIdValue)." AND 
                             a.id IN 
                                     ( SELECT DISTINCT  mtxz.id FROM sys_navigation_left mtxz 
@@ -615,11 +629,13 @@ class SysNavigationLeft extends \DAL\DalSlim {
                                               ) AS xtable 				
                                           ) AND mtxz.active =a.active AND mtxz.language_id = a.language_id AND mtxz.deleted = a.deleted  
                                       )     
-                    ORDER BY a.parent, a.z_index
+                    
             ) AS xtable 
                 WHERE 
                     active =0 
+                    order by menu_name
                                  ";           
+            //ORDER BY a.parent, a.z_index
             $statement = $pdo->prepare($sql);
    
          //echo debugPDO($sql, $params);  
