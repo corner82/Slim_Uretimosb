@@ -365,7 +365,7 @@ $app->get("/pkFillActionList_sysAclActions/", function () use ($app ) {
     }
     $filterRules = null;
     if (isset($_GET['filterRules'])) {
-        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, $app, $_GET['filterRules']));
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['filterRules']));
     }
 
     $stripper->strip();
