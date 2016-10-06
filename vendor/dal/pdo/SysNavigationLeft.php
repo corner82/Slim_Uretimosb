@@ -526,9 +526,10 @@ class SysNavigationLeft extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $languageId = NULL;
-             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];
             }
             
             $languageIdValue = 647;
@@ -537,7 +538,7 @@ class SysNavigationLeft extends \DAL\DalSlim {
                 if (\Utill\Dal\Helper::haveRecord($languageId)) {
                     $languageIdValue = $languageId ['resultSet'][0]['id'];                    
                 }
-            }    
+            }     
             
             $sql = "
                 SELECT 
@@ -573,8 +574,7 @@ class SysNavigationLeft extends \DAL\DalSlim {
                             a.menu_type,
                             a.menu_types_id
                         FROM sys_navigation_left a 
-                        INNER JOIN info_users iu ON iu.active =0 AND iu.deleted =0	     	
-                        INNER JOIN act_session ssx ON CRYPT(iu.sf_private_key_value,CONCAT('_J9..',REPLACE(ssx.public_key,'*','/'))) = CONCAT('_J9..',REPLACE(ssx.public_key,'*','/'))  
+                        INNER JOIN info_users iu ON iu.active =0 AND iu.deleted =0 and iu.id = ".intval($opUserIdValue)."
                         INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0 
                         LEFT JOIN sys_language lx ON lx.deleted =0 AND lx.active =0 AND lx.id = " . intval($languageIdValue) . "
                         LEFT JOIN sys_navigation_left axz ON (axz.id = a.id OR axz.language_parent_id = a.id) AND axz.language_id = lx.id
@@ -583,53 +583,42 @@ class SysNavigationLeft extends \DAL\DalSlim {
                             a.active = 0 AND 
                             a.deleted = 0 AND 
                             a.menu_types_id = 
-                                            (SELECT DISTINCT menu_types_id
-                                              FROM sys_acl_menu_types_actions mt 
-                                              where mt.active=0 AND mt.deleted =0 AND 
+                                            (   SELECT DISTINCT menu_types_id
+                                                FROM sys_acl_menu_types_actions mt 
+                                                WHERE mt.active=0 AND mt.deleted =0 AND 
                                                     mt.action_id IN (
-                                                    SELECT DISTINCT c.id 
-                                                    FROM sys_acl_actions c
-                                                    WHERE   c.active =0 AND c.deleted =0 AND 
-                                                            LOWER(c.name) = LOWER('".$params['a']."') AND 
-                                                            c.module_id = (
-                                                                    SELECT DISTINCT m.id
-                                                                    FROM sys_acl_modules m
-                                                                    WHERE m.active= 0 AND m.deleted =0 AND
-                                                                    LOWER(m.name) = LOWER('".$params['m']."')
-                                                              )
+                                                        SELECT DISTINCT c.id 
+                                                        FROM sys_acl_actions c
+                                                        WHERE   c.active =0 AND c.deleted =0 AND 
+                                                                LOWER(c.name) = LOWER('".$params['a']."') AND 
+                                                                c.module_id = 
+                                                                    (
+                                                                        SELECT DISTINCT m.id
+                                                                        FROM sys_acl_modules m
+                                                                        WHERE m.active= 0 AND m.deleted =0 AND
+                                                                            LOWER(m.name) = LOWER('".$params['m']."') 
+                                                                        LIMIT 1
+                                                                    ) 
+                                                        LIMIT 1 
                                                             )
-                                                           LIMIT 1 ) AND 
+                                                LIMIT 1 
+                                            ) AND  
                             a.parent = ".intval($params['parent'])." AND
-                            a.menu_type = CAST(
-                              (SELECT 
-                                  COALESCE(NULLIF( 
-                                 (SELECT COALESCE(NULLIF(sar.id, 0),az.id)  
-                                                   FROM sys_acl_roles az
-                                                   LEFT JOIN sys_acl_roles sar ON sar.id = az.inherited AND sar.active =0 AND sar.deleted =0  
-                                                   WHERE az.id= av.role_id),0), sarv.id ) AS Menu_type  
-                                 FROM info_users av
-                                 INNER JOIN sys_acl_roles sarv ON sarv.id = av.role_id AND sarv.active=0 AND sarv.deleted=0                          
-                                 WHERE 
-                                        av.active =0 AND 
-                                        av.deleted =0 AND 
-                                        iu.id = av.id
-                                ) as integer) AND
-                                ssx.public_key = '".$params['pk']."' 
-                                AND a.id in 
-                                        ( SELECT DISTINCT  mtxz.id FROM sys_navigation_left mtxz 
-                                          WHERE  mtxz.id IN ( 
-                                          SELECT DISTINCT dddz FROM (
-                                                  SELECT 
-                                                          CAST( CAST (json_array_elements(abz.root_json) AS text) AS integer) AS dddz 
-                                                  FROM sys_navigation_left abz WHERE abz.id = a.id 				
-                                                  ) AS xtable 				
-                                              ) AND mtxz.active =a.active AND mtxz.language_id = a.language_id AND mtxz.deleted = a.deleted  
-                                          )      
-
-                        ORDER BY a.parent, a.z_index
-                ) AS xtable 
+                            a.menu_type = ".intval($opUserRoleIdValue)." AND 
+                            a.id IN 
+                                    ( SELECT DISTINCT  mtxz.id FROM sys_navigation_left mtxz 
+                                      WHERE  mtxz.id IN ( 
+                                      SELECT DISTINCT dddz FROM (
+                                              SELECT 
+                                                      CAST( CAST (json_array_elements(abz.root_json) AS text) AS integer) AS dddz 
+                                              FROM sys_navigation_left abz WHERE abz.id = a.id 				
+                                              ) AS xtable 				
+                                          ) AND mtxz.active =a.active AND mtxz.language_id = a.language_id AND mtxz.deleted = a.deleted  
+                                      )     
+                    ORDER BY a.parent, a.z_index
+            ) AS xtable 
                 WHERE 
-                active =0 
+                    active =0 
                                  ";           
             $statement = $pdo->prepare($sql);
    
