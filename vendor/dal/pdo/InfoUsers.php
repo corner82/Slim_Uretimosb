@@ -1365,13 +1365,27 @@ class InfoUsers extends \DAL\DalSlim {
     public function getUserId($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $sql = "  
-                SELECT id AS user_id, 1=1 AS control FROM (
-                            SELECT id , 	
+            $sql = 
+                 "  
+                  SELECT id AS user_id, 1=1 AS control ,role_id FROM (
+                            SELECT a.id, a.role_id                                
+                            FROM info_users a
+                            INNER JOIN act_session acts ON acts.public_key is not null AND  
+                                CRYPT(a.sf_private_key_value,CONCAT('_J9..',REPLACE('" . $params['pk'] . "','*','/'))) = CONCAT('_J9..',REPLACE(acts.public_key,'*','/'))
+                            WHERE 
+                                a.active =0 AND 
+                                a.deleted =0) AS logintable 
+                "   ;
+                 /*   
+                    "  
+                SELECT id AS user_id, 1=1 AS control,role_id FROM (
+                            SELECT id, role_id	
                                 CRYPT(sf_private_key_value,CONCAT('_J9..',REPLACE('" . $params['pk'] . "','*','/'))) = CONCAT('_J9..',REPLACE('" . $params['pk'] . "','*','/')) as pkey                                
                             FROM info_users WHERE active =0 AND deleted =0) AS logintable
                         WHERE pkey = TRUE 
                 ";
+                  * 
+                  */
             $statement = $pdo->prepare($sql);
            //  echo debugPDO($sql, $params);
             $statement->execute();
