@@ -411,6 +411,7 @@ $app->get("/fillUserCommunicationsTypes_infoUsersCommunications/", function () u
 /**x
  * Okan CIRAN
  * @since 02-02-2016
+ *  rest servislere eklendi
  */
 $app->get("/pktempFillGridSingular_infoUsersCommunications/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
@@ -470,6 +471,8 @@ $app->get("/pktempFillGridSingular_infoUsersCommunications/", function () use ($
 /**x
  *  * Okan CIRAN
  * @since 02-02-2016
+ *  rest servislere eklendi
+ * operasyonlara eklendi
  */ 
 $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
@@ -478,7 +481,13 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempInsert_infoUsersCommunications" end point, X-Public variable not found');     
-    $vPkTemp = $headerParams['X-Public-Temp'];        
+    $PkTemp = $headerParams['X-Public-Temp']; 
+    
+    $vRrpId = 0;
+    if (isset($_GET['rrp_id'])) {
+        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rrp_id']));
+    }    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -522,6 +531,9 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
                             $_GET['default_communication_id']));
     }    
     $stripper->strip(); 
+    if ($stripper->offsetExists('rrp_id')) {
+        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     }         
@@ -542,6 +554,7 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
     }         
     $resDataUpdate = $BLL->insertTemp(array(  
         'url' => $_GET['url'],
+        'rrp_id' =>$vRrpId,
         'language_code' => $vLanguageCode,
         'profile_public' => $vProfilePublic,        
         'communications_type_id' => $vCommunicationsTypeId, 
@@ -549,7 +562,7 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
         'description' => $vDescription ,
         'description_eng' => $vDescriptionEng ,          
         'default_communication_id' => $vDefaultCommunicationId,
-        'pktemp' => $vPkTemp,
+        'pktemp' => $PkTemp,
          ));       
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($resDataUpdate));
@@ -558,6 +571,8 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
 /**x
  *  * Okan CIRAN
  * @since 02-02-2016
+ *  rest servislere eklendi
+ * operasyonlara eklendi
  */
 $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
@@ -566,7 +581,12 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempUpdate_infoUsersCommunications" end point, X-Public variable not found');     
-    $vPkTemp = $headerParams['X-Public-Temp'];         
+    $vPkTemp = $headerParams['X-Public-Temp'];  
+    $vRrpId = 0;
+    if (isset($_GET['rrp_id'])) {
+        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rrp_id']));
+    }  
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -623,6 +643,9 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     }
     
     $stripper->strip(); 
+    if ($stripper->offsetExists('rrp_id')) {
+        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     }
@@ -649,6 +672,7 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     }         
     $resDataUpdate = $BLL->updateTemp(array(
         'url' => $_GET['url'],
+        'rrp_id' =>$vRrpId,
         'id' =>$vID, 
         'active' => $vActive,                
         'language_code' => $vLanguageCode,
@@ -659,8 +683,7 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
         'description_eng' => $vDescriptionEng ,          
         'default_communication_id' => $vDefaultCommunicationId,
         'pktemp' => $vPkTemp,
-         ));   
-   
+         ));      
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($resDataUpdate));
 });
@@ -668,6 +691,8 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
 /**x
  *  * Okan CIRAN
  * @since 02-02-2016
+ *  rest servislere eklendi
+ * operasyonlara eklendi
  */
 $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
@@ -677,6 +702,11 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempDeletedAct_infoUsersCommunications" end point, X-Public variable not found');     
     $vPkTemp = $headerParams['X-Public-Temp'];     
+    $vRrpId = 0;
+    if (isset($_GET['rrp_id'])) {
+        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rrp_id']));
+    }
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -690,6 +720,9 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
                             $_GET['id']));
     }
     $stripper->strip(); 
+    if ($stripper->offsetExists('rrp_id')) {
+        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    }
     if ($stripper->offsetExists('id')) {
         $vID = $stripper->offsetGet('id')->getFilterValue();
     }   
@@ -698,6 +731,7 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
     }    
     $resDataUpdate = $BLL->deletedActTemp(array(
         'url' => $_GET['url'],
+        'rrp_id' =>$vRrpId,
         'id' => $vID,    
         'language_code' => $vLanguageCode,
         'pktemp' => $vPkTemp)); 
@@ -710,7 +744,7 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
  * @since 02-02-2016
  */
 $app->get("/pktempFillUserCommunicationsTypes_infoUsersCommunications/", function () use ($app ) {
- $stripper = $app->getServiceManager()->get('filterChainerCustom');
+    $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoUsersCommunicationsBLL');
     $headerParams = $app->request()->headers();

@@ -132,11 +132,15 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
                 concat(rrp_restservice_id , ' daha önce kayıt edilmiş. Lütfen Kontrol Ediniz !!!' ) AS message
             FROM sys_operation_types_rrp
             WHERE   rrp_restservice_id= " . intval($params['rrp_restservice_id']) . " AND
-                    table_oid= " . intval($params['table_oid']) . " AND 
-                    assign_definition_id = " . intval($params['assign_definition_id']) . " 
+                    table_oid= " . intval($params['table_oid']) . "   
+               
                     " . $addSql . " 
                     AND deleted =0  
                ";
+            
+            //     assign_definition_id = " . intval($params['assign_definition_id']) . "   // 05102016 
+            // rrp ile ilişkilendirilmiş  bir servis bir kere kullanılabilinir
+            
             $statement = $pdo->prepare($sql);
             //   echo debugPDO($sql, $params);
             $statement->execute();
@@ -1249,6 +1253,66 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         }
     }
 
+    /**    
+     * @author Okan CIRAN
+     * @ sys_operation_types_rrp tablosundan url, pk ve rrp_id ye karsılık gelen operasyon tipini döndürür   !!     
+     * @version v 1.0  05.10.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getRrpIdToGoOperationId($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');            
+            $roleId = 0;
+            if (isset($params['role_id']) && $params['role_id'] != "") {
+                $roleId = intval($params['role_id']);
+            }
+            $url= 'url';
+            if (isset($params['url']) && $params['url'] != "") {
+                $url = $params['url'];
+            }     
+            $rrpId = 0;
+            if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
+                $rrpId = intval($params['rrp_id']);
+            }
+            
+            $sql = "
+                SELECT 
+                    a.id,                            
+                    a.rrp_restservice_id, 
+                    rrp.role_id, 
+                    rrp.id as rrp_id,                            
+                    sar.services_group_id,			    
+                    sarrs.restservices_id,			
+                    a.assign_definition_id,
+                    1=1 as control                                                    
+                FROM sys_operation_types_rrp a
+                INNER JOIN sys_acl_rrp_restservices sarrs ON sarrs.id = a.rrp_restservice_id AND sarrs.active=0 AND sarrs.deleted =0
+                INNER JOIN sys_acl_rrp rrp ON rrp.id = sarrs.rrp_id AND rrp.deleted =0 AND rrp.active =0
+                INNER JOIN sys_acl_restservices sar ON sar.id = sarrs.restservices_id AND sar.active =0 AND sar.deleted =0                         
+                INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0                         
+                WHERE 	
+                        a.deleted =0 AND 
+                        a.active =0 AND 
+                        a.language_parent_id=0 AND  
+                        sar.name = '". $url."' AND  			
+                        rrp.id = ". intval($rrpId)." AND 
+                        rrp.role_id = ". intval($roleId)."
+                LIMIT 1 
+                                 ";
+            $statement = $pdo->prepare($sql);            
+            //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
     
     
     

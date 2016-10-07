@@ -742,10 +742,10 @@ class InfoUsersAddresses extends \DAL\DalSlim {
 		LEFT JOIN sys_city ct on ct.id = a.city_id AND ct.deleted = 0 AND ct.active = 0 AND ct.language_id = l.id
 		LEFT JOIN sys_borough bo on bo.id = a.borough_id AND bo.deleted = 0 AND bo.active = 0 AND bo.language_id = l.id 
 
-		LEFT JOIN sys_specific_definitions AS sd14x ON (sd14x.id= sd14.id OR sd14x.id= sd14.language_parent_id) AND sd14.deleted = 0 AND sd14.active = 0 AND sd14.language_id = lx.id 
-		LEFT JOIN sys_specific_definitions sd15x ON (sd15x.id= sd15.id OR sd15x.id= sd15.language_parent_id) AND sd15.language_id = lx.id AND sd15.deleted = 0 AND sd15.active = 0
-                LEFT JOIN sys_specific_definitions sd16x ON (sd16x.id= sd16.id OR sd16x.id= sd16.language_parent_id) AND sd16.language_id = lx.id AND sd16.deleted = 0 AND sd16.active = 0
-		LEFT JOIN sys_specific_definitions AS sd17x ON (sd17x.id= sd17.id OR sd17x.id= sd17.language_parent_id) AND sd17.deleted = 0 AND sd17.active = 0 AND sd17.language_id = lx.id 
+		LEFT JOIN sys_specific_definitions AS sd14x ON (sd14x.id= sd14.id OR sd14x.id= sd14.language_parent_id) AND sd14x.deleted = 0 AND sd14x.active = 0 AND sd14x.language_id = lx.id 
+		LEFT JOIN sys_specific_definitions sd15x ON (sd15x.id= sd15.id OR sd15x.id= sd15.language_parent_id) AND sd15x.language_id = lx.id AND sd15x.deleted = 0 AND sd15x.active = 0
+                LEFT JOIN sys_specific_definitions sd16x ON (sd16x.id= sd16.id OR sd16x.id= sd16.language_parent_id) AND sd16x.language_id = lx.id AND sd16x.deleted = 0 AND sd16x.active = 0
+		LEFT JOIN sys_specific_definitions AS sd17x ON (sd17x.id= sd17.id OR sd17x.id= sd17.language_parent_id) AND sd17x.deleted = 0 AND sd17x.active = 0 AND sd17x.language_id = lx.id 
 		LEFT JOIN sys_specific_definitions sd19x ON sd19x.language_id = lx.id AND (sd19x.id = sd19.id OR sd19x.language_parent_id = sd19.id) AND sd19x.deleted = 0 AND sd19x.active = 0
 
 		LEFT JOIN sys_countrys cox on (cox.id = co.id OR cox.language_parent_id = co.id) AND cox.deleted = 0 AND cox.active = 0 AND cox.language_id = lx.id
@@ -1154,10 +1154,22 @@ class InfoUsersAddresses extends \DAL\DalSlim {
             $opUserId = InfoUsers::getUserIdTemp(array('pktemp' => $params['pktemp']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id']; 
-                
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];                
+            /*
                 $operationIdValue = -1;
                 $operationId = SysOperationTypes::getTypeIdToGoOperationId(
                                 array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 38, 'type_id' => 1,));
+                if (\Utill\Dal\Helper::haveRecord($operationId)) {
+                    $operationIdValue = $operationId ['resultSet'][0]['id'];
+                }              
+             */
+                $rrpId = 0;
+                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
+                    $rrpId = intval($params['rrp_id']);
+                }
+                $operationIdValue = -1;
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
                 }
@@ -1271,19 +1283,23 @@ class InfoUsersAddresses extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $userId = InfoUsers::getUserIdTemp(array('pktemp' => $params['pktemp']));
-            if (\Utill\Dal\Helper::haveRecord($userId)) {
-                $opUserIdValue = $userId ['resultSet'][0]['user_id'];
-                
+            $opUserId = InfoUsers::getUserIdTemp(array('pktemp' => $params['pktemp']));
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];  
                 $this->makePassive(array('id' => $params['id']));
-                               
+                 
+                $rrpId = 0;
+                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
+                    $rrpId = intval($params['rrp_id']);
+                }
                 $operationIdValue = -2;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 38, 'type_id' => 2,));
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
-                
+                } 
+               
                 $languageId = NULL;
                 $languageIdValue = 647;
                 if ((isset($params['language_code']) && $params['language_code'] != "")) {                
@@ -1473,10 +1489,10 @@ class InfoUsersAddresses extends \DAL\DalSlim {
 		LEFT JOIN sys_city ct on ct.id = a.city_id AND ct.deleted = 0 AND ct.active = 0 AND ct.language_id = l.id
 		LEFT JOIN sys_borough bo on bo.id = a.borough_id AND bo.deleted = 0 AND bo.active = 0 AND bo.language_id = l.id 
 
-		LEFT JOIN sys_specific_definitions AS sd14x ON (sd14x.id= sd14.id OR sd14x.id= sd14.language_parent_id) AND sd14.deleted = 0 AND sd14.active = 0 AND sd14.language_id = lx.id 
-		LEFT JOIN sys_specific_definitions sd15x ON (sd15x.id= sd15.id OR sd15x.id= sd15.language_parent_id) AND sd15.language_id = lx.id AND sd15.deleted = 0 AND sd15.active = 0
-                LEFT JOIN sys_specific_definitions sd16x ON (sd16x.id= sd16.id OR sd16x.id= sd16.language_parent_id) AND sd16.language_id = lx.id AND sd16.deleted = 0 AND sd16.active = 0
-		LEFT JOIN sys_specific_definitions AS sd17x ON (sd17x.id= sd17.id OR sd17x.id= sd17.language_parent_id) AND sd17.deleted = 0 AND sd17.active = 0 AND sd17.language_id = lx.id 
+		LEFT JOIN sys_specific_definitions AS sd14x ON (sd14x.id= sd14.id OR sd14x.id= sd14.language_parent_id) AND sd14x.deleted = 0 AND sd14x.active = 0 AND sd14x.language_id = lx.id 
+		LEFT JOIN sys_specific_definitions sd15x ON (sd15x.id= sd15.id OR sd15x.id= sd15.language_parent_id) AND sd15x.language_id = lx.id AND sd15x.deleted = 0 AND sd15x.active = 0
+                LEFT JOIN sys_specific_definitions sd16x ON (sd16x.id= sd16.id OR sd16x.id= sd16.language_parent_id) AND sd16x.language_id = lx.id AND sd16x.deleted = 0 AND sd16x.active = 0
+		LEFT JOIN sys_specific_definitions AS sd17x ON (sd17x.id= sd17.id OR sd17x.id= sd17.language_parent_id) AND sd17x.deleted = 0 AND sd17x.active = 0 AND sd17x.language_id = lx.id 
 		LEFT JOIN sys_specific_definitions sd19x ON sd19x.language_id = lx.id AND (sd19x.id = sd19.id OR sd19x.language_parent_id = sd19.id) AND sd19x.deleted = 0 AND sd19x.active = 0
 
 		LEFT JOIN sys_countrys cox on (cox.id = co.id OR cox.language_parent_id = co.id) AND cox.deleted = 0 AND cox.active = 0 AND cox.language_id = lx.id
@@ -1634,19 +1650,21 @@ class InfoUsersAddresses extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $userId = InfoUsers::getUserIdTemp(array('pktemp' => $params['pktemp']));
-            if (\Utill\Dal\Helper::haveRecord($userId)) {
-                $opUserIdValue = $userId ['resultSet'][0]['user_id'];
-  
+            $opUserId = InfoUsers::getUserIdTemp(array('pktemp' => $params['pktemp']));
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];   
+                $rrpId = 0;
+                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
+                    $rrpId = intval($params['rrp_id']);
+                }
                 $operationIdValue = -3;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 38, 'type_id' => 3,));
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
-                
-                $this->makePassive(array('id' => $params['id']));
-               
+                }                 
+                $this->makePassive(array('id' => $params['id']));               
                 $statementInsert = $pdo->prepare(" 
                     INSERT INTO info_users_addresses (
                         user_id,                        
@@ -1698,7 +1716,6 @@ class InfoUsersAddresses extends \DAL\DalSlim {
                     FROM info_users_addresses 
                     WHERE id  =" . intval($params['id']) . "    
                     )");
-
                 $insertAct = $statementInsert->execute();
                 $affectedRows = $statementInsert->rowCount();
                 $insertID = $pdo->lastInsertId('info_users_addresses_id_seq');
@@ -1733,7 +1750,7 @@ class InfoUsersAddresses extends \DAL\DalSlim {
                 return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
             } else {
                 $errorInfo = '23502';  /// 23502  not_null_violation
-                $errorInfoColumn = 'pk / op_user_id';
+                $errorInfoColumn = 'pktemp';
                  $pdo->rollback();
                 return array("found" => false, "errorInfo" => $errorInfo, "resultSet" => '', "errorInfoColumn" => $errorInfoColumn);
             }

@@ -322,8 +322,7 @@ class SysOperationTypes extends \DAL\DalSlim {
         }
     }
 
-    /**
-     * user interface datagrid fill operation get row count for widget
+    /**     
      * @author Okan CIRAN
      * @ Gridi doldurmak için sys_operation_types tablosundan çekilen kayıtlarının kaç tane olduğunu döndürür   !!
      * @version v 1.0  10.02.2016
@@ -363,16 +362,25 @@ class SysOperationTypes extends \DAL\DalSlim {
         }
     }
 
+    /**     
+     * @author Okan CIRAN
+     * @ danısmanların firma bilgisi için operasyonlarının listesi
+     * @version v 1.0  10.02.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
     public function fillConsultantOperations($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            } else {
-                $languageIdValue = 647;
+            $languageId = NULL;
+            $languageIdValue = 647;
+            if ((isset($params['language_code']) && $params['language_code'] != "")) {
+                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                    $languageIdValue = $languageId ['resultSet'][0]['id'];
+                }
             }
-
             $addSql = " WHERE 
                     a.active =0 AND 
                     a.deleted = 0 AND 
@@ -411,7 +419,7 @@ class SysOperationTypes extends \DAL\DalSlim {
         }
     }
 
-     /**    
+    /**    
      * @author Okan CIRAN
      * @ sys_operation_types tablosundan type_id ye karsılık gelen base_id yi döndürür   !!
      * @ parent_id => 3 = kayıtlı kullanıcı, 4 = supervisor, 
@@ -452,7 +460,6 @@ class SysOperationTypes extends \DAL\DalSlim {
             return array("found" => false, "errorInfo" => $e->getMessage());
         }
     }
-
     
     /**    
     * @author Okan CIRAN
@@ -503,7 +510,7 @@ class SysOperationTypes extends \DAL\DalSlim {
     /**
   
      * @author Okan CIRAN
-     * @ info_firm_references tablosunda ref_firm_id & firm_id sutununda daha önce oluşturulmuş mu?      
+     * @ operasyona atanmış danısman ve opareasyonu yapan kişinin dil bilgisi döndürür.
      * @version v 1.0 21.07.2016
      * @return array
      * @throws \PDOException

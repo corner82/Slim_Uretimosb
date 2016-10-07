@@ -121,15 +121,15 @@ class SysAclPrivilege extends \DAL\DalSlim {
             }
             $sql = " 
            SELECT  
-                name as name , 
-                '" . $params['name'] . "' as value , 
-                name ='" . $params['name'] . "' as control,
-                concat(name , ' daha önce kayıt edilmiş. Lütfen Kontrol Ediniz !!!' ) as message                             
-            FROM sys_acl_privilege        
-            WHERE LOWER(REPLACE(name,' ','')) = LOWER(REPLACE('" . $params['name'] . "',' ','')) 
+                name AS name , 
+                REPLACE(REPLACE('" . $params['name'] . "','*/',''),'/*','') AS value, 
+                name =REPLACE(REPLACE('" . $params['name'] . "','*/',''),'/*','') AS control,
+                concat(name , ' daha önce kayıt edilmiş. Lütfen Kontrol Ediniz !!!' ) AS message
+            FROM sys_acl_privilege
+            WHERE LOWER(REPLACE(REPLACE(REPLACE(name,' ',''),'*/',''),'/*','')) = LOWER(REPLACE(REPLACE(REPLACE('" . $params['name'] . "',' ',''),'*/',''),'/*',''))
                 AND resource_id = ".intval($params['resource_id'])."
                 ". $addSql . " 
-               AND deleted =0   
+               AND deleted =0
                                ";
             $statement = $pdo->prepare($sql);
             //   echo debugPDO($sql, $params);
@@ -170,10 +170,10 @@ class SysAclPrivilege extends \DAL\DalSlim {
                         description
                         )
                 VALUES (
-                        :name, 
-                        :name_eng,
+                        REPLACE(REPLACE(:name,'*/',''),'/*',''), 
+                        REPLACE(REPLACE(:name_eng,'*/',''),'/*',''), 
                         :resource_id,
-                        ". intval($opUserIdValue).",
+                        ". intval($opUserIdValue). ",
                         :description                      
                                                 )";
                     $statement = $pdo->prepare($sql);
@@ -181,7 +181,7 @@ class SysAclPrivilege extends \DAL\DalSlim {
                     $statement->bindValue(':name_eng', $params['name_eng'], \PDO::PARAM_STR);                    
                     $statement->bindValue(':resource_id', $params['resource_id'], \PDO::PARAM_INT);
                     $statement->bindValue(':description', $params['description'], \PDO::PARAM_STR);
-                   // echo debugPDO($sql, $params);
+                //   echo debugPDO($sql, $params);
                     $result = $statement->execute();
                     $insertID = $pdo->lastInsertId('sys_acl_privilege_id_seq');
                     $errorInfo = $statement->errorInfo();
@@ -227,11 +227,11 @@ class SysAclPrivilege extends \DAL\DalSlim {
                     $statement = $pdo->prepare("
                 UPDATE sys_acl_privilege
                 SET   
-                    name = :name, 
-                    name_eng = :name_eng, 
+                    name = REPLACE(REPLACE(:name,'*/',''),'/*',''), 
+                    name_eng = REPLACE(REPLACE(:name_eng,'*/',''),'/*',''),
                     resource_id = :resource_id,
                     op_user_id=   ". intval($opUserIdValue).", 
-                    description = :description                                           
+                    description = :description
                 WHERE id = :id");
                     $statement->bindValue(':id', $params['id'], \PDO::PARAM_INT);
                     $statement->bindValue(':name_eng', $params['name_eng'], \PDO::PARAM_STR);
