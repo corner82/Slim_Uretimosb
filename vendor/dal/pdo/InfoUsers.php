@@ -1375,7 +1375,7 @@ class InfoUsers extends \DAL\DalSlim {
                             CRYPT(a.sf_private_key_value,CONCAT('_J9..',REPLACE('" . $params['pk'] . "','*','/'))) = CONCAT('_J9..',REPLACE(acts.public_key,'*','/'))
                         WHERE 
                             a.active =0 AND 
-                            a.deleted =0) AS logintable 
+                            a.deleted =0 LIMIT 1) AS logintable 
                 WHERE pkey = TRUE 
                 "   ;
                  /*   
