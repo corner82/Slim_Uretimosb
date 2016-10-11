@@ -78,13 +78,13 @@ $app->get("/pkGetLeftMenu_leftnavigation/", function () use ($app ) {
     }
     $vM = NULL;
     if (isset($_GET['m'])) {
-        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
                                                                 $app, 
                                                                 $_GET['m']));
     }
     $vA = NULL;
     if (isset($_GET['a'])) {
-        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
                                                                 $app, 
                                                                 $_GET['a']));
     }
