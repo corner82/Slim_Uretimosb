@@ -107,10 +107,10 @@ class PgClass extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');       
             $statement = $pdo->prepare("   
-            SELECT 
+             SELECT  distinct 
                 c.oid AS id,
                 c.relname AS name,
-                pgd.description,
+		obj_description(c.relname::regclass, 'pg_class') AS description,                     
                 true AS active,
                 'open' AS state_type 
             FROM pg_catalog.pg_class c
@@ -118,10 +118,9 @@ class PgClass extends \DAL\DalSlim {
             LEFT join pg_catalog.pg_description pgd on (pgd.objoid=c.oid)
             WHERE pg_catalog.pg_table_is_visible(c.oid)
                     AND c.relkind = 'r'
-                    AND (c.relname like 'info_%'
-                    OR c.relname like 'sys_%' 
-                  )
-                AND c.relname != 'info_firm_keys' 
+                    AND (c.relname like 'info_%' OR c.relname like 'sys_%')
+                    AND c.relname != 'info_firm_keys' 
+                    AND Length(obj_description(c.relname::regclass, 'pg_class') )> 0  
             ORDER BY c.relname
                                  ");
             $statement->execute();
