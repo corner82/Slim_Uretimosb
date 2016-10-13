@@ -521,20 +521,28 @@ class SysOperationTypes extends \DAL\DalSlim {
             $Id = 0;
             if (isset($params['id']) && $params['id'] != "") {
                 $Id = intval($params['id']);
-            }
-            $tableName= 'info_users';
-            if (isset($params['table_name']) && $params['table_name'] != "") {
-                $tableName = $params['table_name'];
-            }
-            $sql = " 
-            SELECT 
-                iu.language_id,
-                a.consultant_id,
-                a.id  = " . intval($Id) . " AS control
-            FROM ".$tableName." a
-            INNER JOIN info_users iu ON iu.id = a.op_user_id 
-            WHERE 
-                a.id = " . intval($Id) . "
+            } 
+            
+            $getOperationTableNameValue = 'info_firm_profile';
+            $getOperationTableName = PgClass::getOperationTableName(
+                                  array('operation_type_id' => $params['operation_type_id'],));
+            if (\Utill\Dal\Helper::haveRecord($getOperationTableName)) {
+                  $getOperationTableNameValue = $getOperationTableName ['resultSet'][0]['consultant_id'];
+            } else  { $Id = -1001; } 
+            
+            
+            $sql = "  
+                SELECT 
+                    iu.language_id,
+                    a.consultant_id,   
+                    sotr.assign_definition_id , 
+                    a.id  = " . intval($Id) . " AS control
+                FROM ".$getOperationTableNameValue." a
+                INNER JOIN info_users iu ON iu.id = a.op_user_id 
+                INNER JOIN info_users iuc ON iuc.id = a.consultant_id 
+                INNER JOIN sys_operation_types_rrp sotr ON sotr.id = a.operation_type_id
+                WHERE 
+                    a.id =  " . intval($Id) . "
                                ";
             $statement = $pdo->prepare($sql);
             //echo debugPDO($sql, $params);

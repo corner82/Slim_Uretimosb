@@ -105,7 +105,7 @@ class PgClass extends \DAL\DalSlim {
      */
     public function fillInfoTablesDdList($params = array()) {
         try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');       
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');            
             $statement = $pdo->prepare("   
              SELECT  distinct 
                 c.oid AS id,
@@ -135,6 +135,41 @@ class PgClass extends \DAL\DalSlim {
     }
     
  
-                     
+     /**
+     * @author Okan CIRAN
+     * @ parametre olarak gelen oid in table name ini döndürür. !!
+     * @version v 1.0  13.10.2016
+     * @param type $params
+     * @return array
+     * @throws \PDOException
+     */
+   public function getOperationTableName($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $operationTypeId = 0;
+            if (isset($params['operation_type_id']) && $params['operation_type_id'] != "") {
+                $operationTypeId = intval($params['operation_type_id']);
+            }
+            $sql = "  
+        	SELECT                  
+                    c.relname AS table_name                
+                FROM pg_catalog.pg_class c
+                INNER JOIN sys_operation_types_rrp sotr ON sotr.table_oid = c.oid
+                WHERE sotr.id =  " . intval($operationTypeId) . "
+                LIMIT 1 
+                               ";
+            $statement = $pdo->prepare($sql);
+            //echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+             
     
 }

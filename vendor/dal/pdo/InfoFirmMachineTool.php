@@ -134,7 +134,7 @@ class InfoFirmMachineTool extends \DAL\DalSlim {
                  * silinen kaydı yapan kişinin dil bilgisini alıcaz.
                  */
                 $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
-                                array('table_name' => 'info_firm_machine_tool', 'id' => $params['id'],));
+                                   array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
                 if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
                     $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
                     $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
@@ -719,7 +719,7 @@ class InfoFirmMachineTool extends \DAL\DalSlim {
                          * silinen kaydı yapan kişinin dil bilgisini alıcaz.
                          */
                         $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
-                                        array('table_name' => 'info_firm_machine_tool', 'id' => $params['id'],));
+                                           array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
                         if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
                             $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
                             // $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
@@ -1328,7 +1328,7 @@ class InfoFirmMachineTool extends \DAL\DalSlim {
                  * silinen kaydı yapan kişinin dil bilgisini alıcaz.
                  */
                 $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
-                                array('table_name' => 'info_firm_machine_tool', 'id' => $params['id'],));
+                                   array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
                 if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
                     $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
                     $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
