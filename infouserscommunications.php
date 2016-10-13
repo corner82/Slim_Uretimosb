@@ -482,12 +482,16 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempInsert_infoUsersCommunications" end point, X-Public variable not found');     
     $PkTemp = $headerParams['X-Public-Temp']; 
-    
-    $vRrpId = 0;
-    if (isset($_GET['rrp_id'])) {
-        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
-                $app, $_GET['rrp_id']));
-    }    
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }          
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -531,12 +535,15 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
                             $_GET['default_communication_id']));
     }    
     $stripper->strip(); 
-    if ($stripper->offsetExists('rrp_id')) {
-        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
     }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    }     
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    }         
+    } 
     if ($stripper->offsetExists('profile_public')) {
         $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
     }
@@ -554,7 +561,8 @@ $app->get("/pktempInsert_infoUsersCommunications/", function () use ($app ) {
     }         
     $resDataUpdate = $BLL->insertTemp(array(  
         'url' => $_GET['url'],
-        'rrp_id' =>$vRrpId,
+        'm' =>$vM,
+        'a' =>$vA,
         'language_code' => $vLanguageCode,
         'profile_public' => $vProfilePublic,        
         'communications_type_id' => $vCommunicationsTypeId, 
@@ -582,11 +590,17 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempUpdate_infoUsersCommunications" end point, X-Public variable not found');     
     $vPkTemp = $headerParams['X-Public-Temp'];  
-    $vRrpId = 0;
-    if (isset($_GET['rrp_id'])) {
-        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
-                $app, $_GET['rrp_id']));
-    }  
+      
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    } 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -643,8 +657,11 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     }
     
     $stripper->strip(); 
-    if ($stripper->offsetExists('rrp_id')) {
-        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
     }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -672,7 +689,8 @@ $app->get("/pktempUpdate_infoUsersCommunications/", function () use ($app ) {
     }         
     $resDataUpdate = $BLL->updateTemp(array(
         'url' => $_GET['url'],
-        'rrp_id' =>$vRrpId,
+        'm' =>$vM,
+        'a' =>$vA,
         'id' =>$vID, 
         'active' => $vActive,                
         'language_code' => $vLanguageCode,
@@ -701,12 +719,17 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
     $headerParams = $app->request()->headers();
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempDeletedAct_infoUsersCommunications" end point, X-Public variable not found');     
-    $vPkTemp = $headerParams['X-Public-Temp'];     
-    $vRrpId = 0;
-    if (isset($_GET['rrp_id'])) {
-        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
-                $app, $_GET['rrp_id']));
+    $vPkTemp = $headerParams['X-Public-Temp'];   
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
     }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }     
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -720,8 +743,11 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
                             $_GET['id']));
     }
     $stripper->strip(); 
-    if ($stripper->offsetExists('rrp_id')) {
-        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
     }
     if ($stripper->offsetExists('id')) {
         $vID = $stripper->offsetGet('id')->getFilterValue();
@@ -731,7 +757,8 @@ $app->get("/pktempDeletedAct_infoUsersCommunications/", function () use ($app ) 
     }    
     $resDataUpdate = $BLL->deletedActTemp(array(
         'url' => $_GET['url'],
-        'rrp_id' =>$vRrpId,
+        'm' =>$vM,
+        'a' =>$vA,
         'id' => $vID,    
         'language_code' => $vLanguageCode,
         'pktemp' => $vPkTemp)); 
