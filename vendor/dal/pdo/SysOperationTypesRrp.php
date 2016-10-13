@@ -1271,11 +1271,21 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
             $url= 'url';
             if (isset($params['url']) && $params['url'] != "") {
                 $url = $params['url'];
-            }     
+            }  
+            $m= 'modul';
+            if (isset($params['m']) && $params['m'] != "") {
+                $url = $params['m'];
+            }  
+            $a= 'action';
+            if (isset($params['a']) && $params['a'] != "") {
+                $url = $params['a'];
+            }  
+            /*
             $rrpId = 0;
             if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
                 $rrpId = intval($params['rrp_id']);
             }
+            */
             
             $sql = "
                 SELECT 
@@ -1286,21 +1296,26 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
                     sar.services_group_id,			    
                     sarrs.restservices_id,			
                     a.assign_definition_id,
-                    1=1 as control                                                    
+                    1=1 AS control                                                    
                 FROM sys_operation_types_rrp a
                 INNER JOIN sys_acl_rrp_restservices sarrs ON sarrs.id = a.rrp_restservice_id AND sarrs.active=0 AND sarrs.deleted =0
                 INNER JOIN sys_acl_rrp rrp ON rrp.id = sarrs.rrp_id AND rrp.deleted =0 AND rrp.active =0
                 INNER JOIN sys_acl_restservices sar ON sar.id = sarrs.restservices_id AND sar.active =0 AND sar.deleted =0                         
-                INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0                         
-                WHERE 	
-                        a.deleted =0 AND 
-                        a.active =0 AND 
-                        a.language_parent_id=0 AND  
-                        sar.name = '". $url."' AND  			
-                        rrp.id = ". intval($rrpId)." AND 
-                        rrp.role_id = ". intval($roleId)."
+                INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0   
+                INNER JOIN sys_acl_actions_roles saar ON saar.role_id = rr.id AND saar.deleted = 0 AND saar.active = 0    
+                INNER JOIN sys_acl_actions saa ON saa.id = saar.action_id AND saa.deleted = 0 AND saa.active = 0    
+                INNER JOIN sys_acl_modules sam ON sam.id = saa.module_id AND sam.deleted = 0 AND sam.active = 0
+                WHERE
+                    sam.name = '".$m."' AND 
+                    saa.name = '".$a."' AND 
+                    sar.name = '".$url."' AND
+                    rrp.role_id = ". intval($roleId)."
+                    a.deleted =0 AND 
+                    a.active =0 AND 
+                    a.language_parent_id=0                   
                 LIMIT 1 
                                  ";
+            //--  rrp.id = ". intval($rrpId)." AND 
             $statement = $pdo->prepare($sql);            
             //  echo debugPDO($sql, $params);
             $statement->execute();
