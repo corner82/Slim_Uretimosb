@@ -165,7 +165,8 @@ class InfoUsersCommunications extends \DAL\DalSlim {
             $pdo->beginTransaction();
             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (!\Utill\Dal\Helper::haveRecord($opUserId)) {
-                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];             
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];   
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id']; 
                 if ((isset($params['user_id']) && $params['user_id'] != "")) {
                     $userId = $params['user_id'];
                 } else {
@@ -181,19 +182,34 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                     }
                 }
                 
-                $operationIdValue = 1;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 50, 'type_id' => 1,));
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -1;
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
+                    $url = null;
+                }     
                 
-                $getConsultant = SysOsbConsultants::getConsultantIdForTableName(array('table_name' => 'info_users_communications' , 'operation_type_id' => $operationIdValue));
-                if (!\Utill\Dal\Helper::haveRecord($getConsultant)) {
-                    $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
-                } else {
-                    $ConsultantId = 1001;
-                }
+                $ConsultantId = 1001;
+                $getConsultant = SysOsbConsultants::getConsultantIdForTableName(array('table_name' => 'info_users_communications' , 
+                                                                                        'operation_type_id' => $operationIdValue, 
+                                                                                        'language_id' => $languageIdValue,  
+                                                                                               ));
+                 if (\Utill\Dal\Helper::haveRecord($getConsultant)) {
+                     $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
+                 }               
 
                 $statement = $pdo->prepare("
                         INSERT INTO info_users_communications (
@@ -238,19 +254,38 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                 if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                     throw new \PDOException($errorInfo[0]);
                 
+                
+                 /*
+                   * ufak bir trik var. 
+                   * işlem update oldugunda update işlemini yapan kişinin dil bilgisini kullanıcaz. 
+                   * ancak delete işlemi oldugunda delete işlemini yapan user in dil bilgisini değil 
+                   * silinen kaydı yapan kişinin dil bilgisini alıcaz.
+                   */
+                  $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
+                                     array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
+                  if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
+                      //  $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
+                        $assignDefinitionIdValue = $consIdAndLanguageId ['resultSet'][0]['assign_definition_id'];
+                      // $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
+                  }
+                
                 $xjobs = ActProcessConfirm::insert(array(
-                              'op_user_id' => intval($opUserIdValue),
-                              'operation_type_id' => intval($operationIdValue),
-                              'table_column_id' => intval($insertID),
-                              'cons_id' => intval($ConsultantId),
-                              'preferred_language_id' => intval($languageIdValue),
+                            'op_user_id' => intval($opUserIdValue),
+                            'operation_type_id' => intval($operationIdValue),
+                            'table_column_id' => intval($insertID),
+                            'cons_id' => intval($ConsultantId),
+                            'preferred_language_id' => intval($languageIdValue),
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
                                   )
                       );
                 if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                throw new \PDOException($xjobs['errorInfo']);
+                throw new \PDOException($xjobs['errorInfo']); 
+                
+                
+                
                 
                 $pdo->commit();
-
                 return array("found" => true, "errorInfo" => $errorInfo, "lastInsertId" => $insertID);
             } else {
                 $errorInfo = '23502';   // 23502  not_null_violation
@@ -321,6 +356,7 @@ class InfoUsersCommunications extends \DAL\DalSlim {
             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (!\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];  
                 $this->makePassive(array('id' => $params['id'])); 
                
                 if ((isset($params['user_id']) && $params['user_id'] != "")) {
@@ -346,12 +382,25 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                     }
                 }
                  
-                $operationIdValue = 2;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 50, 'type_id' => 2,));
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -2;
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
+                    $url = null;
+                }         
                
                 $statementInsert = $pdo->prepare("
                 INSERT INTO info_users_communications (
@@ -409,9 +458,10 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                 * silinen kaydı yapan kişinin dil bilgisini alıcaz.
                 */
                  $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
-                            array('table_name' => 'info_users_communications', 'id' => $params['id'],));
+                               array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
                 if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
                     $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
+                    $assignDefinitionIdValue = $consIdAndLanguageId ['resultSet'][0]['assign_definition_id'];
                     // $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
                 }
 
@@ -421,6 +471,8 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                             'table_column_id' => intval($insertID), // işlem yapılan tablo id si
                             'cons_id' => intval($ConsultantId), // atanmış olan danısman 
                             'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
                                 )
                 );
 
@@ -970,60 +1022,60 @@ class InfoUsersCommunications extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $userId = InfoUsers::getUserId(array('pk' => $params['pk']));
-            if (\Utill\Dal\Helper::haveRecord($userId)) {
-                $opUserIdValue = $userId ['resultSet'][0]['user_id'];
-
-                $addSql = "";
-                $addSqlValue = "";
-                if (isset($params['act_parent_id'])) {
-                    $act_parent_id = intval($params['act_parent_id']);
-                    $addSql .= " act_parent_id, ";
-                    if ($act_parent_id == 0) {
-                        $act_parent_id = intval($params['id']);
-                    }
-                    $addSqlValue .= intval($act_parent_id) . ", ";
-                } 
-               
-                $operationIdValue = 3;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 50, 'type_id' => 3,));
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];  
+                
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -3;
+                $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
+                    $url = null;
+                }         
 
                 $this->makePassive(array('id' => $params['id']));
 
                 $statementInsert = $pdo->prepare(" 
                     INSERT INTO info_users_communications (
-                        user_id,                        
+                        user_id,
                         active, 
                         deleted,
-                        op_user_id, 
-                        " . $addSql . "
-                        operation_type_id,                        
+                        op_user_id,
+                        operation_type_id,
                         communications_type_id, 
                         communications_no, 
                         description, 
-                        description_eng,                        
-                        profile_public,                         
+                        description_eng,
+                        profile_public,
                         consultant_id,
                         consultant_confirm_type_id, 
-                        confirm_id,                        
-                        language_parent_id ,
-                        history_parent_id,
+                        confirm_id,
+                        language_parent_id,                        
                         consultant_id,
                         consultant_confirm_type_id,
                         confirm_id,
                         act_parent_id,
-                        default_communication_id                     
-                        )                            
+                        default_communication_id 
+                        )
                     SELECT
                         user_id,
                         1 AS active,  
                         1 AS deleted, 
-                        " . intval($opUserIdValue) . " AS op_user_id,  
-                        " . $addSqlValue . " 
+                        " . intval($opUserIdValue) . " AS op_user_id,
                         " . intval($operationIdValue) . ",
                         communications_type_id,
                         communications_no,
@@ -1033,8 +1085,7 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                         consultant_id, 
                         consultant_confirm_type_id, 
                         confirm_id,
-                        language_parent_id ,
-                        history_parent_id,
+                        language_parent_id ,                        
                         consultant_id,
                         consultant_confirm_type_id,
                         confirm_id,
@@ -1055,10 +1106,11 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                  * silinen kaydı yapan kişinin dil bilgisini alıcaz.
                  */
                 $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
-                                array('table_name' => 'info_users_communications', 'id' => $params['id'],));
+                                   array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
                 if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
                     $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
-                    $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
+                    $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];
+                    $assignDefinitionIdValue = $consIdAndLanguageId ['resultSet'][0]['assign_definition_id'];
                 }
 
                 $xjobs = ActProcessConfirm::insert(array(
@@ -1067,6 +1119,8 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                             'table_column_id' => intval($insertID), // işlem yapılan tablo id si
                             'cons_id' => intval($ConsultantId), // atanmış olan danısman 
                             'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
                                 )
                 );
 
@@ -1110,16 +1164,26 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                         $languageIdValue = $languageId ['resultSet'][0]['id'];                    
                     }
                 }                   
-                $rrpId = 0;
-                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
-                    $rrpId = intval($params['rrp_id']);
-                }
-                $operationIdValue = 2;
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -1;
                 $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
-                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                } 
+                    $url = null;
+                }          
+                
                 $getConsultant = SysOsbConsultants::getConsultantIdForTableName(array('table_name' => 'info_users_communications' , 'operation_type_id' => $operationIdValue));            
                 if (\Utill\Dal\Helper::haveRecord($getConsultant['resultSet'][0]['consultant_id'])) {
                     $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
@@ -1169,6 +1233,19 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                 $errorInfo = $statement->errorInfo();
                 if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                     throw new \PDOException($errorInfo[0]);
+                
+                $xjobs = ActProcessConfirm::insert(array(
+                            'op_user_id' => intval($opUserIdValue),
+                            'operation_type_id' => intval($operationIdValue),
+                            'table_column_id' => intval($insertID),
+                            'cons_id' => intval($ConsultantId),
+                            'preferred_language_id' => intval($languageIdValue),
+                            'url' => $url,
+                                )
+                    );
+                if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
+                throw new \PDOException($xjobs['errorInfo']);
+                
                 $pdo->commit();
                 return array("found" => true, "errorInfo" => $errorInfo, "lastInsertId" => $insertID);
             } else {
@@ -1224,16 +1301,26 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                 if ((isset($params['profile_public']) && $params['profile_public'] != "")) {                
                     $profilePublic =  $params['profile_public'] ;
                 }  
-                $rrpId = 0;
-                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
-                    $rrpId = intval($params['rrp_id']);
-                }
-                $operationIdValue = 2;
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -2;
                 $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
-                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }                
+                    $url = null;
+                }            
+                          
                 $this->makePassive(array('id' => $params['id']));
                 $statementInsert = $pdo->prepare("
                 INSERT INTO info_users_communications (
@@ -1276,9 +1363,39 @@ class InfoUsersCommunications extends \DAL\DalSlim {
                                                 ");
                 $result = $statementInsert->execute();
                 $insertID = $pdo->lastInsertId('info_users_communications_id_seq');
-                $errorInfo = $statement->errorInfo();
+                $affectedRows = $statementInsert->rowCount();
+                $errorInfo = $statementInsert->errorInfo();
                 if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                     throw new \PDOException($errorInfo[0]);
+                
+                  /*
+                * ufak bir trik var. 
+                * işlem update oldugunda update işlemini yapan kişinin dil bilgisini kullanıcaz. 
+                * ancak delete işlemi oldugunda delete işlemini yapan user in dil bilgisini değil 
+                * silinen kaydı yapan kişinin dil bilgisini alıcaz.
+                */
+                $consIdAndLanguageId = SysOperationTypes::getConsIdAndLanguageId(
+                               array('operation_type_id' =>$operationIdValue, 'id' => $params['id'],));
+                if (\Utill\Dal\Helper::haveRecord($consIdAndLanguageId)) {
+                    $ConsultantId = $consIdAndLanguageId ['resultSet'][0]['consultant_id'];
+                    $assignDefinitionIdValue = $consIdAndLanguageId ['resultSet'][0]['assign_definition_id'];
+                    // $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
+                }
+
+                $xjobs = ActProcessConfirm::insert(array(
+                            'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                            'operation_type_id' => intval($operationIdValue), // operasyon 
+                            'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                            'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                            'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                                )
+                );
+
+                if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
+                   throw new \PDOException($xjobs['errorInfo']); 
+  
                 $pdo->commit();
                 return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
             } else {
@@ -1470,16 +1587,26 @@ class InfoUsersCommunications extends \DAL\DalSlim {
             if (!\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id']; 
                 $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];   
-                 $rrpId = 0;
-                if (isset($params['rrp_id']) && $params['rrp_id'] != "") {
-                    $rrpId = intval($params['rrp_id']);
-                }
-                $operationIdValue = 3;
+                 $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue = -3;
                 $operationId = SysOperationTypesRrp::getRrpIdToGoOperationId(
-                                array('url' => $params['url'], 'role_id' => $opUserRoleIdValue, 'rrp_id' => $rrpId,));
+                                array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,));
                 if (\Utill\Dal\Helper::haveRecord($operationId)) {
                     $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
+                    $url = null;
+                }           
+                
                 $this->makePassive(array('id' => $params['id']));
                 $statementInsert = $pdo->prepare(" 
                     INSERT INTO info_users_communications (
