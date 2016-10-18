@@ -131,6 +131,7 @@ class DalManagerConfig {
                 
                 'sysOperationTypesRrpPDO' => 'DAL\Factory\PDO\SysOperationTypesRrpFactory',   
                 'pgClassPDO' => 'DAL\Factory\PDO\PgClassFactory',
+                'actProcessConfirmPDO' => 'DAL\Factory\PDO\ActProcessConfirmFactory',
                  
                 
                 

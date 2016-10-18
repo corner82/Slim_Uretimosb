@@ -121,10 +121,24 @@ class BLLManagerConfig{
                  'logConsultantBLL' => 'BLL\BLL\LogConsultant',
                  'logAdminBLL' => 'BLL\BLL\LogAdmin',
                  
+                 'opUserIdBLL' => 'BLL\BLL\InfoUsers', 
+                 'operationsTypesBLL' => 'BLL\BLL\SysOperationTypesRrp',  
+                 'languageIdBLL' => 'BLL\BLL\SysLanguage',  
+                 'beAssignedConsultantBLL' => 'BLL\BLL\SysOsbConsultants',  
+                 'operationTableNameBLL' => 'BLL\BLL\PgClass',                   
+                 'consultantProcessSendBLL' => 'BLL\BLL\ActProcessConfirm',  
+                 
+                 
+                  
+                 
+                 
                 'pgClassBLL' => 'BLL\BLL\PgClass',
                 'sysOperationTypesRrpBLL' => 'BLL\BLL\SysOperationTypesRrp',
+                'actProcessConfirmBLL' => 'BLL\BLL\ActProcessConfirm',
                  
+               
                  
+                  
                  
              ),
              'factories' => [
