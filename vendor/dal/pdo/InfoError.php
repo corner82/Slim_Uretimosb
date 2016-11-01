@@ -18,7 +18,7 @@ namespace DAL\PDO;
  */
 class InfoError extends \DAL\DalSlim {
 
-    /**
+    /** 
      * @author Okan CIRAN
      * @ info_error tablosundan parametre olarak  gelen id kaydını siler. !!
      * @version v 1.0  11.02.2016
