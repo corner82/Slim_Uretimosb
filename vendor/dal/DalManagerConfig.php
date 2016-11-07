@@ -118,7 +118,10 @@ class DalManagerConfig {
                 'sysAclActionRrpRestservicesPDO' => 'DAL\Factory\PDO\SysAclActionRrpRestservicesFactory',   
                 'infoFirmConsultantsPDO' => 'DAL\Factory\PDO\InfoFirmConsultantsFactory',   
                 'sysOsbPersonPDO' => 'DAL\Factory\PDO\SysOsbPersonFactory',   
-                'infoUsersSendingMailPDO' => 'DAL\Factory\PDO\InfoUsersSendingMailFactory',                   
+                'infoUsersSendingMailPDO' => 'DAL\Factory\PDO\InfoUsersSendingMailFactory',
+                'sysMachineToolModelMaterialsPDO' => 'DAL\Factory\PDO\SysMachineToolModelMaterialsFactory',
+                
+                
                 
                 
                                  

@@ -114,8 +114,9 @@ class BLLManagerConfig{
                  'infoFirmConsultantsBLL' => 'BLL\BLL\InfoFirmConsultants',
                  'sysOsbPersonBLL' => 'BLL\BLL\SysOsbPerson',
                  'infoUsersSendingMailBLL' => 'BLL\BLL\InfoUsersSendingMail',
+                 'sysMachineToolModelMaterialsBLL' => 'BLL\BLL\SysMachineToolModelMaterials',
                
-                                  
+                      
                  'logConnectionBLL' => 'BLL\BLL\LogConnection',  
                  'logServicesBLL' => 'BLL\BLL\LogServices',
                  'logConsultantBLL' => 'BLL\BLL\LogConsultant',
