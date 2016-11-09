@@ -30,7 +30,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
        try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
@@ -202,14 +204,17 @@ class SysOsbConsultants extends \DAL\DalSlim {
                 $opUserIdValue = $userId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                            }
-                    }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
+                    }       
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                         $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
+                    }  
 
                     $sql = "
                 INSERT INTO sys_osb_consultants(
@@ -321,12 +326,17 @@ class SysOsbConsultants extends \DAL\DalSlim {
                 $opUserIdValue = $userId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    } else {
-                        $languageIdValue = 647;
-                    }
+                    $languageCode = 'tr';
+                    $languageIdValue = 647;
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
+                    }       
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                         $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
+                    }  
 
                     $sql = "
                 UPDATE sys_osb_consultants
@@ -531,7 +541,7 @@ class SysOsbConsultants extends \DAL\DalSlim {
             if (isset($params['osb_id']) && $params['osb_id'] != "") {
                 $whereSql = " AND a.osb_id = " . intval($params['osb_id']) . " AND  ";
             } else {
-                $whereSql = "  AND a.osb_id = 5  ";  // osbId = 5 ostim
+                $whereSql = "  AND a.osb_id = 5  ";  // osbId = 5 uretim osb
             }
 
             $statement = $pdo->prepare("
@@ -792,7 +802,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
 
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $sql = "
@@ -843,7 +855,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
     public function getConsPendingFirmProfilertc($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $sorguStr = " WHERE fpu.auth_allow_id = 0 AND a.user_id = " . intval($opUserIdValue);
@@ -924,7 +938,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
     public function getConsConfirmationProcessDetails($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 //$opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 //$whereSQL = " WHERE a.user_id = " . intval($opUserIdValue);
@@ -1023,8 +1039,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
 
@@ -1183,7 +1200,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
 
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $sql = "
@@ -1318,73 +1337,7 @@ class SysOsbConsultants extends \DAL\DalSlim {
             return array("found" => false, "errorInfo" => $e->getMessage());
         }
     }
-    
-    /**
-     * @author Okan CIRAN
-     * info_firm_profile tablosunda üzerinde en az iş olan consultant id sini döndürür    !!
-     * yeni kayıt edilen consultant varsa onu da işleme alır.
-     * @version v 1.0  
-     * @since 27.05.2016
-     * @param type $params
-     * @return array
-     * @throws \PDOException
-     */
-    public function getConsultantIdForTableName($params = array()) {
-        try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $addSql = "  AND sos.redirectmap IS NULL ";
-
-            if ((isset($params['redirectmap']) && $params['redirectmap'] != "")) {
-                $addSql = " AND sos.redirectmap = '" . $params['redirectmap']."'";                        
-            }        
-            
-            $tableName = 'info_firm_profile';
-            if ((isset($params['table_name']) && $params['table_name'] != "")) {
-                $tableName = $params['table_name'];
-                $addSql = " AND sos.table_name = '" . $tableName."'";  
-                
-            }
-            if ((isset($params['operation_type_id']) && $params['operation_type_id'] != "")) {
-                $addSql .= " AND sos.id = " . intval($params['operation_type_id']);                        
-            }
                         
-            $languageIdValue = 647;
-            if ((isset($params['language_id']) && $params['language_id'] != "")) {                        
-                    $languageIdValue = $params['language_id'];                        
-            }
-
-               $sql = "              
-                SELECT consultant_id, 1=1 AS control FROM ( 
-                    SELECT 
-                        cons.user_id AS consultant_id, 
-                        count(ifp.id) AS adet, 
-                        MAX(ifp.s_date) 
-                    FROM sys_osb_consultants cons
-                    INNER JOIN sys_operation_types sos ON sos.active =0 AND sos.deleted =0 ".$addSql." 
-                    LEFT JOIN ".$tableName." ifp ON ifp.consultant_id = cons.user_id AND ifp.cons_allow_id = 0  
-                    WHERE cons.active = 0 AND cons.deleted =0 AND cons.osb_id = 5
-                        AND sos.category_id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(category_json))
-                        AND ".intval($languageIdValue)." IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(preferred_language_json))
-                    GROUP BY cons.user_id
-                    ORDER BY adet, max  
-                    LIMIT 1 
-                ) AS tempx
-                             ";
-               $statement = $pdo->prepare($sql);
-           //  echo debugPDO($sql, $params);
-            $statement->execute();
-            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            $errorInfo = $statement->errorInfo();
-            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
-                throw new \PDOException($errorInfo[0]);
-            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
-        } catch (\PDOException $e /* Exception $e */) {
-          
-            return array("found" => false, "errorInfo" => $e->getMessage());
-        }
-    }
-
-
     /**
      * @author Okan CIRAN
      * @ Gridi doldurmak için consultant ların yaptığı operasyon kayıtlarını döndürür !!
@@ -1396,21 +1349,26 @@ class SysOsbConsultants extends \DAL\DalSlim {
     public function getAllFirmCons($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $getFirm = InfoFirmProfile :: getCheckIsThisFirmRegisteredUser(array('cpk' => $params['cpk'], 'op_user_id' => $opUserIdValue));
                 if (\Utill\Dal\Helper::haveRecord($getFirm)) {
                     $getFirmIdValue = $getFirm ['resultSet'][0]['firm_id'];
                     
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];
-                        }
-                    }                    
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
+                    }       
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                         $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
+                    }                     
                     
                     $sql = "                
                 SELECT DISTINCT
@@ -1885,7 +1843,9 @@ class SysOsbConsultants extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -1973,6 +1933,134 @@ class SysOsbConsultants extends \DAL\DalSlim {
             }                            
             return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $afterRows);
         } catch (\PDOException $e /* Exception $e */) {                            
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+
+    /**
+     * @author Okan CIRAN
+     * info_firm_profile tablosunda üzerinde en az iş olan consultant id sini döndürür    !!
+     * yeni kayıt edilen consultant varsa onu da işleme alır.
+     * @version v 1.0  
+     * @since 27.05.2016
+     * @param type $params
+     * @return array
+     * @throws \PDOException
+     */
+    public function getConsultantIdForTableName($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $addSql = "  AND sos.redirectmap IS NULL ";
+
+            if ((isset($params['redirectmap']) && $params['redirectmap'] != "")) {
+                $addSql = " AND sos.redirectmap = '" . $params['redirectmap']."'";                        
+            }        
+            
+            $tableName = 'info_firm_profile';
+            if ((isset($params['table_name']) && $params['table_name'] != "")) {
+                $tableName = $params['table_name'];
+                $addSql = " AND sos.table_name = '" . $tableName."'";  
+                
+            }
+            if ((isset($params['operation_type_id']) && $params['operation_type_id'] != "")) {
+                $addSql .= " AND sos.id = " . intval($params['operation_type_id']);                        
+            }
+                        
+            $languageIdValue = 647;
+            if ((isset($params['language_id']) && $params['language_id'] != "")) {                        
+                    $languageIdValue = $params['language_id'];                        
+            }
+
+               $sql = "              
+                SELECT consultant_id, 1=1 AS control FROM ( 
+                    SELECT 
+                        cons.user_id AS consultant_id, 
+                        count(ifp.id) AS adet, 
+                        MAX(ifp.s_date) 
+                    FROM sys_osb_consultants cons
+                    INNER JOIN sys_operation_types sos ON sos.active =0 AND sos.deleted =0 ".$addSql." 
+                    LEFT JOIN ".$tableName." ifp ON ifp.consultant_id = cons.user_id AND ifp.cons_allow_id = 0  
+                    WHERE cons.active = 0 AND cons.deleted =0 AND cons.osb_id = 5
+                        AND sos.category_id IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(category_json))
+                        AND ".intval($languageIdValue)." IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(preferred_language_json))
+                    GROUP BY cons.user_id
+                    ORDER BY adet, max  
+                    LIMIT 1 
+                ) AS tempx
+                             ";
+               $statement = $pdo->prepare($sql);
+           //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+          
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+
+    /**
+     * @author Okan CIRAN
+     * operation id ile ilişkili tablodan üzerinde en az iş olan consultant id sini döndürür    !!
+     * yeni kayıt edilen consultant varsa onu da işleme alır.
+     * @version v 1.0  
+     * @since 15.10.2016
+     * @param type $params
+     * @return array
+     * @throws \PDOException
+     */
+    public function getBeAssignedConsultant($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $operationTypeId = 0;
+            if ((isset($params['operation_type_id']) && $params['operation_type_id'] != "")) {
+                $operationTypeId = intval($params['operation_type_id']);
+            }
+            $languageIdValue = 647;
+            if ((isset($params['language_id']) && $params['language_id'] != "")) {
+                $languageIdValue = $params['language_id'];
+            }
+            $tableName = 'info_firm_profile';
+            $getOperationTableNameParams = array('operation_type_id' => $operationTypeId,);            
+            $getOperationTableName = $this->slimApp-> getBLLManager()->get('operationTableNameBLL');  
+            $getOperationTableNameArray = $getOperationTableName->getOperationTableName($getOperationTableNameParams);
+            if (!\Utill\Dal\Helper::haveRecord($getOperationTableNameArray)) {
+                $tableName = $getOperationTableNameArray ['resultSet'][0]['table_name'];
+            }
+
+            $sql = "
+                SELECT consultant_id, 1=1 AS control FROM ( 
+                    SELECT 
+                        cons.user_id AS consultant_id,   
+                         count(ifp.id) AS adet, 
+                         MAX(ifp.s_date) 
+                    FROM sys_osb_consultants cons
+                    INNER JOIN info_users iu ON iu.id = cons.user_id AND iu.active =0 and iu.deleted =0
+                    INNER JOIN sys_acl_roles sar ON sar.id = iu.role_id AND sar.active =0 AND sar.deleted =0  
+                    INNER JOIN sys_assign_definition_roles sadr ON sadr.role_id = iu.role_id AND sadr.active =0 AND sadr.deleted =0  
+		    INNER JOIN sys_operation_types_rrp sos ON sos.active =0 AND sos.deleted =0 AND sos.assign_definition_id = sadr.assign_definition_id 
+		    LEFT JOIN " . $tableName . " ifp ON ifp.consultant_id = cons.user_id AND ifp.cons_allow_id = 0  and ifp.active =0 and ifp.deleted =0
+                    WHERE cons.active = 0 AND 
+			cons.deleted =0 AND 
+                        " . intval($languageIdValue) . " IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(preferred_language_json))
+                    GROUP BY cons.user_id
+                    ORDER BY adet, max  
+                    LIMIT 1 
+                ) AS tempx
+                             ";
+            $statement = $pdo->prepare($sql);
+            //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+
             return array("found" => false, "errorInfo" => $e->getMessage());
         }
     }

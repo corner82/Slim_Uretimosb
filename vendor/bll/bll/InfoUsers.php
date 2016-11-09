@@ -235,6 +235,15 @@ class InfoUsers extends \BLL\BLLSlim{
         return $DAL->setPersonPassword($params);
     }
     
+        /**
+     * New user RrpMap insert function 
+     * @param array | null $params
+     * @return array
+     */
+    public function updatePktempForSesionId($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoUsersPDO');
+        return $DAL->updatePktempForSesionId($params);
+    }
     
     
 }

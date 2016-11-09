@@ -31,7 +31,9 @@ class ActProcessConfirm extends \DAL\DalSlim {
      try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                
                 $statement = $pdo->prepare(" 
@@ -74,7 +76,7 @@ class ActProcessConfirm extends \DAL\DalSlim {
                 $languageCode = $params['language_code'];
             }       
             $languageCodeParams = array('language_code' => $languageCode,);
-            $languageId = $this->slimApp->getServiceManager()->get('languageIdBLL');
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
             $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
             if (!\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
                  $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
@@ -209,7 +211,9 @@ class ActProcessConfirm extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opConsId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opConsId = $opUserIdArray->getUserId($opUserIdParams);             
             if (\Utill\Dal\Helper::haveRecord($opConsId)) {
                 $opConsIdValue = $opConsId ['resultSet'][0]['user_id'];
                 $consOperationIdValue = -1;
@@ -291,7 +295,7 @@ class ActProcessConfirm extends \DAL\DalSlim {
             $languageCode = $args['language_code'];
         }       
         $languageCodeParams = array('language_code' => $languageCode,);
-        $languageId = $this->slimApp->getServiceManager()->get('languageIdBLL');
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
         $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
         if (!\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
              $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
@@ -575,8 +579,10 @@ class ActProcessConfirm extends \DAL\DalSlim {
         /*
          * pk sahibi cons un işlerinin döndürücez
          */
-        $opConsIdValue =0;
-        $opConsId = InfoUsers::getUserId(array('pk' => $args['pk']));
+        $opConsIdValue =0;        
+        $opUserIdParams = array('pk' =>  $params['pk'],);
+        $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+        $opConsId = $opUserIdArray->getUserId($opUserIdParams); 
         if (\Utill\Dal\Helper::haveRecord($opConsId)) {
             $opConsIdValue = $opConsId ['resultSet'][0]['user_id'];
         }        
@@ -602,7 +608,7 @@ class ActProcessConfirm extends \DAL\DalSlim {
             $languageCode = $args['language_code'];
         }       
         $languageCodeParams = array('language_code' => $languageCode,);
-        $languageId = $this->slimApp->getServiceManager()->get('languageIdBLL');
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
         $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
         if (!\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
              $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
@@ -850,7 +856,9 @@ class ActProcessConfirm extends \DAL\DalSlim {
          * pk sahibi cons un işlerinin döndürücez
          */
         $opConsIdValue =0;
-        $opConsId = InfoUsers::getUserId(array('pk' => $params['pk']));
+        $opUserIdParams = array('pk' =>  $params['pk'],);
+        $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+        $opConsId = $opUserIdArray->getUserId($opUserIdParams); 
         if (\Utill\Dal\Helper::haveRecord($opConsId)) {
             $opConsIdValue = $opConsId ['resultSet'][0]['user_id'];
         }        
@@ -875,7 +883,7 @@ class ActProcessConfirm extends \DAL\DalSlim {
             $languageCode = $params['language_code'];
         }       
         $languageCodeParams = array('language_code' => $languageCode,);
-        $languageId = $this->slimApp->getServiceManager()->get('languageIdBLL');
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
         $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
         if (!\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
              $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 

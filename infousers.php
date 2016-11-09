@@ -211,6 +211,21 @@ $app->get("/tempInsert_infoUsers/", function () use ($app ) {
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
     $BLL = $app->getBLLManager()->get('infoUsersBLL');
    // $headerParams = $app->request()->headers();
+    $vsesionId = NULL;
+    if (isset($_GET['sessionId'])) {
+        $stripper->offsetSet('sessionId', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['sessionId']));
+    } 
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -253,8 +268,17 @@ $app->get("/tempInsert_infoUsers/", function () use ($app ) {
     }
 
     $stripper->strip();
+    if ($stripper->offsetExists('sessionId')) {
+        $vsesionId = $stripper->offsetGet('sessionId')->getFilterValue();
+    }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
     }
     if ($stripper->offsetExists('profile_public')) {
         $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
@@ -280,7 +304,10 @@ $app->get("/tempInsert_infoUsers/", function () use ($app ) {
     if ($vPreferredLanguage<0 ) {$vPreferredLanguage = 647 ;}
     
     $resDataInsert = $BLL->insertTemp(array(
-        'url' => $_GET['url'],  
+        'url' => $_GET['url'], 
+        'sessionId' =>$vsesionId,  
+        'm' => $vM,
+        'a' => $vA,
         'profile_public' => $vProfilePublic,
         'name' => $vName,
         'surname' => $vSurname,
@@ -295,7 +322,6 @@ $app->get("/tempInsert_infoUsers/", function () use ($app ) {
 }
 );
 
-
 /**
  *  * Okan CIRAN
  * @since 27-01-2016
@@ -309,6 +335,16 @@ $app->get("/pktempUpdate_infoUsers/", function () use ($app ) {
         throw new Exception('rest api "pktempUpdate_infoUsers" end point, X-Public variable not found');
     $PkTemp = $headerParams['X-Public-Temp'];    
 
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
@@ -346,6 +382,12 @@ $app->get("/pktempUpdate_infoUsers/", function () use ($app ) {
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     }
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    }
     if ($stripper->offsetExists('profile_public')) {
         $vProfilePublic = $stripper->offsetGet('profile_public')->getFilterValue();
     }
@@ -370,6 +412,8 @@ $app->get("/pktempUpdate_infoUsers/", function () use ($app ) {
  
     $resDataInsert = $BLL->UpdateTemp(array(
         'url' => $_GET['url'],  
+        'm' => $vM,
+        'a' => $vA,
         'profile_public' => $vProfilePublic,
         'name' => $vName,
         'surname' => $vSurname,
@@ -519,7 +563,6 @@ $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($resDataUpdate));
 });
-
  
 /**
  *  * Okan CIRAN
@@ -645,8 +688,6 @@ $app->get("/pkFillUsersListNpk_infoUsers/", function () use ($app ) {
     $resultArray['rows'] = $flows;
     $app->response()->body(json_encode($resultArray));
 });
-
-
  
 /**
  *  * Okan CIRAN
@@ -910,7 +951,17 @@ $app->get("/pkInsertUrgePerson_infoUsers/", function () use ($app ) {
 $app->get("/setPersonPassword_infoUsers/", function () use ($app ) {
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
-    $BLL = $app->getBLLManager()->get('infoUsersBLL');   
+    $BLL = $app->getBLLManager()->get('infoUsersBLL'); 
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }
     $vKey = NULL;
     if (isset($_GET['key'])) {
         $stripper->offsetSet('key', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
@@ -923,6 +974,12 @@ $app->get("/setPersonPassword_infoUsers/", function () use ($app ) {
     }
 
     $stripper->strip();
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    }
     if ($stripper->offsetExists('key')) {
         $vKey = $stripper->offsetGet('key')->getFilterValue();
     }    
@@ -931,7 +988,9 @@ $app->get("/setPersonPassword_infoUsers/", function () use ($app ) {
     }
    
     $resDataInsert = $BLL->setPersonPassword(array( 
-        'url' => $_GET['url'],  
+        'url' => $_GET['url'], 
+        'm' => $vM,    
+        'a' => $vA,    
         'key' => $vKey,        
         'password' => $vPassword,        
         ));

@@ -5,7 +5,6 @@ require 'vendor/autoload.php';
 
 use \Services\Filter\Helper\FilterFactoryNames as stripChainers;
 
-
 /* $app = new \Slim\Slim(array(
   'mode' => 'development',
   'debug' => true,
@@ -508,81 +507,73 @@ $app->get("/pkFillUserAddressesTypes_infoUsersAddresses/", function () use ($app
  *  rest servislere eklendi
  */
 $app->get("/pktempFillGridSingular_infoUsersAddresses/", function () use ($app ) {
-    $stripper = $app->getServiceManager()->get('filterChainerCustom');
+   $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
-    $BLL = $app->getBLLManager()->get('infoUsersAddressesBLL');   
+    $BLL = $app->getBLLManager()->get('infoUsersAddressesBLL');    
     $headerParams = $app->request()->headers();
-    $PkTemp = $headerParams['X-Public-Temp'];
-    if (!isset($headerParams['X-Public-Temp']))
-        throw new Exception('rest api "pktempFillGridSingular_infoUsersAddresses" end point, X-Public variable not found');     
+    if (!isset($headerParams['X-Public-Temp'])) {
+        throw new Exception('rest api "pktempFillGridSingular_infoUsersAddresses" end point, X-Public variable not found');
+    }
+    $vPkTemp = $headerParams['X-Public-Temp'];
     $componentType = 'bootstrap';
     if (isset($_GET['component_type'])) {
         $componentType = strtolower(trim($_GET['component_type']));
     }
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
-                $app, $_GET['language_code']));
-    } 
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
+    }
     $stripper->strip();
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    }  
-    $resDataGrid = $BLL->fillGridSingularTemp(array(
-        'url' => $_GET['url'],  
-        'pktemp' => $PkTemp,
-        'language_code' => $vLanguageCode,
-                                        ));
-    $resTotalRowCount = $BLL->fillGridSingularRowTotalCountTemp(array(
-        'url' => $_GET['url'],  
-        'pktemp' => $PkTemp,
-        'language_code' => $vLanguageCode,
-                                        ));
-    $flows = array();
-    foreach ($resDataGrid as $flow) {
-        $flows[] = array(
-            "id" => $flow["id"],
-            "user_id" => $flow["user_id"],
-            "name" => html_entity_decode($flow["name"]),
-            "surname" => html_entity_decode($flow["surname"]),
-            "deleted" => $flow["deleted"],
-            "state_deleted" => html_entity_decode($flow["state_deleted"]),
-            "active" => $flow["active"],
-            "state_active" => $flow["state_active"],
-            "language_code" => $flow["language_code"],
-            "language_name" => html_entity_decode($flow["language_name"]),
-            "language_parent_id" => $flow["language_parent_id"],      
-            "op_user_id" => $flow["op_user_id"],
-            "op_username" => $flow["op_username"],       
-            "operation_type_id" => $flow["operation_type_id"],              
-            "operation_name" => html_entity_decode($flow["operation_name"]),
-            "profile_public" => $flow["profile_public"],
-	    "s_date" => $flow["s_date"],
-            "c_date" => $flow["c_date"], 
-            "consultant_id" => $flow["consultant_id"],  
-            "consultant_confirm_type_id" => $flow["consultant_confirm_type_id"],  
-            "consultant_confirm_type" => $flow["consultant_confirm_type"], 
-            "confirm_id" => $flow["confirm_id"],              
-            "address_type_id" => $flow["address_type_id"],
-            "address_type" => html_entity_decode($flow["address_type"]),
-            "address1" => html_entity_decode($flow["address1"]),
-            "address2" => html_entity_decode($flow["address2"]),  
-            "postal_code" => html_entity_decode($flow["postal_code"]),  
-            "country_id" => $flow["country_id"],  
-            "city_id" => $flow["city_id"],  
-            "borough_id" => $flow["borough_id"],  
-            "city_name" => html_entity_decode($flow["city_name"]),
-            "tr_country_name" => html_entity_decode($flow["tr_country_name"]),  
-            "tr_city_name" => html_entity_decode($flow["tr_city_name"]),  
-            "tr_borough_name" => html_entity_decode($flow["tr_borough_name"]),
-            "description" => html_entity_decode($flow["description"]),
-            "description_eng" => html_entity_decode($flow["description_eng"]),            
-            "attributes" => array("notroot" => true, "active" => $flow["active"]),
-        );
     }
-    $app->response()->header("Content-Type", "application/json");  
+   
+    
+    $resDataGrid = $BLL->fillGridSingularTemp(array('pktemp' => $vPkTemp,
+                                                    'language_code' => $vLanguageCode,
+                                                    
+                                                    ));
+
+    $resTotalRowCount = $BLL->fillGridSingularRowTotalCountTemp(array('pktemp' => $vPkTemp,
+                                                                    'language_code' => $vLanguageCode,
+                                                                     ));
+    $counts = 0;
+    $flows = array();
+    if (isset($resDataGrid[0]['id'])) {
+        foreach ($resDataGrid as $flow) {
+            $flows[] = array(
+                "id" => $flow["id"],
+                "user_id" => $flow["user_id"],
+                "name" => html_entity_decode($flow["name"]),
+                "surname" => html_entity_decode($flow["surname"]),
+                "language_name" => html_entity_decode($flow["language_name"]),
+                "s_date" => $flow["s_date"],
+                "c_date" => $flow["c_date"],
+                "address_type_id" => $flow["address_type_id"],
+                "address_type" => html_entity_decode($flow["address_type"]),
+                "address1" => html_entity_decode($flow["address1"]),
+                "address2" => html_entity_decode($flow["address2"]),
+                "postal_code" => html_entity_decode($flow["postal_code"]),
+                "country_id" => $flow["country_id"],
+                "country_name" => html_entity_decode($flow["country_name"]),
+                "city_id" => $flow["city_id"],
+                "city_names" => html_entity_decode($flow["city_names"]),
+                "borough_id" => $flow["borough_id"],
+                "borough_name" => html_entity_decode($flow["borough_name"]),
+                "city_name" => html_entity_decode($flow["city_name"]),
+                "description" => html_entity_decode($flow["description"]),
+                "attributes" => array("notroot" => true,
+                    "active" => $flow["active"],
+                    "profile_public" => $flow["profile_public"],),
+            );
+        }
+        $counts = $resTotalRowCount[0]['count'];
+    }
+
+    $app->response()->header("Content-Type", "application/json");
+  
     $resultArray = array();
-    $resultArray['total'] = $resTotalRowCount[0]['count'];
+    $resultArray['total'] = $counts;
     $resultArray['rows'] = $flows;
  
     if($componentType == 'bootstrap'){
@@ -606,12 +597,18 @@ $app->get("/pktempInsert_infoUsersAddresses/", function () use ($app ) {
     $PkTemp = $headerParams['X-Public-Temp'];
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempInsert_infoUsersAddresses" end point, X-Public variable not found');      
-    
-    $vRrpId = 0;
-    if (isset($_GET['rrp_id'])) {
-        $stripper->offsetSet('rrp_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
-                $app, $_GET['rrp_id']));
+ 
+     
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
     }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -673,9 +670,12 @@ $app->get("/pktempInsert_infoUsersAddresses/", function () use ($app ) {
                 $app, $_GET['city_name']));
     }
      
-    $stripper->strip();
-    if ($stripper->offsetExists('rrp_id')) {
-        $vRrpId = $stripper->offsetGet('rrp_id')->getFilterValue();
+    $stripper->strip();     
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+     if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
     }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -697,8 +697,7 @@ $app->get("/pktempInsert_infoUsersAddresses/", function () use ($app ) {
     }
     if ($stripper->offsetExists('address2')) {
         $vAddress2 = $stripper->offsetGet('address2')->getFilterValue();
-    }
-    
+    }    
     if ($stripper->offsetExists('postal_code')) {
         $vPostalCode = $stripper->offsetGet('postal_code')->getFilterValue();
     }
@@ -715,8 +714,9 @@ $app->get("/pktempInsert_infoUsersAddresses/", function () use ($app ) {
         $vCityName = $stripper->offsetGet('city_name')->getFilterValue();
     }      
     $resDataInsert = $BLL->insertTemp(array(  
-            'url' => $_GET['url'],
-            'rrp_id' =>$vRrpId,
+            'url' => $_GET['url'],                 
+            'm' =>$vM,
+            'a' => $vA,
             'language_code' => $vLanguageCode,
             'profile_public' => $vProfilePublic,  
             'address_type_id' => $vAddressTypeId , 
@@ -751,6 +751,16 @@ $app->get("/pktempUpdate_infoUsersAddresses/", function () use ($app ) {
     if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempUpdate_infoUsersAddresses" end point, X-Public variable not found');      
     
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }   
     $vId = 0;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
@@ -818,8 +828,14 @@ $app->get("/pktempUpdate_infoUsersAddresses/", function () use ($app ) {
     }
      
     $stripper->strip();
-     if ($stripper->offsetExists('id')) {
+    if ($stripper->offsetExists('id')) {
         $vId = $stripper->offsetGet('id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
     }
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -841,8 +857,7 @@ $app->get("/pktempUpdate_infoUsersAddresses/", function () use ($app ) {
     }
     if ($stripper->offsetExists('address2')) {
         $vAddress2 = $stripper->offsetGet('address2')->getFilterValue();
-    }
-    
+    }    
     if ($stripper->offsetExists('postal_code')) {
         $vPostalCode = $stripper->offsetGet('postal_code')->getFilterValue();
     }
@@ -861,6 +876,8 @@ $app->get("/pktempUpdate_infoUsersAddresses/", function () use ($app ) {
      
     $resDataInsert = $BLL->updateTemp(array(  
             'url' => $_GET['url'],  
+            'm' => $vM,
+            'a' => $vA,
             'id' => $vId,
             'language_code' => $vLanguageCode,
             'profile_public' => $vProfilePublic,  
@@ -894,7 +911,16 @@ $app->get("/pktempDeletedAct_infoUsersAddresses/", function () use ($app ) {
      if (!isset($headerParams['X-Public-Temp']))
         throw new Exception('rest api "pktempDeletedAct_infoUsersAddresses" end point, X-Public variable not found');
     $PkTemp = $headerParams['X-Public-Temp'];    
-    
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }   
     $vId = -1;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
@@ -904,9 +930,17 @@ $app->get("/pktempDeletedAct_infoUsersAddresses/", function () use ($app ) {
     if ($stripper->offsetExists('id')) {
         $vId = $stripper->offsetGet('id')->getFilterValue();
     }
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    }
+     if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    }
     $resDataUpdate = $BLL->deletedActTemp(array(
         'url' => $_GET['url'],  
-        'id' => $vID,       
+        'm' => $vM,       
+        'a' => $vA,    
+        'id' => $vId,    
         'pktemp' => $PkTemp)); 
     $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($resDataUpdate));

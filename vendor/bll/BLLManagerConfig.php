@@ -128,6 +128,7 @@ class BLLManagerConfig{
                  'beAssignedConsultantBLL' => 'BLL\BLL\SysOsbConsultants',  
                  'operationTableNameBLL' => 'BLL\BLL\PgClass',                   
                  'consultantProcessSendBLL' => 'BLL\BLL\ActProcessConfirm',  
+                 'SesionIdBLL' => 'BLL\BLL\InfoUsers', 
                  
                  
                   

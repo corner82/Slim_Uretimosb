@@ -31,7 +31,9 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
@@ -68,14 +70,18 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
     public function getAll($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }
+
             $statement = $pdo->prepare("
                 SELECT 
                     a.id,
@@ -136,7 +142,9 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords(array(
@@ -145,28 +153,49 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                     'user_id' => $opUserIdValue));
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
 
-                    $operationIdValue = -1;
-                    $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                    array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 42, 'type_id' => 1,));
-                    if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                        $operationIdValue = $operationId ['resultSet'][0]['id'];
-                    }
-                    $languageId = NULL;
+                    $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];                            
+                    $url = null;
+                    if (isset($params['url']) && $params['url'] != "") {
+                        $url = $params['url'];
+                    }    
+                    $m = null;
+                    if (isset($params['m']) && $params['m'] != "") {
+                        $m = $params['m'];
+                    }  
+                    $a = null;
+                    if (isset($params['a']) && $params['a'] != "") {
+                        $a = $params['a'];
+                    }  
+                    $operationIdValue =  0;
+                    $assignDefinitionIdValue = 0;
+                    $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);                        
+                    $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                    $operationTypesValue = $operationTypes->getInsertOperationId($operationTypeParams);
+                    if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                        $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                        $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];                        
+                    }  
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
                     }
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                        $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                    } 
 
                     $ConsultantId = 1001;
-                    $getConsultant = SysOsbConsultants::getConsultantIdForTableName(array('table_name' => 'info_users_sending_mail', 
-                                                                                          'operation_type_id' => $operationIdValue, 
-                                                                                          'language_id' => $languageIdValue, 
-                                                                                            ));
-                    if (\Utill\Dal\Helper::haveRecord($getConsultant)) {
-                        $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
+                    if ($operationIdValue > 0) {
+                        $url = null;
+                        $getConsultantParams = array('operation_type_id' => $operationIdValue, 'language_id' => $languageIdValue,);
+                        $getConsultant = $this->slimApp->getBLLManager()->get('beAssignedConsultantBLL');
+                        $getConsultantArray = $getConsultant->getBeAssignedConsultant($getConsultantParams);
+                        if (\Utill\Dal\Helper::haveRecord($getConsultantArray)) {
+                            $ConsultantId = $getConsultantArray ['resultSet'][0]['consultant_id'];
+                        }
                     }
 
                     $sql = "
@@ -205,16 +234,21 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                     if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                         throw new \PDOException($errorInfo[0]);
                     
-                    $xjobs = ActProcessConfirm::insert(array(
-                              'op_user_id' => intval($opUserIdValue),
-                              'operation_type_id' => intval($operationIdValue),
-                              'table_column_id' => intval($insertID),
-                              'cons_id' => intval($ConsultantId),
-                              'preferred_language_id' => intval($languageIdValue),
-                                  )
-                    );
-                    if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                    throw new \PDOException($xjobs['errorInfo']);
+                    $consultantProcessSendParams = array(
+                        'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                        'operation_type_id' => intval($operationIdValue), // operasyon 
+                        'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                        'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                        'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                        'url' => $url,
+                        'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                     );
+                    $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                    $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                    if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                            $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                            $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                        throw new \PDOException($setConsultantProcessSendArray['errorInfo']);
                     
                     $pdo->commit();
                     return array("found" => true, "errorInfo" => $errorInfo, "lastInsertId" => $insertID);
@@ -355,7 +389,9 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords(array('id' => $params['id'],
@@ -364,12 +400,31 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                     'user_id' => $opUserIdValue));
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
                     $this->makePassive(array('id' => $params['id']));
-                    $operationIdValue = -2;
-                    $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                    array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 42, 'type_id' => 2,));
-                    if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                        $operationIdValue = $operationId ['resultSet'][0]['id'];
-                    }
+                    $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];                 
+                    $url = null;
+                    if (isset($params['url']) && $params['url'] != "") {
+                        $url = $params['url'];
+                    }    
+                    $m = null;
+                    if (isset($params['m']) && $params['m'] != "") {
+                        $m = $params['m'];
+                    }  
+                    $a = null;
+                    if (isset($params['a']) && $params['a'] != "") {
+                        $a = $params['a'];
+                    }  
+                    $operationIdValue =  0;
+                    $assignDefinitionIdValue = 0;
+                    $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);
+                    $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                    $operationTypesValue = $operationTypes->getUpdateOperationId($operationTypeParams);
+                    if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                        $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                        $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];
+                        if ($operationIdValue > 0) {
+                            $url = null;
+                        }
+                    }     
 
                     $sql = "  
                     INSERT INTO info_users_sending_mail(
@@ -417,17 +472,21 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                         $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
                     }
 
-                    $xjobs = ActProcessConfirm::insert(array(
-                                'op_user_id' => intval($opUserIdValue), // işlemi yapan user
-                                'operation_type_id' => intval($operationIdValue), // operasyon 
-                                'table_column_id' => intval($insertID), // işlem yapılan tablo id si
-                                'cons_id' => intval($ConsultantId), // atanmış olan danısman 
-                                'preferred_language_id' => intval($languageIdValue), // dil bilgisi
-                                    )
-                    );
-
-                    if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                       throw new \PDOException($xjobs['errorInfo']); 
+                    $consultantProcessSendParams = array(
+                        'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                        'operation_type_id' => intval($operationIdValue), // operasyon 
+                        'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                        'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                        'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                        'url' => $url,
+                        'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                     );
+                    $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                    $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                    if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                            $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                            $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                        throw new \PDOException($setConsultantProcessSendArray['errorInfo']);
                     $pdo->commit();
                     return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
                 } else {
@@ -487,14 +546,18 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
             $order = "ASC";
         }
 
-        $languageId = NULL;
+        $languageCode = 'tr';
         $languageIdValue = 647;
-        if ((isset($args['language_code']) && $args['language_code'] != "")) {
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            }
+        if (isset($args['language_code']) && $args['language_code'] != "") {
+            $languageCode = $args['language_code'];
         }
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+        }
+
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -605,7 +668,6 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
     }
 
     /**
-
      * @author Okan CIRAN
      * @ info_users_sending_mail tablosundan parametre olarak  gelen id kaydın aktifliğini
      *  0(aktif) ise 1 , 1 (pasif) ise 0  yapar. !!
@@ -618,7 +680,9 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -658,6 +722,7 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
     }
 
     /**
+     * @author Okan CIRAN
      * delete olayında önce kaydın active özelliğini pasif e olarak değiştiriyoruz. 
      * daha sonra deleted= 1 ve active = 1 olan kaydı oluşturuyor. 
      * böylece tablo içerisinde loglama mekanizması için gerekli olan kayıt oluşuyor.
@@ -671,16 +736,38 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $this->makePassive(array('id' => $params['id']));
-                $operationIdValue = -3;
-                $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 42, 'type_id' => 3,));
-                if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                    $operationIdValue = $operationId ['resultSet'][0]['id'];
-                }
+                $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];
+                            
+                $url = null;
+                if (isset($params['url']) && $params['url'] != "") {
+                    $url = $params['url'];
+                }    
+                $m = null;
+                if (isset($params['m']) && $params['m'] != "") {
+                    $m = $params['m'];
+                }  
+                $a = null;
+                if (isset($params['a']) && $params['a'] != "") {
+                    $a = $params['a'];
+                }  
+                $operationIdValue =  0;
+                $assignDefinitionIdValue = 0;
+                $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);
+                $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                $operationTypesValue = $operationTypes->getDeleteOperationId($operationTypeParams);
+                if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                    $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                    $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];
+                    if ($operationIdValue > 0) {
+                        $url = null;
+                    }
+                }  
 
                 $sql = "  
                     INSERT INTO info_users_sending_mail(
@@ -727,17 +814,21 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                     $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];
                 }
 
-                $xjobs = ActProcessConfirm::insert(array(
-                            'op_user_id' => intval($opUserIdValue), // işlemi yapan user
-                            'operation_type_id' => intval($operationIdValue), // operasyon 
-                            'table_column_id' => intval($insertID), // işlem yapılan tablo id si
-                            'cons_id' => intval($ConsultantId), // atanmış olan danısman 
-                            'preferred_language_id' => intval($languageIdValue), // dil bilgisi
-                                )
-                );
-
-                if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                    throw new \PDOException($xjobs['errorInfo']);
+                $consultantProcessSendParams = array(
+                    'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                    'operation_type_id' => intval($operationIdValue), // operasyon 
+                    'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                    'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                    'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                    'url' => $url,
+                    'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                 );
+                $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                        $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                        $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                    throw new \PDOException($setConsultantProcessSendArray['errorInfo']);
                 $pdo->commit();
                 return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
             } else {
@@ -771,7 +862,7 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
                         '{[herkimse]}' => $params['herkimse'],
                         '{[kume]}' =>  $params['kume'],
                         '{[rol]}' => $params['rol'],
-                        '{[link]}' => 'https://zeynel.sanalfabrika.com/ostim/sanalfabrika/signupconfirmation?key='. $params['key']));
+                        '{[link]}' => 'https://zeynel.uretimosb.com/imalat/OSB/signupconfirmation?key='. $params['key']));
 
             $mail = new \Utill\Mail\PhpMailer\PhpMailInfoWrapper();
             $mail->setCharset('UTF-8');
@@ -780,8 +871,8 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
             $mail->setSMTPServerUserPassword('1q2w3e4r');
             $mail->setFromUserName('sanalfabrika@ostimteknoloji.com');
             $mail->setMessage($message);
-            $params = ['subject' => 'Sanal Fabrika Küme Çalışanı Onay İşlemi',
-                'info' => 'Sanal Fabrika Yöneticileri tarafından '
+            $params = ['subject' => 'OSB İmalat Küme Çalışanı Onay İşlemi',
+                'info' => 'OSB İmalat Yöneticileri tarafından '
                 . '              sisteme Küme Çalışanı olarak onaylanmanız amacıyla gönderilmiştir',
                 'to' =>  '311corner82@gmail.com']; //$params['auth_email'] ];  // 311corner82@gmail.com
             $mail->sendInfoMailSMTP($params);
@@ -800,9 +891,58 @@ class InfoUsersSendingMail extends \DAL\DalSlim {
         }
     }
 
+    
     /**
-     * sys_osb_person tablosundaki urgeci kaydı oluşturur  !!
      * @author Okan CIRAN
+     * @ parametre olarak verilen user a onay emaili gönderir. !!
+     * @version v 1.0  08.11.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function sendMailTempUserRegistration($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+
+            $mailTemplate = new \Utill\Mail\Template\MailTemplate();
+            $mailTemplate->setContentRetrieverStartegyClass(new \Utill\Mail\Template\ContentRetrieverFromFileStrategy);
+            $mailTemplate->setTemplateContent(array('fileName' => 'kume_confirm'));            
+            $message = $mailTemplate->replaceAndGetTemplateContent(array(
+                        '{[herkimse]}' => $params['herkimse'],
+                        '{[kume]}' =>  $params['kume'],
+                        '{[rol]}' => $params['rol'],
+                        '{[link]}' => 'https://zeynel.uretimosb.com/imalat/OSB/signupconfirmation?key='. $params['key']));
+
+            $mail = new \Utill\Mail\PhpMailer\PhpMailInfoWrapper();
+            $mail->setCharset('UTF-8');
+            $mail->setSMTPServerHost('mail.ostimteknoloji.com');
+            $mail->setSMTPServerUser('sanalfabrika@ostimteknoloji.com');
+            $mail->setSMTPServerUserPassword('1q2w3e4r');
+            $mail->setFromUserName('sanalfabrika@ostimteknoloji.com');
+            $mail->setMessage($message);
+            $params = ['subject' => 'OSB İmalat Kullanıcı Şifre Onay İşlemi',
+                'info' => 'OSB İmalat Yöneticileri tarafından '
+                . '              şifrenizi belirlemeniz amacıyla gönderilmiştir',
+                'to' => $params['auth_email'] ];  // 311corner82@gmail.com
+            $mail->sendInfoMailSMTP($params);
+            $sql = "";
+            $statement = $pdo->prepare($sql);
+            //  echo debugPDO($sql, $params);                
+            // $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            //$debugSQLParams = $statement->debugDumpParams();
+            return array("found" => false, "errorInfo" => $e->getMessage()/* , 'debug' => $debugSQLParams */);
+        }
+    }
+
+    /**
+     * @author Okan CIRAN
+     * sys_osb_person tablosundaki urgeci kaydı oluşturur  !! 
      * @version v 1.0  31.08.2016
      * @param array | null $args
      * @return array

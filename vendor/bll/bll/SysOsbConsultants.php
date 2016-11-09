@@ -146,7 +146,7 @@ class SysOsbConsultants extends \BLL\BLLSlim {
         $resultSet = $DAL->fillOsbConsultantListGridRtc($params);  
         return $resultSet['resultSet'];
     }   
-        /**
+    /**
      * public key / private key and value update function
      * @param array | null $params
      * @return array
@@ -155,5 +155,16 @@ class SysOsbConsultants extends \BLL\BLLSlim {
         $DAL = $this->slimApp->getDALManager()->get('sysOsbConsultantsPDO');
         return $DAL->makeActiveOrPassive($params);
     } 
+    
+    /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getBeAssignedConsultant($params = array()) {
+    $DAL = $this->slimApp->getDALManager()->get('sysOsbConsultantsPDO');
+    $resultSet = $DAL->getBeAssignedConsultant($params);  
+    return $resultSet['resultSet'];
+    }
      
 }

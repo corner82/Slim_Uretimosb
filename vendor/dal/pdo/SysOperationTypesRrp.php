@@ -10,6 +10,8 @@
 
 namespace DAL\PDO;
 
+use Services\OperationTypes\Helper\OperationTypesFactoryNames as operationTypeChainers;
+
 /**
  * Class using Zend\ServiceManager\FactoryInterface
  * created to be used by DAL MAnager
@@ -30,7 +32,9 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
@@ -167,18 +171,23 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {                    
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
+                    }       
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                         $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
                     }  
                     
                     $sql = "
@@ -243,18 +252,23 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
+                    }       
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                         $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
                     }  
                     
                     $sql = "
@@ -1214,7 +1228,9 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -1255,7 +1271,7 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
 
     /**    
      * @author Okan CIRAN
-     * @ sys_operation_types_rrp tablosundan url, pk ve rrp_id ye karsılık gelen operasyon tipini döndürür   !!     
+     * @ sys_operation_types_rrp tablosundan url, m, a ve role_id_id ye karsılık gelen operasyon tipini döndürür   !!     
      * @version v 1.0  05.10.2016
      * @param array | null $args
      * @return array
@@ -1329,6 +1345,258 @@ class SysOperationTypesRrp extends \DAL\DalSlim {
         }
     }
     
+    /**    
+     * @author Okan CIRAN
+     * @ sys_operation_types_rrp tablosundan url, m, a ve role_id_id ye karsılık gelen operasyon tipini döndürür   !!     
+     * @version v 1.0  13.10.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getInsertOperationId($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');   
+            $operationIdValue =  operationTypeChainers::INSERT_OPERATION_TYPES_ID ;   
+            $roleId = 0;
+            if (isset($params['role_id']) && $params['role_id'] != "") {
+                $roleId = intval($params['role_id']);
+            }
+            $url= 'url';
+            if (isset($params['url']) && $params['url'] != "") {
+                $url = $params['url'];
+            }  
+            $m= 'modul';
+            if (isset($params['m']) && $params['m'] != "") {
+                $url = $params['m'];
+            }  
+            $a= 'action';
+            if (isset($params['a']) && $params['a'] != "") {
+                $url = $params['a'];
+            }  
+                            
+            $sql = "
+            SELECT * FROM 
+                    (SELECT 
+                        ". intval($operationIdValue)." AS id,
+                        -1 AS rrp_restservice_id, 
+                        ". intval($roleId)." AS role_id, 
+                        -1 AS rrp_id,
+                        -1 AS services_group_id,
+                        -1 AS restservices_id,
+                        -1 AS assign_definition_id,
+                        false AS control     
+                UNION 
+                    (SELECT  
+                        a.id,                            
+                        a.rrp_restservice_id, 
+                        rrp.role_id, 
+                        rrp.id AS rrp_id,                            
+                        sar.services_group_id,			    
+                        sarrs.restservices_id,			
+                        a.assign_definition_id,
+                        1=1 AS control                                                    
+                    FROM sys_operation_types_rrp a
+                    INNER JOIN sys_acl_rrp_restservices sarrs ON sarrs.id = a.rrp_restservice_id AND sarrs.active=0 AND sarrs.deleted =0
+                    INNER JOIN sys_acl_rrp rrp ON rrp.id = sarrs.rrp_id AND rrp.deleted =0 AND rrp.active =0
+                    INNER JOIN sys_acl_restservices sar ON sar.id = sarrs.restservices_id AND sar.active =0 AND sar.deleted =0                         
+                    INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0   
+                    INNER JOIN sys_acl_actions_roles saar ON saar.role_id = rr.id AND saar.deleted = 0 AND saar.active = 0    
+                    INNER JOIN sys_acl_actions saa ON saa.id = saar.action_id AND saa.deleted = 0 AND saa.active = 0    
+                    INNER JOIN sys_acl_modules sam ON sam.id = saa.module_id AND sam.deleted = 0 AND sam.active = 0
+                    WHERE
+                        sam.name = '".$m."' AND 
+                        saa.name = '".$a."' AND 
+                        sar.name = '".$url."' AND
+                        rrp.role_id = ". intval($roleId)." AND 
+                        a.deleted =0 AND 
+                        a.active =0 AND 
+                        a.language_parent_id=0                   
+                    LIMIT 1) 
+                ) AS xtable 
+                ORDER BY control DESC
+		LIMIT 1
+                                 ";                            
+            $statement = $pdo->prepare($sql);            
+            //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);                 
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
     
+    /**    
+     * @author Okan CIRAN
+     * @ sys_operation_types_rrp tablosundan url, m, a ve role_id_id ye karsılık gelen operasyon tipini döndürür   !!     
+     * @version v 1.0  13.10.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getUpdateOperationId($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');   
+            $operationIdValue =  operationTypeChainers::UPDATE_OPERATION_TYPES_ID;   
+            $roleId = 0;
+            if (isset($params['role_id']) && $params['role_id'] != "") {
+                $roleId = intval($params['role_id']);
+            }
+            $url= 'url';
+            if (isset($params['url']) && $params['url'] != "") {
+                $url = $params['url'];
+            }  
+            $m= 'modul';
+            if (isset($params['m']) && $params['m'] != "") {
+                $url = $params['m'];
+            }  
+            $a= 'action';
+            if (isset($params['a']) && $params['a'] != "") {
+                $url = $params['a'];
+            }  
+                            
+            $sql = "
+            SELECT * FROM 
+                    (SELECT 
+                        ". intval($operationIdValue)." AS id,
+                        -2 AS rrp_restservice_id, 
+                        ". intval($roleId)." AS role_id, 
+                        -2 AS rrp_id,
+                        -2 AS services_group_id,
+                        -2 AS restservices_id,
+                        -2 AS assign_definition_id,
+                        false AS control     
+                UNION 
+                    (SELECT  
+                        a.id,                            
+                        a.rrp_restservice_id, 
+                        rrp.role_id, 
+                        rrp.id AS rrp_id,                            
+                        sar.services_group_id,			    
+                        sarrs.restservices_id,			
+                        a.assign_definition_id,
+                        1=1 AS control                                                    
+                    FROM sys_operation_types_rrp a
+                    INNER JOIN sys_acl_rrp_restservices sarrs ON sarrs.id = a.rrp_restservice_id AND sarrs.active=0 AND sarrs.deleted =0
+                    INNER JOIN sys_acl_rrp rrp ON rrp.id = sarrs.rrp_id AND rrp.deleted =0 AND rrp.active =0
+                    INNER JOIN sys_acl_restservices sar ON sar.id = sarrs.restservices_id AND sar.active =0 AND sar.deleted =0                         
+                    INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0   
+                    INNER JOIN sys_acl_actions_roles saar ON saar.role_id = rr.id AND saar.deleted = 0 AND saar.active = 0    
+                    INNER JOIN sys_acl_actions saa ON saa.id = saar.action_id AND saa.deleted = 0 AND saa.active = 0    
+                    INNER JOIN sys_acl_modules sam ON sam.id = saa.module_id AND sam.deleted = 0 AND sam.active = 0
+                    WHERE
+                        sam.name = '".$m."' AND 
+                        saa.name = '".$a."' AND 
+                        sar.name = '".$url."' AND
+                        rrp.role_id = ". intval($roleId)." AND 
+                        a.deleted =0 AND 
+                        a.active =0 AND 
+                        a.language_parent_id=0                   
+                    LIMIT 1) 
+                ) AS xtable 
+                ORDER BY control DESC
+		LIMIT 1
+                                 ";                            
+            $statement = $pdo->prepare($sql);            
+            //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);                 
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+    
+    /**    
+     * @author Okan CIRAN
+     * @ sys_operation_types_rrp tablosundan url, m, a ve role_id_id ye karsılık gelen operasyon tipini döndürür   !!     
+     * @version v 1.0  13.10.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getDeleteOperationId($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');   
+            $operationIdValue =  operationTypeChainers::DELETE_OPERATION_TYPES_ID;   
+            $roleId = 0;
+            if (isset($params['role_id']) && $params['role_id'] != "") {
+                $roleId = intval($params['role_id']);
+            }
+            $url= 'url';
+            if (isset($params['url']) && $params['url'] != "") {
+                $url = $params['url'];
+            }  
+            $m= 'modul';
+            if (isset($params['m']) && $params['m'] != "") {
+                $url = $params['m'];
+            }  
+            $a= 'action';
+            if (isset($params['a']) && $params['a'] != "") {
+                $url = $params['a'];
+            }  
+                            
+            $sql = "
+            SELECT * FROM 
+                    (SELECT 
+                        ". intval($operationIdValue)." AS id,
+                        -3 AS rrp_restservice_id, 
+                        ". intval($roleId)." AS role_id, 
+                        -3 AS rrp_id,
+                        -3 AS services_group_id,
+                        -3 AS restservices_id,
+                        -3 AS assign_definition_id,
+                        false AS control     
+                UNION 
+                    (SELECT  
+                        a.id,                            
+                        a.rrp_restservice_id, 
+                        rrp.role_id, 
+                        rrp.id AS rrp_id,                            
+                        sar.services_group_id,			    
+                        sarrs.restservices_id,			
+                        a.assign_definition_id,
+                        1=1 AS control                                                    
+                    FROM sys_operation_types_rrp a
+                    INNER JOIN sys_acl_rrp_restservices sarrs ON sarrs.id = a.rrp_restservice_id AND sarrs.active=0 AND sarrs.deleted =0
+                    INNER JOIN sys_acl_rrp rrp ON rrp.id = sarrs.rrp_id AND rrp.deleted =0 AND rrp.active =0
+                    INNER JOIN sys_acl_restservices sar ON sar.id = sarrs.restservices_id AND sar.active =0 AND sar.deleted =0                         
+                    INNER JOIN sys_acl_roles rr ON rr.id = rrp.role_id AND rr.deleted = 0 AND rr.active = 0   
+                    INNER JOIN sys_acl_actions_roles saar ON saar.role_id = rr.id AND saar.deleted = 0 AND saar.active = 0    
+                    INNER JOIN sys_acl_actions saa ON saa.id = saar.action_id AND saa.deleted = 0 AND saa.active = 0    
+                    INNER JOIN sys_acl_modules sam ON sam.id = saa.module_id AND sam.deleted = 0 AND sam.active = 0
+                    WHERE
+                        sam.name = '".$m."' AND 
+                        saa.name = '".$a."' AND 
+                        sar.name = '".$url."' AND
+                        rrp.role_id = ". intval($roleId)." AND 
+                        a.deleted =0 AND 
+                        a.active =0 AND 
+                        a.language_parent_id=0                   
+                    LIMIT 1) 
+                ) AS xtable 
+                ORDER BY control DESC
+		LIMIT 1
+                                 ";                            
+            $statement = $pdo->prepare($sql);            
+            //  echo debugPDO($sql, $params);
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);                 
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+    
+
     
 }

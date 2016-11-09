@@ -445,17 +445,24 @@ $app->get("/pktempFillGridSingular_infoUsersCommunications/", function () use ($
         'pktemp' => $vPkTemp,
         'language_code' => $vLanguageCode 
             ));
+    $counts = 0;
     $flows = array();
-    foreach ($resDataGrid as $flow) {
-        $flows[] = array(
-            "id" => $flow["id"],
-            "communications_type_id" => $flow["communications_type_id"],
-            "comminication_type" => html_entity_decode($flow["comminication_type"]),
-            "communications_no" => $flow["communications_no"],              
-            "default_communication_id" => $flow["default_communication_id"],
-            "default_communication" => html_entity_decode($flow["default_communication"]),
-            "attributes" => array("notroot" => true, ),
-        );
+    if (isset($resDataGrid[0]['id'])) {
+        foreach ($resDataGrid as $flow) {
+            $flows[] = array(
+                "id" => $flow["id"],
+                "communications_type_id" => $flow["communications_type_id"],
+                "comminication_type" => html_entity_decode($flow["comminication_type"]),
+                "communications_no" => $flow["communications_no"],
+                "default_communication_id" => $flow["default_communication_id"],
+                "default_communication" => html_entity_decode($flow["default_communication"]),
+                "attributes" => array("notroot" => true,
+                    "active" => $flow["active"],
+                    "profile_public" => $flow["profile_public"],
+                    ),
+            );
+        }
+        $counts = $resTotalRowCount[0]['count'];
     }
     $app->response()->header("Content-Type", "application/json");
     $resultArray = array();

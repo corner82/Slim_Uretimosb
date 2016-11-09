@@ -137,7 +137,45 @@ class SysOperationTypesRrp extends \BLL\BLLSlim {
         return $DAL->makeActiveOrPassive($params);
     } 
     
+    /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getRrpIdToGoOperationId($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('sysOperationTypesRrpPDO');
+        return $DAL->getRrpIdToGoOperationId($params);
+    } 
     
+    /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getInsertOperationId($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('sysOperationTypesRrpPDO');
+        return $DAL->getInsertOperationId($params);
+    } 
+    
+    /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getUpdateOperationId($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('sysOperationTypesRrpPDO');
+        return $DAL->getUpdateOperationId($params);
+    } 
+    
+     /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getDeleteOperationId($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('sysOperationTypesRrpPDO');
+        return $DAL->getDeleteOperationId($params);
+    } 
 
 
 }

@@ -817,6 +817,16 @@ $app->get("/pktempInsert_infoFirmProfile/", function () use ($app ) {
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
     $vPkTemp = $headerParams['X-Public-Temp']; 
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }     
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -929,6 +939,12 @@ $app->get("/pktempInsert_infoFirmProfile/", function () use ($app ) {
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     } 
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    } 
     if ($stripper->offsetExists('web_address')) {
         $vWebAddress = $stripper->offsetGet('web_address')->getFilterValue();
     } 
@@ -982,6 +998,8 @@ $app->get("/pktempInsert_infoFirmProfile/", function () use ($app ) {
     }     
     $resDataInsert = $BLL->insertTemp(array(  
             'url' => $_GET['url'],
+            'm' => $vM,
+            'a' => $vA,
             'language_code' => $vLanguageCode,
             'profile_public' => $vProfilePublic,        
             'firm_name' => $vFirmName , 
@@ -1017,6 +1035,16 @@ $app->get("/pktempUpdate_infoFirmProfile/", function () use ($app ) {
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');   
     $headerParams = $app->request()->headers();
     $vPkTemp = $headerParams['X-Public-Temp']; 
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }    
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
         $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
@@ -1132,6 +1160,12 @@ $app->get("/pktempUpdate_infoFirmProfile/", function () use ($app ) {
                                                                 $_GET['web_address']));
     }
     $stripper->strip(); 
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
+    } 
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    } 
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     } 
@@ -1191,6 +1225,8 @@ $app->get("/pktempUpdate_infoFirmProfile/", function () use ($app ) {
     }     
     $resDataInsert = $BLL->insertTemp(array(  
             'url' => $_GET['url'],
+            'm' => $vM,
+            'a' => $vA,
             'id' => $vId,
             'language_code' => $vLanguageCode,
             'profile_public' => $vProfilePublic,        
@@ -1226,6 +1262,16 @@ $app->get("/pktempDeletedAct_infoFirmProfile/", function () use ($app ) {
     $BLL = $app->getBLLManager()->get('infoFirmProfileBLL');
     $headerParams = $app->request()->headers();
     $vPkTemp = $headerParams['X-Public-Temp'];      
+    $vM = NULL;
+    if (isset($_GET['m'])) {
+        $stripper->offsetSet('m', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['m']));
+    }
+    $vA = NULL;
+    if (isset($_GET['a'])) {
+        $stripper->offsetSet('a', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['a']));
+    }    
     $vId = 0;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
@@ -1233,11 +1279,19 @@ $app->get("/pktempDeletedAct_infoFirmProfile/", function () use ($app ) {
                                                                 $_GET['id']));
     }        
     $stripper->strip();  
-    if ($stripper->offsetExists('id')) {
-        $vId = $stripper->offsetGet('id')->getFilterValue();
+    if ($stripper->offsetExists('m')) {
+        $vM = $stripper->offsetGet('m')->getFilterValue();
     }     
+    if ($stripper->offsetExists('a')) {
+        $vA = $stripper->offsetGet('a')->getFilterValue();
+    } 
+     if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();
+    } 
     $resDataUpdate = $BLL->deletedActTemp(array(
         'url' => $_GET['url'],
+        'm' => $vM,  
+        'a' => $vA,  
         'id' => $vId,  
         'pktemp' => $vPkTemp)); 
     $app->response()->header("Content-Type", "application/json"); 

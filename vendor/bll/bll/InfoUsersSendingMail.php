@@ -154,5 +154,16 @@ class InfoUsersSendingMail extends \BLL\BLLSlim{
         return $DAL->insertSendingMail($params);
     }
     
+    /**
+     * Function to fill datagrid on user interface layer
+     * @param array | null $params
+     * @return array
+     */
+    public function sendMailTempUserRegistration ($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoUsersSendingMailPDO');
+        $resultSet = $DAL->sendMailTempUserRegistration($params);  
+        return $resultSet['resultSet'];
+    }
+    
 }
 

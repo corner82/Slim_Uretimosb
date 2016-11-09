@@ -95,6 +95,17 @@ class PgClass extends \BLL\BLLSlim{
         $resultSet = $DAL->fillInfoTablesDdList($params);
         return $resultSet['resultSet'];
     }
+    
+    /**
+     * public key / private key and value update function
+     * @param array | null $params
+     * @return array
+     */
+    public function getOperationTableName($params = array()) {
+    $DAL = $this->slimApp->getDALManager()->get('pgClassPDO');
+    $resultSet = $DAL->getOperationTableName($params);  
+    return $resultSet['resultSet'];
+    }
   
 }
 

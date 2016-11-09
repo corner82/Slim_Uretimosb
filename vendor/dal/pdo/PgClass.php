@@ -150,6 +150,7 @@ class PgClass extends \DAL\DalSlim {
             if (isset($params['operation_type_id']) && $params['operation_type_id'] != "") {
                 $operationTypeId = intval($params['operation_type_id']);
             }
+            print_r($operationTypeId);
             $sql = "  
         	SELECT                  
                     c.relname AS table_name                
