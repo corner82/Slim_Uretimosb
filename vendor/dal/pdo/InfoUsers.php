@@ -722,12 +722,9 @@ class InfoUsers extends \DAL\DalSlim {
                                     'kume' => 'Sanal Fabrika',//<--- burası  degisescek  oki..
                                     'rol' => $roleValue,
                                     'key' => $keyValue,
-                        );
+                        );                        
                         
-                        $sendMailTempUserRegistrationArray= $SendingMail->sendMailTempUserRegistration($sendMailTempUserRegistrationParams);                                 
-
-                        if ($sendMailTempUserRegistrationArray['errorInfo'][0] != "00000" && $sendMailTempUserRegistrationArray['errorInfo'][1] != NULL && $sendMailTempUserRegistrationArray['errorInfo'][2] != NULL)
-                            throw new \PDOException($sendMailTempUserRegistrationArray['errorInfo']);
+                        $sendMailTempUserRegistrationArray= $SendingMail->sendMailTempUserRegistration($sendMailTempUserRegistrationParams);
                     }
                                 
                     //////////////////////////////////////////////////////////////////////////////
@@ -2999,7 +2996,52 @@ class InfoUsers extends \DAL\DalSlim {
             return array("found" => false, "errorInfo" => $e->getMessage());
         }
     }
-                                
+         
+    /**  
+     * @author Okan CIRAN
+     * @ network key den firm id sini döndürür  !!     
+     * @version v 1.0  09.05.2016
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getTempUserInformation($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');                                
+            if (isset($params['id'])) {                                
+                $userId = $params['id'];  
+                $sql = " 
+                    SELECT user_id, 1=1 AS control, role,  key FROM (
+                        SELECT 
+                            a.id as user_id,
+                            concat(sar.name , ' (' ,sar.name_tr ,')' )  AS role,
+                            REPLACE(TRIM(SUBSTRING(crypt(a.sf_private_key_value,gen_salt('xdes')),6,20)),'/','*') AS key
+                        FROM info_users a
+                        INNER JOIN sys_acl_roles sar ON sar.id = a.role_id 
+                        WHERE
+                         a.id = ".intval($userId)."
+                         LIMIT 1
+                    ) AS xtable
+                                 ";
+                $statement = $pdo->prepare($sql);
+              // echo debugPDO($sql, $params);
+                $statement->execute();
+                $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+                $errorInfo = $statement->errorInfo();
+                if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                    throw new \PDOException($errorInfo[0]);
+                return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+            } else {
+                $errorInfo = '23502';   // 23502  network_key not_null_violation
+                $errorInfoColumn = 'network_key';
+                return array("found" => false, "errorInfo" => $errorInfo, "resultSet" => '', "errorInfoColumn" => $errorInfoColumn);
+            }
+        } catch (\PDOException $e /* Exception $e */) {
+            return array("found" => false, "errorInfo" => $e->getMessage());
+        }
+    }
+    
+    
     /**
      * @author Okan CIRAN
      * parametre olarak gelen 'id' li kaydın password unu update yapar  !!     
