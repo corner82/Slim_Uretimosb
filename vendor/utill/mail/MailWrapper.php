@@ -51,7 +51,7 @@ class MailWrapper extends AbstractMailWrapper {
            // print_r($params1[0]['recipients']);
             
             if ((isset($params['recipients']) && $params['recipients'] != "")) { 
-                $body = ' Sanal Fabrika  <b>Sanal Fabrika !</b>';
+                $body = ' OSB İmalat  <b>OSB İmalat !</b>';
                 if ((isset($params['body']) && $params['body'] != "")) {
                     $body = $params['body'];
                 }
@@ -65,7 +65,7 @@ class MailWrapper extends AbstractMailWrapper {
                 if ((isset($params['set_from_name']) && $params['set_from_name'] != "")) {
                     $valueSetFromName = $params['set_from_name'];
                 }  
-                $valueSuject = "SanalFabrika";
+                $valueSuject = "Osbİmalat";
                 if ((isset($params['subject']) && $params['subject'] != "")) {
                     $valueSuject = $params['subject'];
                 } 
