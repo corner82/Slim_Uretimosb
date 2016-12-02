@@ -1470,7 +1470,13 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
         $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER,
                                                 $app,
                                                 $_GET['order']));
-    }     
+    }  
+    $filterRules = null;
+    if (isset($_GET['filterRules'])) {
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, $app, $_GET['filterRules']));
+    }
+    
+    $stripper->strip(); 
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     }    
@@ -1485,7 +1491,10 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
     }    
     if ($stripper->offsetExists('order')) {
         $vOrder = $stripper->offsetGet('order')->getFilterValue();
-    }    
+    }  
+    if ($stripper->offsetExists('filterRules')) {
+        $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
+    }
    
     $resDataGrid = $BLL->fillCompanyListsGuest(array( 
         'url' => $_GET['url'],
@@ -1494,11 +1503,13 @@ $app->get("/pkFillCompanyLists_infoFirmProfile/", function () use ($app ) {
         'sort' => $vSort,
         'order' => $vOrder,  
         'language_code' => $vLanguageCode,
+        'filterRules' => $filterRules,
         'pk' => $pk,
         ));
     $resTotalRowCount = $BLL->fillCompanyListsGuestRtc(array( 
         'url' => $_GET['url'],        
         'language_code' => $vLanguageCode,
+        'filterRules' => $filterRules,
         'pk' => $pk,
         ));
     $flows = array();

@@ -2320,7 +2320,50 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
                 if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
                      $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
-                }                               
+                }  
+                $sorguStr = null;
+                if (isset($params['filterRules'])) {
+                    $filterRules = trim($params['filterRules']);
+                    $jsonFilter = json_decode($filterRules, true);
+                    $sorguExpression = null;
+                    foreach ($jsonFilter as $std) {
+                        if ($std['value'] != null) {
+                            switch (trim($std['field'])) {
+                                case 'firm_names':
+                                    $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
+                                    $sorguStr.=" AND LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.firm_name, ''), a.firm_name_eng), ''), a.firm_name))" . $sorguExpression . ' ';
+
+                                    break;
+                                case 'web_address':
+                                    $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                    $sorguStr.=" AND LOWER(a.web_address)" . $sorguExpression . ' ';
+
+                                    break;
+                                case 'firm_name_short':
+                                    $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                    $sorguStr.=" AND LOWER(a.firm_name_short)" . $sorguExpression . ' ';
+
+                                    break;
+                                 case 'country_names':
+                                    $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                    $sorguStr.=" AND LOWER(COALESCE(NULLIF(cox.name, ''), co.name_eng))" . $sorguExpression . ' ';
+
+                                    break;
+                                 case 'npk':
+                                    $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                    $sorguStr.=" AND LOWER(k.network_key)" . $sorguExpression . ' ';
+
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                } else {
+                    $sorguStr = null;
+                    $filterRules = "";
+                }
+                $sorguStr = rtrim($sorguStr, "AND ");    
 
                 $sql = "                  
                 SELECT 
@@ -2347,6 +2390,7 @@ class InfoFirmProfile extends \DAL\DalSlim {
                     a.language_parent_id =0 AND 
                     a.profile_public =0 AND 
                     a.cons_allow_id = 2
+                    ".$sorguStr."
                 ORDER BY    " . $sort . " "
                     . "" . $order . " "
                     . "LIMIT " . $pdo->quote($limit) . " "
