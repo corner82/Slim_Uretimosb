@@ -30,7 +30,9 @@ class SysAclActions extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
            //     $ModuleId = $this->haveMenuTypeRecords(array('id' => $params['id']));
            //     if (!\Utill\Dal\Helper::haveRecord($ModuleId)) {
@@ -405,7 +407,9 @@ class SysAclActions extends \DAL\DalSlim {
         try {         
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
@@ -897,7 +901,9 @@ class SysAclActions extends \DAL\DalSlim {
 
                 if (\Utill\Dal\Helper::haveRecord($xAclPrivileges)) {
                     
-                    $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));                            
+                    $opUserIdParams = array('pk' =>  $params['pk'],);
+                    $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+                    $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
                     if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                         $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                         $kontrol = $this->haveRecords($params);
@@ -1067,9 +1073,10 @@ class SysAclActions extends \DAL\DalSlim {
             $pdo->beginTransaction();
            
             $xAclPrivileges = $this->haveRecordsActionPrivilegRestServices(array('id' => $params['id'],));                            
-            if (!\Utill\Dal\Helper::haveRecord($xAclPrivileges)) {
-                            
-                $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            if (!\Utill\Dal\Helper::haveRecord($xAclPrivileges)) {                            
+                $opUserIdParams = array('pk' =>  $params['pk'],);
+                $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+                $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
                 if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                     $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                     $kontrol = $this->haveRecords($params);
@@ -1939,7 +1946,9 @@ class SysAclActions extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {

@@ -117,23 +117,17 @@ $app->get("/pkFillMachineToolGroups_sysMachineToolGroups/", function () use ($ap
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
-            "id" => $flow["id"],
-            //"text" => strtolower($flow["name"]),
-            "text" => $flow["name"],
-            "state" => $flow["state_type"], //   'closed',
+            "id" => $flow["id"],            
+            "text" => html_entity_decode($flow["name"]),
+            "state" => html_entity_decode($flow["state_type"]), //   'closed',
             "checked" => false,
             "icon_class"=>$flow["icon_class"], 
             "attributes" => array("root" => $flow["root_type"], "active" => $flow["active"]
-                ,"machine" => $flow["machine"],"last_node" => $flow["last_node"]),
+                ,"machine" => html_entity_decode($flow["machine"])
+                ,"last_node" => html_entity_decode($flow["last_node"])   ),
         );
     }
-
-    $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($flows));
 });
 
@@ -143,22 +137,20 @@ $app->get("/pkFillMachineToolGroups_sysMachineToolGroups/", function () use ($ap
  * @since 15-02-2016
  */
 $app->get("/pkFillJustMachineToolGroups_sysMachineToolGroups/", function () use ($app ) {
-
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
-    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();
-    
+    $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();    
     $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
-                                                $app,
-                                                $_GET['language_code']));
+                        $app,
+                        $_GET['language_code']));
     }
      $vParentId = 0;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['id']));
+                        $app,
+                        $_GET['id']));
     }    
     $vsearch = null;
     if(isset($_GET['search'])) {
@@ -186,23 +178,18 @@ $app->get("/pkFillJustMachineToolGroups_sysMachineToolGroups/", function () use 
     $flows = array();
     foreach ($resCombobox as $flow) {
         $flows[] = array(
-            "id" => $flow["id"],
-            //"text" => strtolower($flow["name"]),
-            "text" => $flow["name"],
-            "state" => $flow["state_type"], //   'closed',
+            "id" => $flow["id"],            
+            "text" => html_entity_decode($flow["name"]),
+            "state" => html_entity_decode($flow["state_type"]), //   'closed',
             "checked" => false,
             "icon_class"=>$flow["icon_class"], 
             "attributes" => array("root" => $flow["root_type"], "active" => $flow["active"]
-                ,"machine" => $flow["machine"],"last_node" => $flow["last_node"]),
+                ,"machine" => html_entity_decode($flow["machine"])
+                ,"last_node" => html_entity_decode($flow["last_node"])    ),
         );
     }
 
     $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
     $app->response()->body(json_encode($flows));
 });
 
@@ -212,7 +199,6 @@ $app->get("/pkFillJustMachineToolGroups_sysMachineToolGroups/", function () use 
  */
 
 $app->get("/pkFillMachineToolGroupsMachineProperties_sysMachineToolGroups/", function () use ($app ) {
-
     $stripper = $app->getServiceManager()->get('filterChainerCustom');
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();    
     $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');
@@ -227,8 +213,7 @@ $app->get("/pkFillMachineToolGroupsMachineProperties_sysMachineToolGroups/", fun
         $stripper->offsetSet('machine_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
                                                 $app,
                                                 $_GET['machine_id']));
-    }
-    
+    }    
     $stripper->strip();    
     if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
     if($stripper->offsetExists('machine_id')) $vMachineId = $stripper->offsetGet('machine_id')->getFilterValue();
@@ -259,17 +244,10 @@ $app->get("/pkFillMachineToolGroupsMachineProperties_sysMachineToolGroups/", fun
         }
         
     }
-    $resultArray = array();
-    //  $resultArray['total'] = 2;//$resTotalRowCount[0]['count'];
+    $resultArray = array();    
     $resultArray['rows'] = $flows;
     $app->response()->header("Content-Type", "application/json");
-
-    /* $app->contentType('application/json');
-      $app->halt(302, '{"error":"Something went wrong"}');
-      $app->stop(); */
-
-    $app->response()->body(json_encode($resultArray));
-    
+    $app->response()->body(json_encode($resultArray));    
 });
  
 /**
@@ -290,8 +268,6 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
                                                 $app,
                                                 $_GET['language_code']));
     }
-    
-    
     $vParentId = 0;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
@@ -305,17 +281,17 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
 
     
      $stripper->strip();    
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('id')) $vParentId = $stripper->offsetGet('id')->getFilterValue();
-    
-    
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('id')) {
+        $vParentId = $stripper->offsetGet('id')->getFilterValue();
+    }   
     
     $resCombobox = $BLL->fillJustMachineToolGroupsBootstrap(array( 
                                                         'language_code' => $vLanguageCode,
-                                                        'parent_id' => $vParentId,
-        
-                                                            ));
- 
+                                                        'parent_id' => $vParentId,        
+                                                            )); 
     $menus = array();
     $menus[] = array("text" => "Lütfen Seçiniz", "value" => 0, "selected" => true, "imageSrc" => "", "description" => "Lütfen Seçiniz",); 
      if ($componentType == 'bootstrap') {
@@ -324,14 +300,12 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
             $menus[] = array(
                 "id" => $menu["id"],       
                 "text" => html_entity_decode($menu["name"]),
-                "state" => $menu["state_type"],
+                "state" => html_entity_decode($menu["state_type"]),
                 "checked" => false,
                 "attributes" => array("notroot" => true, "active" => $menu["active"] ,
-                    "icon_class"=>$menu["icon_class"] ,"group_name_eng"=>$menu["group_name_eng"],
-                    "machine"=>$menu["machine"] ,)
-                
-                                
-                
+                    "icon_class"=>$menu["icon_class"] ,
+                    "group_name_eng"=>html_entity_decode($menu["group_name_eng"]),
+                    "machine"=>html_entity_decode($menu["machine"]) ,)
             );
         }
     } else if ($componentType == 'ddslick') {
@@ -346,10 +320,7 @@ $app->get("/pkFillJustMachineToolGroupsBootstrap_sysMachineToolGroups/", functio
             );
         }
     }
-     
-
-    $app->response()->header("Content-Type", "application/json");
- 
+    $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($menus));
 });
  
@@ -372,20 +343,20 @@ $app->get("/pkFillJustMachineToolGroupsNotInProperty_sysMachineToolGroups/", fun
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
-                                                $app,
-                                                $_GET['language_code']));
+                        $app,
+                        $_GET['language_code']));
     }
     $vPropertyId = 0;
     if (isset($_GET['property_id'])) {
         $stripper->offsetSet('property_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['property_id']));
+                        $app,
+                        $_GET['property_id']));
     }
      $vParentId = 0;
     if (isset($_GET['id'])) {
         $stripper->offsetSet('id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['id']));
+                        $app,
+                        $_GET['id']));
     }
     $componentType = 'bootstrap';
     if (isset($_GET['component_type'])) {
@@ -393,17 +364,20 @@ $app->get("/pkFillJustMachineToolGroupsNotInProperty_sysMachineToolGroups/", fun
     }
     
     $stripper->strip();    
-    if($stripper->offsetExists('language_code')) $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if($stripper->offsetExists('id')) $vParentId = $stripper->offsetGet('id')->getFilterValue();
-    if($stripper->offsetExists('property_id')) $vPropertyId = $stripper->offsetGet('property_id')->getFilterValue();
-    
+    if($stripper->offsetExists('language_code')) {
+        $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
+    }
+    if($stripper->offsetExists('id')) {
+        $vParentId = $stripper->offsetGet('id')->getFilterValue();
+    }
+    if($stripper->offsetExists('property_id')) {
+    $vPropertyId = $stripper->offsetGet('property_id')->getFilterValue();
+    }    
     $resCombobox = $BLL->fillJustMachineToolGroupsNotInProperty(array( 
                                                         'language_code' => $vLanguageCode,
                                                         'parent_id' => $vParentId,
-                                                        'property_id' => $vPropertyId,      
-        
-                                                            ));
- 
+                                                        'property_id' => $vPropertyId,
+                                                            )); 
     $menus = array();
     $menus[] = array("text" => "Lütfen Seçiniz", "value" => 0, "selected" => true, "imageSrc" => "", "description" => "Lütfen Seçiniz",); 
      if ($componentType == 'bootstrap') {
@@ -412,10 +386,11 @@ $app->get("/pkFillJustMachineToolGroupsNotInProperty_sysMachineToolGroups/", fun
             $menus[] = array(
                 "id" => $menu["id"],       
                 "text" => html_entity_decode($menu["name"]),
-                "state" => $menu["state_type"],
+                "state" => html_entity_decode($menu["state_type"]),
                 "checked" => false,
                 "attributes" => array("notroot" => true, "active" => $menu["active"] ,
-                    "icon_class"=>$menu["icon_class"] ,"group_name_eng"=>html_entity_decode($menu["group_name_eng"]),
+                    "icon_class"=>$menu["icon_class"] ,
+                    "group_name_eng"=>html_entity_decode($menu["group_name_eng"]),
                     "machine"=>html_entity_decode($menu["machine"]) ,) 
             );
         }
@@ -443,31 +418,30 @@ $app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {
     $stripChainerFactory = new \Services\Filter\Helper\FilterChainerFactory();   
     $BLL = $app->getBLLManager()->get('sysMachineToolGroupsBLL');   
     $headerParams = $app->request()->headers();
-    $Pk = $headerParams['X-Public'];  
-    
+    $Pk = $headerParams['X-Public']; 
     $vId = NULL;
     if (isset($_GET['id'])) {
          $stripper->offsetSet('id',$stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['id']));
+                            $app,
+                            $_GET['id']));
     }       
     $vGroupName = NULL;
     if (isset($_GET['group_name'])) {
          $stripper->offsetSet('group_name',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['group_name']));
+                            $app,
+                            $_GET['group_name']));
     }   
     $vGroupNameEng = NULL;
     if (isset($_GET['group_name_eng'])) {
          $stripper->offsetSet('group_name_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['group_name_eng']));
+                            $app,
+                            $_GET['group_name_eng']));
     }  
     $vIconClass = NULL;
     if (isset($_GET['icon_class'])) {
         $stripper->offsetSet('icon_class', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['icon_class']));
+                            $app,
+                            $_GET['icon_class']));
     }     
     if ($stripper->offsetExists('id')) {
         $vId = $stripper->offsetGet('id')->getFilterValue();
@@ -481,7 +455,6 @@ $app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {
     if ($stripper->offsetExists('icon_class')) {
         $vIconClass = $stripper->offsetGet('icon_class')->getFilterValue();
     } 
-
     $resData = $BLL->update(array(  
             'id' => $vId , 
             'group_name' => $vGroupName , 
@@ -489,12 +462,10 @@ $app->get("/pkUpdate_sysMachineToolGroups/", function () use ($app ) {
             'icon_class' => $vIconClass,
             'pk' => $Pk,        
             ));
-
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
 ); 
-
 
 /**x
  *  * Okan CIRAN
@@ -509,32 +480,32 @@ $app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
          $stripper->offsetSet('language_code',$stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE,
-                                                $app,
-                                                $_GET['language_code']));
+                                $app,
+                                $_GET['language_code']));
     } 
     $vParentId = 0;
     if (isset($_GET['parent_id'])) {
          $stripper->offsetSet('parent_id',$stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED,
-                                                $app,
-                                                $_GET['parent_id']));
+                                $app,
+                                $_GET['parent_id']));
     }       
     $vGroupName = NULL;
     if (isset($_GET['group_name'])) {
          $stripper->offsetSet('group_name',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['group_name']));
+                                $app,
+                                $_GET['group_name']));
     }   
     $vGroupNameEng = NULL;
     if (isset($_GET['group_name_eng'])) {
          $stripper->offsetSet('group_name_eng',$stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['group_name_eng']));
+                                $app,
+                                $_GET['group_name_eng']));
     }  
     $vIconClass = NULL;
     if (isset($_GET['icon_class'])) {
         $stripper->offsetSet('icon_class', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2,
-                                                $app,
-                                                $_GET['icon_class']));
+                                $app,
+                                $_GET['icon_class']));
     } 
     if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
@@ -551,7 +522,6 @@ $app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {
     if ($stripper->offsetExists('icon_class')) {
         $vIconClass = $stripper->offsetGet('icon_class')->getFilterValue();
     } 
-
     $resData = $BLL->insert(array(  
             'parent_id' => $vParentId , 
             'group_name' => $vGroupName , 
@@ -560,7 +530,6 @@ $app->get("/pkInsert_sysMachineToolGroups/", function () use ($app ) {
             'language_code' => $vLanguageCode,
             'pk' => $Pk,        
             ));
-
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resData));
 }
@@ -584,13 +553,13 @@ $app->get("/pkDelete_sysMachineToolGroups/", function () use ($app ) {
                                                 $_GET['id']));
     } 
     $stripper->strip(); 
-    if ($stripper->offsetExists('id')) {$vId = $stripper->offsetGet('id')->getFilterValue(); }
-    
+    if ($stripper->offsetExists('id')) {
+        $vId = $stripper->offsetGet('id')->getFilterValue();     
+    }    
     $resDataDeleted = $BLL->Delete(array(                  
             'id' => $vId ,    
             'pk' => $Pk,        
             ));
-
     $app->response()->header("Content-Type", "application/json"); 
     $app->response()->body(json_encode($resDataDeleted));
 }

@@ -30,13 +30,15 @@ class SysOperationTypesTools extends \DAL\DalSlim {
        try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $userId = $this->getUserId(array('pk' => $params['pk']));
-            if (\Utill\Dal\Helper::haveRecord($userId)) {
-                $userIdValue = $userId ['resultSet'][0]['user_id'];
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
                 UPDATE sys_operations_types_tools
                 SET  deleted= 1 , active = 1 ,
-                     op_user_id = " . $userIdValue . "     
+                     op_user_id = " . $opUserIdValue . "     
                 WHERE id = :id");
                 //Execute our DELETE statement.
                 $update = $statement->execute();
@@ -114,15 +116,22 @@ class SysOperationTypesTools extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (!\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                } else {
-                    $languageIdValue = 647;
+                $languageCode = 'tr';
+                $languageIdValue = 647;
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
                 }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                }    
                 $statement = $pdo->prepare("
                 INSERT INTO sys_operations_types_tools(
                          parent_id, 
@@ -182,15 +191,22 @@ class SysOperationTypesTools extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (!\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                } else {
-                    $languageIdValue = 647;
+                $languageCode = 'tr';
+                $languageIdValue = 647;
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
                 }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                }    
                 $statement = $pdo->prepare("
                 UPDATE sys_operation_types_tools
                 SET 
@@ -267,12 +283,17 @@ class SysOperationTypesTools extends \DAL\DalSlim {
             $order = "ASC";
         }
 
-        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-            $languageIdValue = $languageId ['resultSet'][0]['id'];
-        } else {
-            $languageIdValue = 647;
+        $languageCode = 'tr';
+        $languageIdValue = 647;
+        if (isset($params['language_code']) && $params['language_code'] != "") {
+            $languageCode = $params['language_code'];
         }
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+        }    
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -332,13 +353,17 @@ class SysOperationTypesTools extends \DAL\DalSlim {
     public function fillGridRowTotalCount($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            } else {
-                $languageIdValue = 647;
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }    
             $sql = "
                 SELECT 
                     COUNT(a.id) AS COUNT ,    
@@ -373,12 +398,17 @@ class SysOperationTypesTools extends \DAL\DalSlim {
     public function fillConsultantOperationsTools($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            } else {
-                $languageIdValue = 647;
+            $languageCode = 'tr';
+            $languageIdValue = 647;
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }    
             $addSql = " WHERE 
                     a.active =0 AND 
                     a.deleted = 0 AND 
@@ -428,12 +458,17 @@ class SysOperationTypesTools extends \DAL\DalSlim {
     public function fillConsultantOperationsConfirmTools($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            } else {
-                $languageIdValue = 647;
+            $languageCode = 'tr';
+            $languageIdValue = 647;
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }    
             $addSql = "WHERE 
                     a.active =0 AND a.deleted = 0 AND 
                     a.language_parent_id=0 AND

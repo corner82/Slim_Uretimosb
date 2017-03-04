@@ -272,5 +272,38 @@ class InfoFirmMachineTool extends \BLL\BLLSlim{
         return $DAL->makeActiveOrPassive($params);
     }
     
+     /**
+     * Data update function   
+     * @param array $params
+     * @return array
+     */ 
+    public function fillUrgeCompanyMachineLists($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmMachineToolPDO');
+        $resultSet = $DAL->fillUrgeCompanyMachineLists($params);  
+        return $resultSet['resultSet'];
+    }
+    
+    /**
+     * Data update function   
+     * @param array $params
+     * @return array
+     */ 
+    public function fillUrgeCompanyMachineListsRtc($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmMachineToolPDO');
+        $resultSet = $DAL->fillUrgeCompanyMachineListsRtc($params);  
+        return $resultSet['resultSet'];
+    }
+    
+    /**
+     * get consultant confirmation process details
+     * @param array $params
+     * @return array
+     */
+    public function getFirmMachineConsultant($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmMachineToolPDO');
+        return $DAL->getFirmMachineConsultant($params);
+    }
+    
+    
 }
 

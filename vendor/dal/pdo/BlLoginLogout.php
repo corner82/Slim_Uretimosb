@@ -45,54 +45,9 @@ class BlLoginLogout extends \DAL\DalSlim {
     public function getAll($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $statement = $pdo->prepare("
-                    SELECT 
-                        a.id, 
-                        a.profile_public, 
-                        a.f_check, 
-                        a.s_date, 
-                        a.c_date, 
-                        a.operation_type_id,
-                        op.operation_name, 
-                        a.firm_name, 
-                        a.web_address,                     
-                        a.tax_office, 
-                        a.tax_no, 
-                        a.sgk_sicil_no,
-			a.bagkur_sicil_no,
-			a.ownership_status_id,
-                        sd4.description AS owner_ship,
-			a.foundation_year,
-			a.language_id, 
-			a.act_parent_id,  
-                        a.language_code, 
-                        COALESCE(NULLIF(l.language_eng, ''), l.language) AS language_name,                        
-                        a.active, 
-                        sd3.description AS state_active,  
-                        a.deleted,
-			sd2.description AS state_deleted, 
-                        a.op_user_id,
-                        u.username,                    
-                        a.auth_allow_id, 
-                        sd.description AS auth_alow ,
-                        a.cons_allow_id,
-                        sd1.description AS cons_allow,
-                        a.language_parent_id,
-                        a.root_id
-                    FROM info_users a    
-                    INNER JOIN sys_operation_types op ON op.id = a.operation_type_id and  op.language_code = a.language_code  AND op.deleted =0 AND op.active =0
-                    INNER JOIN sys_specific_definitions sd ON sd.main_group = 13 AND sd.language_code = a.language_code AND a.auth_allow_id = sd.first_group  AND sd.deleted =0 AND sd.active =0
-                    INNER JOIN sys_specific_definitions sd1 ON sd1.main_group = 14 AND  sd1.language_code = a.language_code AND a.cons_allow_id = sd1.first_group  AND sd1.deleted =0 AND sd1.active =0
-                    INNER JOIN sys_specific_definitions sd2 ON sd2.main_group = 15 AND sd2.first_group= a.deleted AND sd2.language_code = a.language_code AND sd2.deleted =0 AND sd2.active =0 
-                    INNER JOIN sys_specific_definitions sd3 ON sd3.main_group = 16 AND sd3.first_group= a.active AND sd3.language_code = a.language_code AND sd3.deleted = 0 AND sd3.active = 0
-                    LEFT JOIN sys_specific_definitions sd4 ON sd4.main_group = 1 AND sd4.first_group= a.active AND sd4.language_code = a.language_code AND sd4.deleted = 0 AND sd4.active = 0
-                    INNER JOIN sys_language l ON l.language_main_code = a.language_code AND l.deleted =0 AND l.active =0 
-                    INNER JOIN info_users u ON u.id = a.op_user_id  
-                    WHERE a.deleted =0 AND language_code = :language_code 
-                    ORDER BY a.firm_name   
-                          ");
-            $statement->bindValue(':language_code', $params['language_code'], \PDO::PARAM_STR); 
-            $statement->execute();
+            $statement = $pdo->prepare(" 
+                          ");           
+            //$statement->execute();
             $result = $statement->fetcAll(\PDO::FETCH_ASSOC);
             $errorInfo = $statement->errorInfo();
             if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
@@ -103,58 +58,14 @@ class BlLoginLogout extends \DAL\DalSlim {
         }
     }
 
-    /**
-     * basic insert database example for PDO prepared
-     * statements, table names are irrevelant and should be changed on specific 
+    /**     
      * @author Okan CIRAN
      * @ info_users tablosuna yeni bir kayıt oluşturur.  !!
      * @version v 1.0  30.12.2015
      * @return array
      * @throws \PDOException
      */
-    public function insert($params = array()) {
-        try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $pdo->beginTransaction();
-            /**
-             * table names and column names will be changed for specific use
-             */
-            $statement = $pdo->prepare("
-                INSERT INTO info_users(
-                        name, name_eng, language_code, language_parent_id, 
-                        op_user_id, flag_icon_road, country_code3, priority   )
-                VALUES (
-                        :name,
-                        :name_eng, 
-                        :language_code,
-                        :language_parent_id,
-                        :user_id,
-                        :flag_icon_road,                       
-                        :country_code3,
-                        :priority 
-                                                ");
-            $statement->bindValue(':name', $params['name'], \PDO::PARAM_STR);
-            $statement->bindValue(':name_eng', $params['name_eng'], \PDO::PARAM_STR);
-            $statement->bindValue(':language_code', $params['language_code'], \PDO::PARAM_STR);
-            $statement->bindValue(':language_parent_id', $params['language_parent_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':user_id', $params['user_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':flag_icon_road', $params['flag_icon_road'], \PDO::PARAM_STR);
-            $statement->bindValue(':country_code3', $params['country_code3'], \PDO::PARAM_STR);
-            $statement->bindValue(':priority', $params['priority'], \PDO::PARAM_INT);
-
-            $result = $statement->execute();
-
-            $insertID = $pdo->lastInsertId('info_users_id_seq');
-
-            $errorInfo = $statement->errorInfo();
-            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
-                throw new \PDOException($errorInfo[0]);
-            $pdo->commit();
-            return array("found" => true, "errorInfo" => $errorInfo, "lastInsertId" => $insertID);
-        } catch (\PDOException $e /* Exception $e */) {
-            $pdo->rollback();
-            return array("found" => false, "errorInfo" => $e->getMessage());
-        }
+    public function insert($params = array()) {        
     }
 
     /**
@@ -168,41 +79,7 @@ class BlLoginLogout extends \DAL\DalSlim {
      * @throws \PDOException
      */
     public function update($params = array()) {
-        try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $pdo->beginTransaction();           
-            $statement = $pdo->prepare("
-                UPDATE info_users
-                SET              
-                    name = :name, 
-                    name_eng = :name_eng, 
-                    language_code = :language_code,                    
-                    language_parent_id = :language_parent_id,
-                    op_user_id = :user_id,
-                    flag_icon_road = :flag_icon_road,                       
-                    country_code3 = :country_code3,
-                    priority = :priority 
-                WHERE id = :id");
-            $statement->bindValue(':id', $params['id'], \PDO::PARAM_INT);
-            $statement->bindValue(':name', $params['name'], \PDO::PARAM_STR);
-            $statement->bindValue(':name_eng', $params['name_eng'], \PDO::PARAM_STR);
-            $statement->bindValue(':language_code', $params['language_code'], \PDO::PARAM_STR);
-            $statement->bindValue(':language_parent_id', $params['language_parent_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':user_id', $params['user_id'], \PDO::PARAM_INT);
-            $statement->bindValue(':flag_icon_road', $params['flag_icon_road'], \PDO::PARAM_STR);
-            $statement->bindValue(':country_code3', $params['country_code3'], \PDO::PARAM_STR);
-            $statement->bindValue(':priority', $params['priority'], \PDO::PARAM_INT);
-            $update = $statement->execute();
-            $affectedRows = $statement->rowCount();
-            $errorInfo = $statement->errorInfo();
-            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
-                throw new \PDOException($errorInfo[0]);
-            $pdo->commit();
-            return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
-        } catch (\PDOException $e /* Exception $e */) {
-            $pdo->rollback();
-            return array("found" => false, "errorInfo" => $e->getMessage());
-        }
+        
     }
     
     /**

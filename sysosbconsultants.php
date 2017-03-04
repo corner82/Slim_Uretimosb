@@ -215,10 +215,11 @@ $app->get("/pkcpkGetAllFirmCons_sysOsbConsultants/", function () use ($app ) {
                 "auth_email" => $flow["auth_email"],
                 "title" => $flow["title"],
                 "title_eng" => $flow["title_eng"],
-                "osb_title" => $flow["title"],
-                "osb_title_eng" => $flow["title_eng"],
+                "cons_title" => $flow["cons_title"],
+                "cons_title_eng" => $flow["cons_title_eng"],
                 "cons_picture" => $flow["cons_picture"],
                 "npk" => $flow["network_key"],
+                "phone" => $flow["phone"],
                 "attributes" => array("firm_consultant" => $flow["firm_consultant"],),
             );
         }

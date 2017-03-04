@@ -29,9 +29,10 @@ class SysOsb extends \DAL\DalSlim {
     public function delete($params = array()) {
          try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $pdo->beginTransaction();
-           
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $pdo->beginTransaction();           
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
@@ -116,19 +117,24 @@ class SysOsb extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();                         
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));        
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                        }
-                }    
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                }      
                 
                // print_r($params);
                     $sql = "
@@ -206,21 +212,26 @@ class SysOsb extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
 
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
 
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                        }
-                }    
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                }      
                     
                     $sql = "
                 UPDATE sys_osb
@@ -499,14 +510,17 @@ class SysOsb extends \DAL\DalSlim {
     public function fillOsbDdlist($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');   
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                    }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }    
             $addSql ="" ;
             $countryId = 91;
             if (isset($params['country_id']) && $params['country_id'] != "") {
@@ -562,7 +576,9 @@ class SysOsb extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -613,6 +629,16 @@ class SysOsb extends \DAL\DalSlim {
     public function fillOsbList($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            /// test edilecek  oki..
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserId = $this->slimApp->getServiceManager()->get('opUserIdBLL');
+            $opUserIdArray= $opUserId->getUserId($opUserIdParams); 
+            if (\Utill\Dal\Helper::haveRecord($opUserIdArray)) {
+                $opUserIdValue = $opUserIdArray['resultSet'][0]['user_id'];
+                print_r($opUserIdValue);
+            }
+            
+            
             if (isset($params['page']) && $params['page'] != "" && isset($params['rows']) && $params['rows'] != "") {
                 $offset = ((intval($params['page']) - 1) * intval($params['rows']));
                 $limit = intval($params['rows']);

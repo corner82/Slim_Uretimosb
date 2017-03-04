@@ -165,40 +165,81 @@ $app->get("/pkFillUsersFirmMachines_infoFirmMachineTool/", function () use ($app
 
     $vLanguageCode = 'tr';
     if (isset($_GET['language_code'])) {
-        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, $app, $_GET['language_code']));
+        $stripper->offsetSet('language_code', $stripChainerFactory->get(stripChainers::FILTER_ONLY_LANGUAGE_CODE, 
+                $app, $_GET['language_code']));
     }
-    $vMachineId = 0;
+    $vMachineId = NULL;
     if (isset($_GET['machine_id'])) {
-        $stripper->offsetSet('machine_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, $app, $_GET['machine_id']));
+        $stripper->offsetSet('machine_id', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['machine_id']));
+    }
+    $vPage = NULL;
+    if (isset($_GET['page'])) {
+        $stripper->offsetSet('page', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['page']));
+    }
+    $vRows = NULL;
+    if (isset($_GET['rows'])) {
+        $stripper->offsetSet('rows', $stripChainerFactory->get(stripChainers::FILTER_ONLY_NUMBER_ALLOWED, 
+                $app, $_GET['rows']));
+    }
+    $vSort = NULL;
+    if (isset($_GET['sort'])) {
+        $stripper->offsetSet('sort', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+                $app, $_GET['sort']));
+    }
+    $vOrder = NULL;
+    if (isset($_GET['order'])) {
+        $stripper->offsetSet('order', $stripChainerFactory->get(stripChainers::FILTER_ONLY_ORDER, 
+                $app, $_GET['order']));
+    }
+    $filterRules = null;
+    if (isset($_GET['filterRules'])) {
+        $stripper->offsetSet('filterRules', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_JASON_LVL1, 
+                $app, $_GET['filterRules']));
     }
 
     $stripper->strip();
-    if ($stripper->offsetExists('language_code'))
+    if ($stripper->offsetExists('language_code')) {
         $vLanguageCode = $stripper->offsetGet('language_code')->getFilterValue();
-    if ($stripper->offsetExists('machine_id'))
-        $vMachineId = $stripper->offsetGet('machine_id')->getFilterValue();
-
-    if (isset($_GET['machine_id'])) {
-        $resDataGrid = $BLL->fillUsersFirmMachines(array(
-            'language_code' => $vLanguageCode,
-            'pk' => $pk,
-            'machine_id' => $vMachineId,
-        ));
-        $resTotalRowCount = $BLL->fillUsersFirmMachinesRtc(array(
-            'language_code' => $vLanguageCode,
-            'pk' => $pk,
-            'machine_id' => $vMachineId,
-        ));
-    } else {
-        $resDataGrid = $BLL->fillUsersFirmMachines(array(
-            'language_code' => $vLanguageCode,
-            'pk' => $pk,
-        ));
-        $resTotalRowCount = $BLL->fillUsersFirmMachinesRtc(array(
-            'language_code' => $vLanguageCode,
-            'pk' => $pk,
-        ));
     }
+    if ($stripper->offsetExists('machine_id')) {
+        $vMachineId = $stripper->offsetGet('machine_id')->getFilterValue();
+    }
+    if ($stripper->offsetExists('page')) {
+        $vPage = $stripper->offsetGet('page')->getFilterValue();
+    }
+    if ($stripper->offsetExists('rows')) {
+        $vRows = $stripper->offsetGet('rows')->getFilterValue();
+    }
+    if ($stripper->offsetExists('sort')) {
+        $vSort = $stripper->offsetGet('sort')->getFilterValue();
+    }
+    if ($stripper->offsetExists('order')) {
+        $vOrder = $stripper->offsetGet('order')->getFilterValue();
+    }
+    if ($stripper->offsetExists('filterRules')) {
+        $filterRules = $stripper->offsetGet('filterRules')->getFilterValue();
+    }
+
+    
+        $resDataGrid = $BLL->fillUsersFirmMachines(array(
+            'language_code' => $vLanguageCode,
+            'page' => $vPage,
+            'rows' => $vRows,
+            'sort' => $vSort,
+            'order' => $vOrder,            
+            'filterRules' => $filterRules,
+            'pk' => $pk,
+            'machine_id' => $vMachineId,
+        ));
+        $resTotalRowCount = $BLL->fillUsersFirmMachinesRtc(array(
+            'language_code' => $vLanguageCode,
+            'filterRules' => $filterRules,
+            'pk' => $pk,
+            'machine_id' => $vMachineId,
+        ));
+   
 
     $counts = 0;
     $flows = array();
@@ -213,19 +254,26 @@ $app->get("/pkFillUsersFirmMachines_infoFirmMachineTool/", function () use ($app
                 "model" => html_entity_decode($flow["model"]),
                 "model_year" => $flow["model_year"],
                 "act_parent_id" => $flow["act_parent_id"],
-                "picture" => $flow["picture"],
+               // "picture" => $flow["picture"],
                 "total" => $flow["total"],
+                "active" => $flow["active"],
+                "state_active" => html_entity_decode($flow["state_active"]),
+                "profile_public" => $flow["profile_public"],
+                "state_profile_public" => html_entity_decode($flow["state_profile_public"]),
+                "cons_allow_id" => $flow["cons_allow_id"],
+                "cons_allow" => html_entity_decode($flow["cons_allow"]),
+                "availability_id" => $flow["availability_id"],
+                "state_availability" => html_entity_decode($flow["state_availability"]),
                 "attributes" => array("notroot" => true),
-            );          
+            );
         }
         $counts = $resTotalRowCount[0]['count'];
     }
     $resultArray = array();
     $resultArray['total'] = $resTotalRowCount[0]['count'];
     $resultArray['rows'] = $flows;
-    $app->response()->header("Content-Type", "application/json"); 
+    $app->response()->header("Content-Type", "application/json");
     $app->response()->body(json_encode($resultArray));
-   
 });
 
 

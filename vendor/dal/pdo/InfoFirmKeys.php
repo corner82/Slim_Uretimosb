@@ -117,7 +117,8 @@ class InfoFirmKeys extends \DAL\DalSlim {
                         products_folder, 
                         members_folder, 
                         others_folder,
-                        folder_name
+                        folder_name,
+                        network_name
                        )
                 VALUES (
                         :firm_id, 
@@ -127,7 +128,8 @@ class InfoFirmKeys extends \DAL\DalSlim {
                         'Products',
                         'Members',
                         'Others',
-                        'x'
+                        '',
+                        ''
                                               )  ";
             $statement = $pdo->prepare($sql);       
             $statement->bindValue(':firm_id', $params['firm_id'], \PDO::PARAM_STR);           

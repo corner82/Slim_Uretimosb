@@ -251,8 +251,7 @@ class InfoError extends \DAL\DalSlim {
         }
     }
 
-    /**
-     * user interface datagrid fill operation get row count for widget
+    /**     
      * @author Okan CIRAN
      * @ Gridi doldurmak için info_error tablosundan çekilen kayıtlarının kaç tane olduğunu döndürür   !!
      * @version v 1.0  11.02.2016

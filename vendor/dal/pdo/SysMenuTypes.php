@@ -31,7 +31,9 @@ class SysMenuTypes extends \DAL\DalSlim {
      try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                
                 $statement = $pdo->prepare(" 
@@ -68,14 +70,17 @@ class SysMenuTypes extends \DAL\DalSlim {
     public function getAll($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $statement = $pdo->prepare("              
                SELECT 
                         a.id,
@@ -128,17 +133,22 @@ class SysMenuTypes extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    }
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
                 }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                } 
                 $kontrol = $this->haveRecords(array('name' => $params['name']));
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
 
@@ -238,17 +248,22 @@ class SysMenuTypes extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    }
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
                 }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                } 
                 $kontrol = $this->haveRecords(array('id' => $params['id'], 'name' => $params['name']));
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
                     $sql = "
@@ -327,14 +342,17 @@ class SysMenuTypes extends \DAL\DalSlim {
             $order = "ASC";
         }
 
-        $languageId = NULL;
+        $languageCode = 'tr';
         $languageIdValue = 647;
-        if ((isset($args['language_code']) && $args['language_code'] != "")) {                
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-            }
-        }  
+        if (isset($args['language_code']) && $args['language_code'] != "") {
+            $languageCode = $args['language_code'];
+        }
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+        } 
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -435,14 +453,17 @@ class SysMenuTypes extends \DAL\DalSlim {
     public function fillMenuTypeList($params = array()) {
         try {             
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');         
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $sql = "        
                 SELECT                    
                     a.id, 	
@@ -487,7 +508,9 @@ class SysMenuTypes extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -641,15 +664,17 @@ class SysMenuTypes extends \DAL\DalSlim {
             }
             $sorguStr = rtrim($sorguStr, "AND ");
             
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
-
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             
             $sql = "  
                 SELECT   
@@ -802,14 +827,17 @@ class SysMenuTypes extends \DAL\DalSlim {
             }
             $sorguStr = rtrim($sorguStr, "AND ");
             
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
 
             
             $sql = "  

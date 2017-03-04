@@ -1372,7 +1372,7 @@ class SysOsbConsultants extends \DAL\DalSlim {
                     
                     $sql = "                
                 SELECT DISTINCT
-                    a.act_parent_id AS firm_id,
+                     a.act_parent_id AS firm_id,
                     u.id AS consultant_id,
                     iud.name, 
                     iud.surname,
@@ -1380,12 +1380,13 @@ class SysOsbConsultants extends \DAL\DalSlim {
                     CASE COALESCE(NULLIF(TRIM(iud.picture), ''),'-') 
                         WHEN '-' THEN CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.members_folder,'/' ,'image_not_found.png')
                         ELSE CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.members_folder,'/' ,TRIM(iud.picture)) END AS cons_picture,
-                    a.consultant_id  = u.id AS firm_consultant,
+                    u.id = (SELECT consultant_id from  info_firm_profile azx where azx.act_parent_id = 94 AND azx.consultant_id =u.id limit 1 ) AS firm_consultant,
                     COALESCE(NULLIF(ifux.title, ''), ifux.title_eng) AS title,
                     ifu.title_eng,
                     COALESCE(NULLIF(soc.title, ''), soc.title_eng) AS osb_title,
                     soc.title_eng osb_title_eng,
-                    ifk.network_key
+                    ifk.network_key, 
+                    (SELECT iucz.communications_no FROM info_users_communications iucz WHERE iucz.user_id = u.id AND iucz.language_parent_id =0 AND iucz.cons_allow_id = 2 limit 1) AS phone 
                 FROM info_firm_profile a   
                 INNER JOIN sys_project_settings sps ON sps.op_project_id = 1 AND sps.active =0 AND sps.deleted =0 
                 INNER JOIN info_firm_keys ifk ON ifk.firm_id = a.act_parent_id 
@@ -2045,6 +2046,7 @@ class SysOsbConsultants extends \DAL\DalSlim {
 		    LEFT JOIN " . $tableName . " ifp ON ifp.consultant_id = cons.user_id AND ifp.cons_allow_id = 0  and ifp.active =0 and ifp.deleted =0
                     WHERE cons.active = 0 AND 
 			cons.deleted =0 AND 
+                        cons.user_id > 0 AND 
                         " . intval($languageIdValue) . " IN (SELECT CAST(CAST(VALUE AS text) AS integer) FROM json_array_elements(preferred_language_json))
                     GROUP BY cons.user_id
                     ORDER BY adet, max  

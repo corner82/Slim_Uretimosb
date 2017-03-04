@@ -527,25 +527,39 @@ class SysOperationTypes extends \DAL\DalSlim {
             $getOperationTableName = PgClass::getOperationTableName(
                                   array('operation_type_id' => $params['operation_type_id'],));
             if (\Utill\Dal\Helper::haveRecord($getOperationTableName)) {
-                  $getOperationTableNameValue = $getOperationTableName ['resultSet'][0]['consultant_id'];
+                  $getOperationTableNameValue = $getOperationTableName ['resultSet'][0]['table_name'];
             } else  { $Id = -1001; } 
-            
             
             $sql = "  
                 SELECT 
-                    iu.language_id,
-                    a.consultant_id,   
-                    sotr.assign_definition_id , 
-                    a.id  = " . intval($Id) . " AS control
-                FROM ".$getOperationTableNameValue." a
-                INNER JOIN info_users iu ON iu.id = a.op_user_id 
-                INNER JOIN info_users iuc ON iuc.id = a.consultant_id 
-                INNER JOIN sys_operation_types_rrp sotr ON sotr.id = a.operation_type_id
-                WHERE 
-                    a.id =  " . intval($Id) . "
+                    language_id,
+                    consultant_id,   
+                    assign_definition_id , 
+                    control 
+                FROM (
+                        SELECT 
+                            iu.language_id,
+                            a.consultant_id,
+                            sotr.assign_definition_id , 
+                            a.id  = " . intval($Id) . " AS control
+                        FROM ".$getOperationTableNameValue." a
+                        INNER JOIN info_users iu ON iu.id = a.op_user_id 
+                        INNER JOIN info_users iuc ON iuc.id = a.consultant_id 
+                        INNER JOIN sys_operation_types_rrp sotr ON sotr.id = a.operation_type_id
+                        WHERE 
+                            a.id =  " . intval($Id) . "
+                    UNION 
+                        SELECT 
+                        647 AS language_id,
+                        1001 AS consultant_id,
+                        -1 AS assign_definition_id, 
+                        true AS control
+                )  as xxtable 
+                ORDER BY assign_definition_id DESC 
+                limit 1 
                                ";
             $statement = $pdo->prepare($sql);
-            //echo debugPDO($sql, $params);
+            //  echo debugPDO($sql, $params);
             $statement->execute();
             $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
             $errorInfo = $statement->errorInfo();

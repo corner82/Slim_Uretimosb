@@ -402,5 +402,47 @@ class InfoFirmProfile extends \BLL\BLLSlim {
         return $DAL->makeActiveOrPassive($params);
     }
     
+       
+    /**
+     * Data update function   
+     * @param array $params
+     * @return array
+     */ 
+    public function fillUrgeCompanyLists($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmProfilePDO');
+        $resultSet = $DAL->fillUrgeCompanyLists($params);  
+        return $resultSet['resultSet'];
+    }
     
+    /**
+     * Data update function   
+     * @param array $params
+     * @return array
+     */ 
+    public function fillUrgeCompanyListsRtc($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmProfilePDO');
+        $resultSet = $DAL->fillUrgeCompanyListsRtc($params);  
+        return $resultSet['resultSet'];
+    }
+    
+    /**
+     * get consultant confirmation process details
+     * @param array $params
+     * @return array
+     */
+    public function fillCompanyProfile($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmProfilePDO');
+        return $DAL->fillCompanyProfile($params);
+    } 
+    
+    /**
+     * Data update function   
+     * @param array $params
+     * @return array
+     */ 
+    public function getUserCompanyShortInformation($params = array()) {
+        $DAL = $this->slimApp->getDALManager()->get('infoFirmProfilePDO');
+        $resultSet = $DAL->getUserCompanyShortInformation($params);  
+        return $resultSet['resultSet'];
+    }
 }

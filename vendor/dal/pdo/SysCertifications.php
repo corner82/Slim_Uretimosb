@@ -31,7 +31,9 @@ class SysCertifications extends \DAL\DalSlim {
          try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                
                 $sql =" 
@@ -70,17 +72,18 @@ class SysCertifications extends \DAL\DalSlim {
      */
     public function getAll($params = array()) {
         try {
-            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-          
-            $languageId = NULL;
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');          
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
-            
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }            
             
             $statement = $pdo->prepare("               
                 SELECT 
@@ -136,18 +139,23 @@ class SysCertifications extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                
               
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                    }
-                }  
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                }
                   $addSql = null;
                 if ((isset($params['priority']) && $params['priority'] != "")) {
                     $Priority = $params ['priority'];
@@ -266,17 +274,22 @@ class SysCertifications extends \DAL\DalSlim {
         try {           
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
 
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    }
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
                 }
                 
                 $addSql = null;
@@ -367,15 +380,17 @@ class SysCertifications extends \DAL\DalSlim {
             $order = "ASC";
         }
        
-        
-        $languageId = NULL;
+        $languageCode = 'tr';
         $languageIdValue = 647;
-        if ((isset($args['language_code']) && $args['language_code'] != "")) {                
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-            }
-        }  
+        if (isset($args['language_code']) && $args['language_code'] != "") {
+            $languageCode = $args['language_code'];
+        }
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+        } 
  
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
@@ -444,14 +459,17 @@ class SysCertifications extends \DAL\DalSlim {
     public function fillGridRowTotalCount($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');    
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $whereSql = " WHERE a.language_parent_id  = 0 AND a.active =0 AND a.deleted =0 ";
             
             $sql = "
@@ -492,14 +510,17 @@ class SysCertifications extends \DAL\DalSlim {
     public function fillCertificationsDdList($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');         
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $statement = $pdo->prepare("
                 SELECT 
                     a.id,

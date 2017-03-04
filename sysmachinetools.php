@@ -232,6 +232,7 @@ $app->get("/pkGetMachineTools_sysMachineTools/", function () use ($app ) {
                 "group_name" => html_entity_decode($flow["group_name"]),
                 "group_name_eng" => html_entity_decode($flow["group_name_eng"]),
                 "manufacturer_name" => html_entity_decode($flow["manufacturer_name"]),
+                "model" => html_entity_decode($flow["model"]),
                 "attributes" => array(
                     "notroot" => true,
                     "active" => $flow["active"],
@@ -484,12 +485,12 @@ $app->get("/pkInsert_sysMachineTools/", function () use ($app ) {
     }
     $vMachineToolName = NULL;
     if (isset($_GET['machine_tool_name'])) {
-        $stripper->offsetSet('machine_tool_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_tool_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_tool_name']));
     }
     $vMachineToolNameEng = NULL;
     if (isset($_GET['machine_tool_name_eng'])) {
-        $stripper->offsetSet('machine_tool_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_tool_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_tool_name_eng']));
     }
     $vManufactuerId = NULL;
@@ -499,7 +500,7 @@ $app->get("/pkInsert_sysMachineTools/", function () use ($app ) {
     }
     $vModel = NULL;
     if (isset($_GET['model'])) {
-        $stripper->offsetSet('model', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('model', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['model']));
     }
     $vModelYear = NULL;
@@ -509,7 +510,7 @@ $app->get("/pkInsert_sysMachineTools/", function () use ($app ) {
     }
     $vMachineCode = NULL;
     if (isset($_GET['machine_code'])) {
-        $stripper->offsetSet('machine_code', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_code', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_code']));
     }
     $vPicture = NULL;
@@ -593,12 +594,12 @@ $app->get("/pkUpdate_sysMachineTools/", function () use ($app ) {
     }
     $vMachineToolName = NULL;
     if (isset($_GET['machine_tool_name'])) {
-        $stripper->offsetSet('machine_tool_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_tool_name', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_tool_name']));
     }
     $vMachineToolNameEng = NULL;
     if (isset($_GET['machine_tool_name_eng'])) {
-        $stripper->offsetSet('machine_tool_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_tool_name_eng', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_tool_name_eng']));
     }
     $vManufactuerId = NULL;
@@ -608,7 +609,7 @@ $app->get("/pkUpdate_sysMachineTools/", function () use ($app ) {
     }
     $vModel = NULL;
     if (isset($_GET['model'])) {
-        $stripper->offsetSet('model', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('model', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['model']));
     }
     $vModelYear = NULL;
@@ -618,12 +619,12 @@ $app->get("/pkUpdate_sysMachineTools/", function () use ($app ) {
     }
     $vMachineCode = NULL;
     if (isset($_GET['machine_code'])) {
-        $stripper->offsetSet('machine_code', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('machine_code', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['machine_code']));
     }
     $vPicture = NULL;
     if (isset($_GET['picture'])) {
-        $stripper->offsetSet('picture', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL2, 
+        $stripper->offsetSet('picture', $stripChainerFactory->get(stripChainers::FILTER_PARANOID_LEVEL1, 
                     $app, $_GET['picture']));
     }
 

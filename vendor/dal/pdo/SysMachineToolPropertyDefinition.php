@@ -31,7 +31,9 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
@@ -121,19 +123,24 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
             $xc = NULL;
             $insertID = NULL;
             $errorInfo = ["00000", null, null];
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
                     }
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                        $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                    }  
 
                     $sql = "
                 INSERT INTO sys_machine_tool_property_definition(                        
@@ -216,19 +223,24 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
             $xc = NULL;
             $insertID = NULL;
             $errorInfo = ["00000", null, null];
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
                     }
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                        $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                    }  
 
                     $sql = "
                 INSERT INTO sys_machine_tool_property_definition(                        
@@ -390,7 +402,9 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecordsMachineGroup(array('property_id' => $params['property_id'] , 
@@ -571,19 +585,24 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $xc =NULL;
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageId = NULL;
+                    $languageCode = 'tr';
                     $languageIdValue = 647;
-                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                            $languageIdValue = $languageId ['resultSet'][0]['id'];
-                        }
+                    if (isset($params['language_code']) && $params['language_code'] != "") {
+                        $languageCode = $params['language_code'];
                     }
+                    $languageCodeParams = array('language_code' => $languageCode,);
+                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                    $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                        $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                    }  
 
                 $sql = "
                 UPDATE sys_machine_tool_property_definition
@@ -758,15 +777,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
             $order = "ASC";
         }
 
-        $languageId = NULL;
+        $languageCode = 'tr';
         $languageIdValue = 647;
-        if ((isset($args['language_code']) && $args['language_code'] != "")) {
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            }
+        if (isset($args['language_code']) && $args['language_code'] != "") {
+            $languageCode = $args['language_code'];
         }
-
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+        }   
 
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
@@ -887,16 +908,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 $whereSql .= " AND upd.unit_grup_id = " . $UnitGrupId;
             }
 
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
-
-
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
             $statement = $pdo->prepare("                
                 SELECT
                     a.id,
@@ -948,7 +970,9 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
@@ -1017,14 +1041,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 $innerSql .=" INNER JOIN sys_unit_groups_property_definition upd ON upd.property_id = a.id AND upd.active =0 AND upd.deleted =0  ";
                 $whereSql .= " AND upd.unit_grup_id = " . $UnitGrupId;
             }
-            $languageId = NULL; 
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
 
             $sql ="             
                 SELECT
@@ -1089,14 +1116,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 $innerSql .=" INNER JOIN sys_unit_groups_property_definition upd ON upd.property_id = a.id AND upd.active =0 AND upd.deleted =0  ";
                 $whereSql .= " AND upd.unit_grup_id = " . $UnitGrupId;
             }
-            $languageId = NULL; 
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
 
             $sql ="             
                 SELECT DISTINCT
@@ -1153,7 +1183,9 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-             $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];               
                 $sql = "
@@ -1219,14 +1251,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 $ekSql = " sss.machine_tool_id = smt.id ";              
             }
      
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
 
             $sql = " 
                 SELECT DISTINCT
@@ -1320,14 +1355,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 $order = "ASC";
             }
 
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
 
             $sorguStr = null;
             if ((isset($params['filterRules']) && $params['filterRules'] != "")) {
@@ -1438,14 +1476,17 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
      public function fillPropertieslistRtc($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory'); 
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($args['language_code']) && $args['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }  
 
             $sorguStr = null;
             if ((isset($params['filterRules']) && $params['filterRules'] != "")) {
@@ -1520,9 +1561,7 @@ class SysMachineToolPropertyDefinition extends \DAL\DalSlim {
                 WHERE a.deleted =0 AND a.language_parent_id = 0
                 ".$sorguStr."
                 ) as xtemp 
-                    ";
-            $statement = $pdo->prepare($sql);
-                            
+                    ";    
             $statement = $pdo->prepare($sql);
           //  echo debugPDO($sql, $params);
             $statement->execute();

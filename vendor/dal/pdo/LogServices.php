@@ -91,9 +91,11 @@ class LogServices extends \DAL\DalSlim {
             $userIdValue = NULL;
             if ((isset($params['pk']) && $params['pk'] != "")) {
                 $pk = $params['pk'] ;
-                $userId = InfoUsers::getUserId(array('pk' => $params['pk']));
-                if (\Utill\Dal\Helper::haveRecord($userId)) {
-                    $userIdValue = $userId ['resultSet'][0]['user_id'];                    
+                $opUserIdParams = array('pk' =>  $params['pk'],);
+                $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+                $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+                if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                    $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                    
                 }
             }              
           
@@ -129,7 +131,7 @@ class LogServices extends \DAL\DalSlim {
                 $statement->bindValue(':path', $params['path'], \PDO::PARAM_STR);
                 $statement->bindValue(':ip', $params['ip'], \PDO::PARAM_STR);
                 $statement->bindValue(':params', $params['params'], \PDO::PARAM_STR);
-                $statement->bindValue(':op_user_id', $userIdValue, \PDO::PARAM_INT);            
+                $statement->bindValue(':op_user_id',$opUserIdValue, \PDO::PARAM_INT);            
                 $statement->bindValue(':method', $params['method'], \PDO::PARAM_STR);
                 $statement->bindValue(':request_info', $params['request_info'], \PDO::PARAM_STR);
                // echo debugPDO($sql, $params);

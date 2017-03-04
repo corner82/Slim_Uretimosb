@@ -160,7 +160,9 @@ class BlActivationReport extends \DAL\DalSlim {
     public function getConsultantOperation($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));            
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
                 
@@ -243,7 +245,9 @@ class BlActivationReport extends \DAL\DalSlim {
     public function getConsultantFirmCount($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));            
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
                 
@@ -288,7 +292,9 @@ class BlActivationReport extends \DAL\DalSlim {
     public function getConsultantUpDashBoardCount($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));            
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
                 
@@ -375,7 +381,9 @@ class BlActivationReport extends \DAL\DalSlim {
     public function getConsWaitingForConfirm_eskisi($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));            
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
                 
@@ -434,18 +442,23 @@ class BlActivationReport extends \DAL\DalSlim {
     public function getConsWaitingForConfirm($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
 
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    }
-                }
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }       
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray= $languageId->getLanguageId($languageCodeParams);
+                if (!\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
+                     $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
+                } 
 
                 $sql = "                   
                 SELECT 

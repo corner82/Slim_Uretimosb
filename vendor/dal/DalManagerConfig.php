@@ -120,7 +120,7 @@ class DalManagerConfig {
                 'sysOsbPersonPDO' => 'DAL\Factory\PDO\SysOsbPersonFactory',   
                 'infoUsersSendingMailPDO' => 'DAL\Factory\PDO\InfoUsersSendingMailFactory',
                 'sysMachineToolModelMaterialsPDO' => 'DAL\Factory\PDO\SysMachineToolModelMaterialsFactory',
-                
+                'infoFirmNacePDO' => 'DAL\Factory\PDO\InfoFirmNaceFactory',
                 
                 
                 

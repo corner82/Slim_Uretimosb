@@ -53,7 +53,7 @@ class BlAdminActivationReport extends \DAL\DalSlim {
                         a.operation_type_id,
                         op.operation_name,                         
 			a.language_id, 			
-                        a.language_code, 
+                       
                         COALESCE(NULLIF(l.language_eng, ''), l.language) AS language_name,                                                
                         a.op_user_id,
                         u.username,
@@ -63,7 +63,7 @@ class BlAdminActivationReport extends \DAL\DalSlim {
                         a.about_id
                     FROM sys_activation_report a    
                     INNER JOIN sys_operation_types op ON op.id = a.operation_type_id AND op.deleted =0 AND op.active =0
-                    INNER JOIN sys_language l ON l.language_main_code = a.language_code AND l.deleted =0 AND l.active =0 
+                    INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0 
                     INNER JOIN info_users u ON u.id = a.op_user_id                      
                     INNER JOIN sys_acl_roles acl ON acl.id = u.role_id   
                     ORDER BY a.s_date desc ,op.operation_name  
@@ -123,7 +123,9 @@ class BlAdminActivationReport extends \DAL\DalSlim {
     public function getConsultantOperation($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));            
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId['resultSet'][0]['user_id'];
               //// su anda kullanılmıyor.  
@@ -133,7 +135,7 @@ class BlAdminActivationReport extends \DAL\DalSlim {
                     op.operation_name as aciklama
                 FROM sys_activation_report a    
                 INNER JOIN sys_operation_types op ON op.parent_id = 2 AND op.id = a.operation_type_id  AND op.deleted =0 AND op.active =0
-                INNER JOIN sys_language l ON l.language_main_code = a.language_code AND l.deleted =0 AND l.active =0 
+                INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0 
                 INNER JOIN info_users u ON u.id = a.op_user_id      
                 INNER JOIN sys_acl_roles acl ON acl.id = u.role_id  
                 WHERE 

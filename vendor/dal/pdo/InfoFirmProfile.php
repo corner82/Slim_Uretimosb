@@ -2292,13 +2292,14 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 $sortArr = array();
                 $orderArr = array();
                 $whereSql = "";
+                $innerSql = "";
                 if (isset($params['sort']) && $params['sort'] != "") {
                     $sort = trim($params['sort']);
                     $sortArr = explode(",", $sort);
                     if (count($sortArr) === 1)
                         $sort = trim($params['sort']);
                 } else {
-                    $sort = " firm_names";
+                    $sort = " a.firm_name_eng";
                 }
 
                 if (isset($params['order']) && $params['order'] != "") {
@@ -2321,6 +2322,29 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) { 
                      $languageIdValue = $languageIdsArray ['resultSet'][0]['id']; 
                 }  
+                
+                $companyName = NULL;                                
+                if ((isset($params['company_name']) && $params['company_name'] != "")) {
+                        $companyName = $params['company_name'];  
+                        $whereSql .= "  AND LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.firm_name, ''), a.firm_name_eng), ''), a.firm_name)) LIKE lower('%".$companyName."%')   ";
+                }
+                $countryId = NULL;                                
+                if ((isset($params['country_id']) && $params['country_id'] != "")) {
+                     if ($params['country_id']!=0) {
+                        $countryId = $params['country_id'];  
+                        $whereSql .= "  AND a.country_id = ".intval($countryId) ;
+                     }
+                }
+                
+                
+                $sectorId= NULL;                                
+                if ((isset($params['sector_id']) && $params['sector_id'] != "")) {
+                      if ($params['sector_id']!=0) {
+                        $sectorId = $params['sector_id'];  
+                        $innerSql .= "  INNER JOIN info_firm_sectoral ifsz ON ifsz.firm_id = a.act_parent_id AND ifsz.cons_allow_id = 2 AND ifsz.sector_id = ".intval($sectorId) ;
+                      }
+                }
+                
                 $sorguStr = null;
                 if (isset($params['filterRules'])) {
                     $filterRules = trim($params['filterRules']);
@@ -2366,31 +2390,83 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 $sorguStr = rtrim($sorguStr, "AND ");    
 
                 $sql = "                  
-                SELECT 
+                 SELECT DISTINCT
                     k.network_key AS npk ,
                     LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.firm_name, ''), a.firm_name_eng), ''), a.firm_name)) AS firm_names,   
-                    LOWER(a.web_address) AS web_address,
+                    COALESCE(NULLIF(   COALESCE(NULLIF( LOWER(a.web_address) , ''), sd23x.description) , ''), sd23.description_eng) AS web_address,
                     LOWER(a.firm_name_short) AS firm_name_short,
                     a.country_id,
 		    LOWER(COALESCE(NULLIF(cox.name, ''), co.name_eng)) AS country_names,
-                    LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.description, ''), a.description_eng), ''), a.description)) AS descriptions,
-                      CASE COALESCE(NULLIF(a.logo, ''),'-') 
+                    
+                    upper(COALESCE(NULLIF(COALESCE(NULLIF(ax.description, ''), a.description_eng), ''), a.description)) AS descriptions,
+                    
+                    CASE COALESCE(NULLIF(a.logo, ''),'-') 
                         WHEN '-' THEN CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png'))
-                        ELSE CONCAT(k.folder_name ,'/',k.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png')) END AS logo, 
-                    a.web_address
+                        ELSE CONCAT(k.folder_name ,'/',k.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png')) END AS logo,
+                    COALESCE(NULLIF(   COALESCE(NULLIF(ifc.tel , ''), sd23x.description) , ''), sd23.description_eng) AS tel,
+                    COALESCE(NULLIF(   COALESCE(NULLIF(ifc.fax , ''), sd23x.description) , ''), sd23.description_eng) AS fax,
+                    COALESCE(NULLIF(   COALESCE(NULLIF(ifc.email , ''), sd23x.description) , ''), sd23.description_eng) AS email,                           
+                    
+                    COALESCE(NULLIF(   COALESCE(NULLIF(                     
+                        LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.description, ''), a.description_eng), ''), a.description))  
+                            , ''), (  SELECT description_short FROM (
+				SELECT  a.act_parent_id,
+					CAST(random()*100-1 AS int) AS ccc,                               
+					COALESCE(NULLIF(axu.description_short, ''), au.description_short_eng) AS description_short 
+				FROM info_firm_verbal au
+				INNER JOIN sys_language lu ON lu.id = au.language_id AND lu.deleted =0 AND lu.active =0
+				LEFT JOIN sys_language lxu ON lxu.id =  " . intval($languageIdValue) . " AND lxu.deleted =0 AND lxu.active =0
+				LEFT JOIN info_firm_verbal axu ON (axu.id = au.id OR axu.language_parent_id=au.id) AND axu.language_id =lxu.id AND axu.cons_allow_id =2 
+				WHERE 
+					au.cons_allow_id=2  AND 
+					au.language_parent_id =0 AND
+					au.firm_id = 1
+				ORDER BY ccc DESC
+				limit 1   ) as xxrtable) ) , ''), sd23.description_eng)  
+                            AS fim_description,
+
+                    COALESCE(NULLIF(   COALESCE(NULLIF(
+			(SELECT replace(replace( cast(ARRAY(
+				 SELECT distinct LOWER(COALESCE(NULLIF(sssx.name, ''), sss.name_eng)) as ssname 
+			 FROM sys_sectors sss
+			 LEFT JOIN sys_sectors sssx ON (sssx.id = sss.id OR sssx.language_parent_id = sss.id) AND sssx.deleted =0 AND sssx.active =0 AND sssx.language_id =  lx.id  
+			 WHERE 
+				sss.language_parent_id=0 AND 
+				sss.deleted =0 AND 
+				sss.active =0 AND 
+				sss.id in ( SELECT sector_id FROM info_firm_sectoral ifs WHERE ifs.cons_allow_id = 2 AND  ifs.firm_id =  a.act_parent_id ) 
+                         ORDER BY ssname
+				 ) as  character varying(300)) ,'{',''),'}','') ) 
+
+			 , ''), sd23x.description) , ''), sd23.description_eng)  
+			 as firm_sectoral ,
+                         
+                    COALESCE(NULLIF(   COALESCE(NULLIF(
+                    (SELECT CAST(SUM(ifmt.total) AS character varying(5)) FROM info_firm_machine_tool ifmt  
+                        INNER JOIN sys_machine_tools smt ON smt.id = ifmt.sys_machine_tool_id AND smt.active=0 AND smt.deleted=0
+                        WHERE ifmt.firm_id = a.act_parent_id AND ifmt.language_parent_id =0 AND ifmt.cons_allow_id = 2 )
+                         , ''), sd23x.description) , ''), sd23.description_eng)  
+                        AS total_machines,
+                        a.firm_name_eng,
+                        lower(k.network_name) AS network_name
                 FROM info_firm_profile a    
                 INNER JOIN sys_project_settings sps ON sps.op_project_id = 1 AND sps.active =0 AND sps.deleted =0  
-                INNER JOIN info_firm_keys k ON a.id = k.firm_id
+                INNER JOIN info_firm_keys k ON a.act_parent_id = k.firm_id
+                LEFT JOIN info_firm_communications ifc ON ifc.firm_id = a.act_parent_id AND ifc.cons_allow_id =2 AND ifc.language_parent_id = 0 
                 INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0 
                 LEFT JOIN sys_language lx ON lx.id = ". intval($languageIdValue)." AND l.deleted =0 AND l.active =0 
                 LEFT JOIN sys_countrys co ON co.id = a.country_id AND co.deleted = 0 AND co.active = 0 AND co.language_parent_id = 0
                 LEFT JOIN sys_countrys cox ON (cox.id = co.id OR cox.language_parent_id = co.id) AND cox.deleted = 0 AND cox.active = 0 AND cox.language_id = lx.id
-		LEFT JOIN info_firm_profile ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.language_id = lx.id AND ax.active =0 AND ax.deleted =0 AND ax.profile_public =0
+		LEFT JOIN info_firm_profile ax ON (ax.id = a.act_parent_id OR ax.language_parent_id = a.act_parent_id) AND ax.language_id = lx.id AND ax.active =0 AND ax.deleted =0 AND ax.profile_public =0
+                ".$innerSql."
+                INNER JOIN sys_specific_definitions sd23 ON sd23.main_group = 23 AND sd23.first_group= 2 AND sd23.language_id = a.language_id AND sd23.deleted =0 AND sd23.active =0                 
+                LEFT JOIN sys_specific_definitions sd23x ON (sd23x.id = sd23.id OR sd23x.language_parent_id = sd23.id) AND sd23x.language_id =lx.id  AND sd23x.deleted =0 AND sd23x.active =0 
                 WHERE 
                     a.language_parent_id =0 AND 
                     a.profile_public =0 AND 
-                    a.cons_allow_id = 2
+                    a.cons_allow_id = 2 
                     ".$sorguStr."
+                    ".$whereSql." 
                 ORDER BY    " . $sort . " "
                     . "" . $order . " "
                     . "LIMIT " . $pdo->quote($limit) . " "
@@ -2426,7 +2502,7 @@ class InfoFirmProfile extends \DAL\DalSlim {
      * @return array
      * @throws \PDOException
      */
-    public function fillCompanyListsGuestRtc($params = array()) {
+    public function fillCompanyListsGuestRtc1($params = array()) {
         try {
                 $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');     
                 $languageCode = 'tr';
@@ -2461,6 +2537,117 @@ class InfoFirmProfile extends \DAL\DalSlim {
                     throw new \PDOException($errorInfo[0]);
                 return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
             
+        } catch (\PDOException $e /* Exception $e */) {
+            //$debugSQLParams = $statement->debugDumpParams();
+            return array("found" => false, "errorInfo" => $e->getMessage()/* , 'debug' => $debugSQLParams */);
+        }
+    }
+    public function fillCompanyListsGuestRtc($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+                                
+            $whereSql = "";
+            $innerSql = ""; 
+                                
+            $languageCode = 'tr';
+            $languageIdValue = 647;
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp->getBLLManager()->get('languageIdBLL');
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            }
+
+            $companyName = NULL;
+            if ((isset($params['company_name']) && $params['company_name'] != "")) {
+                $companyName = $params['company_name'];
+                $whereSql .= "  AND LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.firm_name, ''), a.firm_name_eng), ''), a.firm_name)) LIKE lower('%" . $companyName . "%')   ";
+            }
+            $countryId = NULL;
+            if ((isset($params['country_id']) && $params['country_id'] != "")) {
+                if ($params['country_id'] != 0) {
+                    $countryId = $params['country_id'];
+                    $whereSql .= "  AND a.country_id = " . intval($countryId);
+                }
+            } 
+            $sectorId = NULL;
+            if ((isset($params['sector_id']) && $params['sector_id'] != "")) {
+                if ($params['sector_id'] != 0) {
+                    $sectorId = $params['sector_id'];
+                    $innerSql .= "  INNER JOIN info_firm_sectoral ifsz ON ifsz.firm_id = a.act_parent_id AND ifsz.cons_allow_id = 2 AND ifsz.sector_id = " . intval($sectorId);
+                }
+            }
+
+            $sorguStr = null;
+            if (isset($params['filterRules'])) {
+                $filterRules = trim($params['filterRules']);
+                $jsonFilter = json_decode($filterRules, true);
+                $sorguExpression = null;
+                foreach ($jsonFilter as $std) {
+                    if ($std['value'] != null) {
+                        switch (trim($std['field'])) {
+                            case 'firm_names':
+                                $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\') ';
+                                $sorguStr.=" AND LOWER(COALESCE(NULLIF(COALESCE(NULLIF(ax.firm_name, ''), a.firm_name_eng), ''), a.firm_name))" . $sorguExpression . ' ';
+
+                                break;
+                            case 'web_address':
+                                $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                $sorguStr.=" AND LOWER(a.web_address)" . $sorguExpression . ' ';
+
+                                break;
+                            case 'firm_name_short':
+                                $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                $sorguStr.=" AND LOWER(a.firm_name_short)" . $sorguExpression . ' ';
+
+                                break;
+                            case 'country_names':
+                                $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                $sorguStr.=" AND LOWER(COALESCE(NULLIF(cox.name, ''), co.name_eng))" . $sorguExpression . ' ';
+
+                                break;
+                            case 'npk':
+                                $sorguExpression = ' ILIKE LOWER(\'%' . $std['value'] . '%\')  ';
+                                $sorguStr.=" AND LOWER(k.network_key)" . $sorguExpression . ' ';
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            } else {
+                $sorguStr = null;
+                $filterRules = "";
+            }
+            $sorguStr = rtrim($sorguStr, "AND ");
+
+            $sql = "                  
+                 SELECT COUNT(*) AS count
+                FROM info_firm_profile a                    
+                INNER JOIN info_firm_keys k ON a.act_parent_id = k.firm_id                                
+                LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0 
+                LEFT JOIN sys_countrys co ON co.id = a.country_id AND co.deleted = 0 AND co.active = 0 AND co.language_parent_id = 0
+                LEFT JOIN sys_countrys cox ON (cox.id = co.id OR cox.language_parent_id = co.id) AND cox.deleted = 0 AND cox.active = 0 AND cox.language_id = lx.id
+		LEFT JOIN info_firm_profile ax ON (ax.id = a.act_parent_id OR ax.language_parent_id = a.act_parent_id) AND ax.language_id = lx.id AND ax.active =0 AND ax.deleted =0 AND ax.profile_public =0
+                " . $innerSql . "                
+                WHERE 
+                    a.language_parent_id =0 AND 
+                    a.profile_public =0 AND 
+                    a.cons_allow_id = 2 
+                    " . $sorguStr . "
+                    " . $whereSql ;
+            $statement = $pdo->prepare($sql); 
+            // echo debugPDO($sql, $params);                
+            $statement->execute();
+            $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $errorInfo = $statement->errorInfo();
+            if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                throw new \PDOException($errorInfo[0]);
+            return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
         } catch (\PDOException $e /* Exception $e */) {
             //$debugSQLParams = $statement->debugDumpParams();
             return array("found" => false, "errorInfo" => $e->getMessage()/* , 'debug' => $debugSQLParams */);
@@ -2726,7 +2913,7 @@ class InfoFirmProfile extends \DAL\DalSlim {
                 INNER JOIN info_firm_keys fk ON fk.firm_id = a.act_parent_id
                 INNER JOIN sys_language l ON l.id = ifp.language_id AND l.deleted =0 AND l.active =0                 
                 LEFT JOIN sys_language lx ON lx.id = ". intval($languageIdValue)." AND l.deleted =0 AND l.active =0                 
-                LEFT JOIN info_firm_products ifpx on (ifpx.id = ifp.id OR ifpx.language_parent_id = ifp.id) AND ifpx.cons_allow_id = 2 AND ifpx.language_id = lx.id                                		
+                LEFT JOIN info_firm_products ifpx on (ifpx.act_parent_id = ifp.act_parent_id OR ifpx.language_parent_id = ifp.act_parent_id) AND ifpx.cons_allow_id = 2 AND ifpx.language_id = lx.id                                		
                 WHERE 
                     ifp.language_parent_id =0 AND 
                     ifp.profile_public =0 AND 
@@ -3027,7 +3214,8 @@ class InfoFirmProfile extends \DAL\DalSlim {
                         WHEN '-' THEN CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png'))
                         ELSE CONCAT(ifk.folder_name ,'/',ifk.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png')) END AS logo,
                     a.place_point,
-                    '".$CPKValue."' AS cpk
+                    '".$CPKValue."' AS cpk,
+                    CONCAT(ifk.folder_name ,'/',ifk.logos_folder,'/') AS folder_road 
                 FROM info_firm_profile a  
                 INNER JOIN sys_project_settings sps ON sps.op_project_id = 1 AND sps.active =0 AND sps.deleted =0  
                 INNER JOIN info_firm_keys ifk ON ifk.firm_id =  a.act_parent_id 
@@ -3551,7 +3739,81 @@ class InfoFirmProfile extends \DAL\DalSlim {
             return array("found" => false, "errorInfo" => $e->getMessage());
         }
     }
-                            
+    
+        
+       /**  
+     * @author Okan CIRAN
+     * @ userın kayıtlı oldugu firmaların bilgilerini (kısa) döndürür  !!
+     * @version v 1.0  12.01.2017
+     * @param array | null $args
+     * @return array
+     * @throws \PDOException
+     */
+    public function getUserCompanyShortInformation($params = array()) {
+        try {
+            $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
+                $languageId = NULL;
+                $languageIdValue = 647;
+                if ((isset($params['language_code']) && $params['language_code'] != "")) {
+                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                        $languageIdValue = $languageId ['resultSet'][0]['id'];
+                    }
+                }
+
+                $sql = "  
+                    SELECT
+                        npk, 
+                        logo,
+                        cpk,
+                        lower(network_name) AS network_name,
+                        firm_name_short
+                    FROM ( 
+                        SELECT
+                            ifk.network_key AS npk,   
+                            a.act_parent_id,
+                            CASE COALESCE(NULLIF(a.logo, ''),'-') 
+                                WHEN '-' THEN CONCAT(COALESCE(NULLIF(concat(sps.folder_road,'/'), '/'),''),sps.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png'))
+                                ELSE CONCAT(ifk.folder_name ,'/',ifk.logos_folder,'/' ,COALESCE(NULLIF(a.logo, ''),'image_not_found.png')) END AS logo,                            
+			    REPLACE(TRIM(SUBSTRING(crypt(ifk.sf_private_key_value,gen_salt('xdes')),6,20)),'/','*') AS cpk, 
+			    ifk.network_name,
+			    COALESCE(NULLIF(ax.firm_name_short, ''), a.firm_name_short_eng) AS firm_name_short
+                        FROM info_firm_profile a
+                        INNER JOIN sys_project_settings sps ON sps.op_project_id = 1 AND sps.active =0 AND sps.deleted =0
+		        INNER JOIN info_firm_users ifu ON ifu.firm_id = a.act_parent_id and ifu.active =0 and ifu.deleted =0 
+		        INNER JOIN info_firm_keys ifk ON ifk.firm_id = a.act_parent_id
+                        INNER JOIN sys_language l ON l.id = a.language_id AND l.deleted =0 AND l.active =0
+                        LEFT JOIN sys_language lx ON (lx.id = l.id OR lx.language_parent_id = l.id) AND lx.deleted =0 AND lx.active =0 and lx.id = ".intval($languageIdValue)."
+                        LEFT JOIN info_firm_profile ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND ax.language_id = lx.id 
+                        WHERE a.deleted =0 AND
+                            ifu.user_id = ".intval($opUserIdValue)." AND 
+                            a.active=0 AND
+                            a.language_parent_id=0                          
+                        ) AS xctable          
+ 
+                   ";
+                $statement = $pdo->prepare($sql);
+              //  echo debugPDO($sql, $params);
+                $statement->execute();
+                $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+                $errorInfo = $statement->errorInfo();
+                if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
+                    throw new \PDOException($errorInfo[0]);
+                return array("found" => true, "errorInfo" => $errorInfo, "resultSet" => $result);
+            } else {
+                $errorInfo = '23502';   // 23502  user_id not_null_violation
+                $errorInfoColumn = 'pk';
+                return array("found" => false, "errorInfo" => $errorInfo, "resultSet" => '', "errorInfoColumn" => $errorInfoColumn);
+            }
+        } catch (\PDOException $e /* Exception $e */) {
+            //$debugSQLParams = $statement->debugDumpParams();
+            return array("found" => false, "errorInfo" => $e->getMessage()/* , 'debug' => $debugSQLParams */);
+        }
+    }
+
     
     
 }

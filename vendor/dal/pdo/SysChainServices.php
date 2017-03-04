@@ -15,14 +15,14 @@ namespace DAL\PDO;
  * created to be used by DAL MAnager
  * @
  * @author Okan CIRAN
- * @since 20.06.2016
+ * @since 10.10.2016
  */
 class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters tablosundan parametre olarak  gelen id kaydını siler. !!
-     * @version v 1.0  20.06.2016
+        * @ sys_chain_services tablosundan parametre olarak  gelen id kaydını siler. !!
+     * @version v 1.0  10.10.2016
      * @param array $params
      * @return array
      * @throws \PDOException
@@ -31,13 +31,11 @@ class SysOsbClusters extends \DAL\DalSlim {
      try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserIdParams = array('pk' =>  $params['pk'],);
-            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
-            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];                
                 $statement = $pdo->prepare(" 
-                UPDATE sys_osb_clusters
+                UPDATE sys_chain_services
                 SET deleted= 1, active = 1,
                      op_user_id = " . intval($opUserIdValue) . "     
                 WHERE id = ".  intval($params['id'])  );            
@@ -61,8 +59,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters tablosundaki tüm kayıtları getirir.  !!
-     * @version v 1.0  20.06.2016  
+     * @ sys_chain_services tablosundaki tüm kayıtları getirir.  !!
+     * @version v 1.0  10.10.2016  
      * @param array $params
      * @return array
      * @throws \PDOException
@@ -70,17 +68,14 @@ class SysOsbClusters extends \DAL\DalSlim {
     public function getAll($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageCode = 'tr';
+            $languageId = NULL;
             $languageIdValue = 647;
-            if (isset($params['language_code']) && $params['language_code'] != "") {
-                $languageCode = $params['language_code'];
-            }
-            $languageCodeParams = array('language_code' => $languageCode,);
-            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-            }     
+            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
+                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
+                }
+            }  
             $statement = $pdo->prepare("              
                 SELECT 
                         a.id,
@@ -102,7 +97,7 @@ class SysOsbClusters extends \DAL\DalSlim {
 			ct.name AS city_name,
 			so.borough_id,
 			bo.name AS borough_name 			 
-                FROM sys_osb_clusters a
+                FROM sys_chain_services a
                 LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0 
                 LEFT JOIN sys_language l ON l.id = so.language_id AND l.deleted =0 AND l.active = 0 
                 LEFT JOIN sys_language lx ON lx.id = ".intval($languageIdValue)." AND lx.deleted =0 AND lx.active =0
@@ -111,7 +106,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                 LEFT JOIN info_users u ON u.id = a.op_user_id    
                 LEFT JOIN sys_specific_definitions sd15x ON sd15x.main_group = 15 AND sd15x.first_group= a.deleted AND sd15x.language_id =lx.id  AND sd15x.deleted =0 AND sd15x.active =0 
                 LEFT JOIN sys_specific_definitions sd16x ON sd16x.main_group = 16 AND sd16x.first_group= a.active AND sd16x.language_id = lx.id  AND sd16x.deleted = 0 AND sd16x.active = 0                
-                LEFT JOIN sys_osb_clusters ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
+                LEFT JOIN sys_chain_services ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
                 LEFT JOIN sys_osb sox ON (sox.id = so.id OR sox.language_parent_id = so.id) AND sox.deleted =0 AND sox.active =0 AND lx.id = sox.language_id
 		LEFT JOIN sys_clusters sc ON sc.id = a.clusters_id AND sc.deleted =0 AND sc.active =0 AND l.id = sc.language_id
                 LEFT JOIN sys_clusters scx ON (scx.id = sc.id OR scx.language_parent_id = sc.id) AND scx.deleted =0 AND scx.active =0 AND lx.id = scx.language_id
@@ -136,8 +131,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters tablosuna yeni bir kayıt oluşturur.  !!
-     * @version v 1.0  20.06.2016
+     * @ sys_chain_services tablosuna yeni bir kayıt oluşturur.  !!
+     * @version v 1.0  10.10.2016
      * @param type $params
      * @return array
      * @throws \PDOException
@@ -146,27 +141,22 @@ class SysOsbClusters extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserIdParams = array('pk' =>  $params['pk'],);
-            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
-            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
-                $languageCode = 'tr';
+                $languageId = NULL;
                 $languageIdValue = 647;
-                if (isset($params['language_code']) && $params['language_code'] != "") {
-                    $languageCode = $params['language_code'];
+                if ((isset($params['language_code']) && $params['language_code'] != "")) {
+                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                        $languageIdValue = $languageId ['resultSet'][0]['id'];
+                    }
                 }
-                $languageCodeParams = array('language_code' => $languageCode,);
-                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-                }    
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
 
                     $sql = "
-                INSERT INTO sys_osb_clusters(
+                INSERT INTO sys_chain_services(
                         osb_id,                         
                         name, 
                         name_eng, 
@@ -194,7 +184,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                     $statement->bindValue(':op_user_id', $opUserIdValue, \PDO::PARAM_INT);
                     // echo debugPDO($sql, $params);
                     $result = $statement->execute();
-                    $insertID = $pdo->lastInsertId('sys_osb_clusters_id_seq');
+                    $insertID = $pdo->lastInsertId('sys_chain_services_id_seq');
                     $errorInfo = $statement->errorInfo();
                     if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                         throw new \PDOException($errorInfo[0]);
@@ -220,8 +210,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters tablosunda property_name daha önce kaydedilmiş mi ?  
-     * @version v 1.0 13.03.2016
+     * @ sys_chain_services tablosunda property_name daha önce kaydedilmiş mi ?  
+     * @version v 1.0 10.10.2016
      * @param type $params
      * @return array
      * @throws \PDOException
@@ -239,7 +229,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                 '" . $params['name'] . "' AS value, 
                 LOWER(a.name) = LOWER(TRIM('" . $params['name'] . "')) AS control,
                 CONCAT(a.name, ' daha önce kayıt edilmiş. Lütfen Kontrol Ediniz !!!' ) AS message
-            FROM sys_osb_clusters a                          
+            FROM sys_chain_services a                          
             WHERE 
                 LOWER(TRIM(a.name)) = LOWER(TRIM('" . $params['name'] . "')) AND
                 a.osb_id = " .intval($params['osb_id']) . "
@@ -261,8 +251,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * sys_osb_clusters tablosuna parametre olarak gelen id deki kaydın bilgilerini günceller   !!
-     * @version v 1.0  20.06.2016
+     * sys_chain_services tablosuna parametre olarak gelen id deki kaydın bilgilerini günceller   !!
+     * @version v 1.0  10.10.2016
      * @param type $params
      * @return array
      * @throws \PDOException
@@ -271,27 +261,22 @@ class SysOsbClusters extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserIdParams = array('pk' =>  $params['pk'],);
-            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
-            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $kontrol = $this->haveRecords($params);
                 if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
-                    $languageCode = 'tr';
+                    $languageId = NULL;
                     $languageIdValue = 647;
-                    if (isset($params['language_code']) && $params['language_code'] != "") {
-                        $languageCode = $params['language_code'];
+                    if ((isset($params['language_code']) && $params['language_code'] != "")) {
+                        $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                        if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                            $languageIdValue = $languageId ['resultSet'][0]['id'];
+                        }
                     }
-                    $languageCodeParams = array('language_code' => $languageCode,);
-                    $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-                    $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-                    if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                        $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-                    }    
 
                     $sql = "
-                    UPDATE sys_osb_clusters
+                    UPDATE sys_chain_services
                     SET 
                         osb_id= :osb_id,                        
                         name= :name, 
@@ -338,8 +323,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**
      * @author Okan CIRAN
-     * @ Gridi doldurmak için sys_osb_clusters tablosundan kayıtları döndürür !!
-     * @version v 1.0  20.06.2016
+     * @ Gridi doldurmak için sys_chain_services tablosundan kayıtları döndürür !!
+     * @version v 1.0  10.10.2016
      * @param array | null $args
      * @return array
      * @throws \PDOException
@@ -374,17 +359,14 @@ class SysOsbClusters extends \DAL\DalSlim {
             $order = "ASC";
         }
 
-        $languageCode = 'tr';
+        $languageId = NULL;
         $languageIdValue = 647;
-        if (isset($args['language_code']) && $args['language_code'] != "") {
-            $languageCode = $args['language_code'];
-        }
-        $languageCodeParams = array('language_code' => $languageCode,);
-        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-        }    
+        if ((isset($args['language_code']) && $args['language_code'] != "")) {                
+            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
+            if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                $languageIdValue = $languageId ['resultSet'][0]['id'];                    
+            }
+        }  
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $sql = "
@@ -408,7 +390,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                     ct.name AS city_name,
                     so.borough_id,
                     bo.name AS borough_name
-                FROM sys_osb_clusters a
+                FROM sys_chain_services a
                 LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0 
                 LEFT JOIN sys_language l ON l.id = so.language_id AND l.deleted =0 AND l.active = 0 
                 LEFT JOIN sys_language lx ON lx.id = ".intval($languageIdValue)." AND lx.deleted =0 AND lx.active =0
@@ -417,7 +399,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                 LEFT JOIN info_users u ON u.id = a.op_user_id
                 LEFT JOIN sys_specific_definitions sd15x ON sd15x.main_group = 15 AND sd15x.first_group= a.deleted AND sd15x.language_id =lx.id  AND sd15x.deleted =0 AND sd15x.active = 0 
                 LEFT JOIN sys_specific_definitions sd16x ON sd16x.main_group = 16 AND sd16x.first_group= a.active AND sd16x.language_id = lx.id  AND sd16x.deleted = 0 AND sd16x.active = 0
-                LEFT JOIN sys_osb_clusters ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
+                LEFT JOIN sys_chain_services ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
                 LEFT JOIN sys_osb sox ON (sox.id = so.id OR sox.language_parent_id = so.id) AND sox.deleted =0 AND sox.active =0 AND lx.id = sox.language_id
 		LEFT JOIN sys_clusters sc ON sc.id = a.clusters_id AND sc.deleted =0 AND sc.active =0 AND l.id = sc.language_id
                 LEFT JOIN sys_clusters scx ON (scx.id = sc.id OR scx.language_parent_id = sc.id) AND scx.deleted =0 AND scx.active =0 AND lx.id = scx.language_id
@@ -452,8 +434,8 @@ class SysOsbClusters extends \DAL\DalSlim {
 
     /**     
      * @author Okan CIRAN
-     * @ Gridi doldurmak için sys_osb_clusters tablosundan çekilen kayıtlarının kaç tane olduğunu döndürür   !!
-     * @version v 1.0  20.06.2016
+     * @ Gridi doldurmak için sys_chain_services tablosundan çekilen kayıtlarının kaç tane olduğunu döndürür   !!
+     * @version v 1.0  10.10.2016
      * @param array | null $args
      * @return array
      * @throws \PDOException
@@ -464,7 +446,7 @@ class SysOsbClusters extends \DAL\DalSlim {
             $sql = "
                 SELECT 
                      COUNT(a.id) AS COUNT 
-                FROM sys_osb_clusters a
+                FROM sys_chain_services a
                 LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0
                 WHERE a.deleted =0 AND a.language_parent_id =0 
                 ";
@@ -484,9 +466,9 @@ class SysOsbClusters extends \DAL\DalSlim {
                             
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters bilgilerini grid formatında döndürür !!
+     * @ sys_chain_services bilgilerini grid formatında döndürür !!
      * filterRules aktif 
-     * @version v 1.0  20.06.2016
+     * @version v 1.0  10.10.2016
      * @param array | null $args
      * @return array
      * @throws \PDOException
@@ -589,17 +571,14 @@ class SysOsbClusters extends \DAL\DalSlim {
             }                            
             $sorguStr = rtrim($sorguStr, "AND "); 
             
-            $languageCode = 'tr';
+            $languageId = NULL;
             $languageIdValue = 647;
-            if (isset($params['language_code']) && $params['language_code'] != "") {
-                $languageCode = $params['language_code'];
-            }
-            $languageCodeParams = array('language_code' => $languageCode,);
-            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-            }  
+            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
+                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
+                    }
+            }    
                             
             $sql = "  
                 SELECT
@@ -644,7 +623,7 @@ class SysOsbClusters extends \DAL\DalSlim {
 			bo.name AS borough_name,
                         a.description,
                         a.description_eng                        
-                    FROM sys_osb_clusters a
+                    FROM sys_chain_services a
                     LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0 
                     LEFT JOIN sys_language l ON l.id = so.language_id AND l.deleted =0 AND l.active = 0 
                     LEFT JOIN sys_language lx ON lx.id = ".intval($languageIdValue)." AND lx.deleted =0 AND lx.active =0
@@ -653,7 +632,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                     LEFT JOIN info_users u ON u.id = a.op_user_id    
 
                     LEFT JOIN sys_specific_definitions sd16x ON sd16x.main_group = 16 AND sd16x.first_group= a.active AND sd16x.language_id = lx.id  AND sd16x.deleted = 0 AND sd16x.active = 0                
-                    LEFT JOIN sys_osb_clusters ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
+                    LEFT JOIN sys_chain_services ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
                     LEFT JOIN sys_osb sox ON (sox.id = so.id OR sox.language_parent_id = so.id) AND sox.deleted =0 AND sox.active =0 AND lx.id = sox.language_id
 
                     LEFT JOIN sys_countrys co ON co.id = so.country_id AND co.deleted = 0 AND co.active = 0 AND co.language_id = so.language_id                               
@@ -689,9 +668,9 @@ class SysOsbClusters extends \DAL\DalSlim {
         
     /**
      * @author Okan CIRAN
-     * @ sys_osb_clusters bilgilerinin sayısını döndürür !!
+     * @ sys_chain_services bilgilerinin sayısını döndürür !!
      * filterRules aktif 
-     * @version v 1.0  23.08.2016
+     * @version v 1.0  10.10.2016
      * @param array | null $args
      * @return array
      * @throws \PDOException
@@ -765,16 +744,13 @@ class SysOsbClusters extends \DAL\DalSlim {
                              
             }
             $sorguStr = rtrim($sorguStr, "AND ");
-            $languageCode = 'tr';
+            $languageId = NULL;
             $languageIdValue = 647;
-            if (isset($params['language_code']) && $params['language_code'] != "") {
-                $languageCode = $params['language_code'];
-            }
-            $languageCodeParams = array('language_code' => $languageCode,);
-            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
+                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
+                    }
             }    
             $sql = " 
                 SELECT COUNT(id) AS count 
@@ -821,7 +797,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                                 bo.name AS borough_name,
                                 a.description,
                                 a.description_eng
-                        FROM sys_osb_clusters a
+                        FROM sys_chain_services a
                         LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0 
                         LEFT JOIN sys_language l ON l.id = so.language_id AND l.deleted =0 AND l.active = 0 
                         LEFT JOIN sys_language lx ON lx.id = ".intval($languageIdValue)." AND lx.deleted =0 AND lx.active =0
@@ -830,7 +806,7 @@ class SysOsbClusters extends \DAL\DalSlim {
                         LEFT JOIN info_users u ON u.id = a.op_user_id    
 
                         LEFT JOIN sys_specific_definitions sd16x ON sd16x.main_group = 16 AND sd16x.first_group= a.active AND sd16x.language_id = lx.id  AND sd16x.deleted = 0 AND sd16x.active = 0                
-                        LEFT JOIN sys_osb_clusters ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
+                        LEFT JOIN sys_chain_services ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
                         LEFT JOIN sys_osb sox ON (sox.id = so.id OR sox.language_parent_id = so.id) AND sox.deleted =0 AND sox.active =0 AND lx.id = sox.language_id
 
                         LEFT JOIN sys_countrys co ON co.id = so.country_id AND co.deleted = 0 AND co.active = 0 AND co.language_id = so.language_id                               
@@ -859,8 +835,8 @@ class SysOsbClusters extends \DAL\DalSlim {
     
     /**  
      * @author Okan CIRAN
-     * @ ddslick doldurmak için sys_osb_clusters tablosundan osb kayıtları döndürür !!
-     * @version v 1.0 25.08.2016
+     * @ ddslick doldurmak için sys_chain_services tablosundan osb kayıtları döndürür !!
+     * @version v 1.0 10.10.2016
      * @param array | null $args
      * @return array
      * @throws \PDOException
@@ -868,17 +844,14 @@ class SysOsbClusters extends \DAL\DalSlim {
     public function fillOsbClustersDdlist($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');   
-            $languageCode = 'tr';
+            $languageId = NULL;
             $languageIdValue = 647;
-            if (isset($params['language_code']) && $params['language_code'] != "") {
-                $languageCode = $params['language_code'];
+            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
+                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
+                if (\Utill\Dal\Helper::haveRecord($languageId)) {
+                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
+                    }
             }
-            $languageCodeParams = array('language_code' => $languageCode,);
-            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
-            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
-            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
-                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
-            }  
             $addSql ="" ;
                             
             if (isset($params['country_id']) && $params['country_id'] != "") {
@@ -898,11 +871,11 @@ class SysOsbClusters extends \DAL\DalSlim {
                     COALESCE(NULLIF(ax.name, ''), a.name_eng) AS cluster_name, 
                     a.name_eng AS cluster_name_eng ,
                     a.active
-                FROM sys_osb_clusters a
+                FROM sys_chain_services a
                 LEFT JOIN sys_osb so ON so.id = a.osb_id AND so.deleted =0 AND so.active =0 AND so.language_parent_id =0 
                 LEFT JOIN sys_language l ON l.id = so.language_id AND l.deleted =0 AND l.active = 0 
                 LEFT JOIN sys_language lx ON lx.id = ".intval($languageIdValue)." AND lx.deleted =0 AND lx.active =0 
-                LEFT JOIN sys_osb_clusters ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
+                LEFT JOIN sys_chain_services ax ON (ax.id = a.id OR ax.language_parent_id = a.id) AND ax.deleted =0 AND ax.active =0 AND lx.id = ax.language_id
                 LEFT JOIN sys_osb sox ON (sox.id = so.id OR sox.language_parent_id = so.id) AND sox.deleted =0 AND sox.active =0 AND lx.id = sox.language_id
                 WHERE 
                     a.deleted = 0 AND 
@@ -928,9 +901,9 @@ class SysOsbClusters extends \DAL\DalSlim {
     /**
 
      * @author Okan CIRAN
-     * @ sys_osb_clusters tablosundan parametre olarak  gelen id kaydın aktifliğini
+     * @ sys_chain_services tablosundan parametre olarak  gelen id kaydın aktifliğini
      *  0(aktif) ise 1 , 1 (pasif) ise 0  yapar. !!
-     * @version v 1.0  13.04.2016
+     * @version v 1.0  10.10.2016
      * @param type $params
      * @return array
      * @throws \PDOException
@@ -939,21 +912,19 @@ class SysOsbClusters extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserIdParams = array('pk' =>  $params['pk'],);
-            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
-            $opUserId = $opUserIdArray->getUserId($opUserIdParams); 
+            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 if (isset($params['id']) && $params['id'] != "") {
 
                     $sql = "                 
-                UPDATE sys_osb_clusters
+                UPDATE sys_chain_services
                 SET active = (  SELECT   
                                 CASE active
                                     WHEN 0 THEN 1
                                     ELSE 0
                                 END activex
-                                FROM sys_osb_clusters
+                                FROM sys_chain_services
                                 WHERE id = " . intval($params['id']) . "
                 ),
                 op_user_id = " . intval($opUserIdValue) . "

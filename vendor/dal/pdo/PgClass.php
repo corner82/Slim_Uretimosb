@@ -107,7 +107,7 @@ class PgClass extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');            
             $statement = $pdo->prepare("   
-             SELECT  distinct 
+             SELECT  DISTINCT 
                 c.oid AS id,
                 c.relname AS name,
 		obj_description(c.relname::regclass, 'pg_class') AS description,                     
@@ -115,12 +115,12 @@ class PgClass extends \DAL\DalSlim {
                 'open' AS state_type 
             FROM pg_catalog.pg_class c
             LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-            LEFT join pg_catalog.pg_description pgd on (pgd.objoid=c.oid)
+            LEFT join pg_catalog.pg_description pgd ON (pgd.objoid=c.oid)
             WHERE pg_catalog.pg_table_is_visible(c.oid)
                     AND c.relkind = 'r'
                     AND (c.relname like 'info_%' OR c.relname like 'sys_%')
                     AND c.relname != 'info_firm_keys' 
-                    AND Length(obj_description(c.relname::regclass, 'pg_class') )> 0  
+                    AND Length(TRIM(obj_description(c.relname::regclass, 'pg_class') ))> 0  
             ORDER BY c.relname
                                  ");
             $statement->execute();
@@ -150,10 +150,10 @@ class PgClass extends \DAL\DalSlim {
             if (isset($params['operation_type_id']) && $params['operation_type_id'] != "") {
                 $operationTypeId = intval($params['operation_type_id']);
             }
-            print_r($operationTypeId);
+            
             $sql = "  
-        	SELECT                  
-                    c.relname AS table_name                
+        	SELECT
+                    c.relname AS table_name
                 FROM pg_catalog.pg_class c
                 INNER JOIN sys_operation_types_rrp sotr ON sotr.table_oid = c.oid
                 WHERE sotr.id =  " . intval($operationTypeId) . "

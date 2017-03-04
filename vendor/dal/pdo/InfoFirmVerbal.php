@@ -30,13 +30,15 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $userId = InfoUsers::getUserId(array('pk' => $params['pk']));
-            if (\Utill\Dal\Helper::haveRecord($userId)) {
-                $userIdValue = $userId ['resultSet'][0]['user_id'];
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
+            if (\Utill\Dal\Helper::haveRecord($opUserId)) {
+                $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $statement = $pdo->prepare(" 
                 UPDATE info_firm_verbal
                 SET  deleted= 1 , active = 1 ,
-                     op_user_id = " . $userIdValue . "     
+                     op_user_id = " .$opUserIdValue . "     
                 WHERE id = :id");
                 //Execute our DELETE statement.
                 $update = $statement->execute();
@@ -68,14 +70,17 @@ class InfoFirmVerbal extends \DAL\DalSlim {
     public function getAll($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];
-                }
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
             }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $statement = $pdo->prepare("                    
                     SELECT 
                         a.id,
@@ -235,7 +240,9 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();           
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 
@@ -245,30 +252,50 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                
                     $kontrol = $this->haveRecords(array('firm_id' => $getFirmId,));
                     if (!\Utill\Dal\Helper::haveRecord($kontrol)) {                          
-                        $operationIdValue = -1;
-                        $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                        array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 32, 'type_id' => 1,));
-                        if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                            $operationIdValue = $operationId ['resultSet'][0]['id'];
-                        }
-                        $languageId = NULL;
+                         $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];                            
+                        $url = null;
+                        if (isset($params['url']) && $params['url'] != "") {
+                            $url = $params['url'];
+                        }    
+                        $m = null;
+                        if (isset($params['m']) && $params['m'] != "") {
+                            $m = $params['m'];
+                        }  
+                        $a = null;
+                        if (isset($params['a']) && $params['a'] != "") {
+                            $a = $params['a'];
+                        }  
+                        $operationIdValue =  0;
+                        $assignDefinitionIdValue = 0;
+                        $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);                        
+                        $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                        $operationTypesValue = $operationTypes->getInsertOperationId($operationTypeParams);
+                        if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                            $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                            $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];                            
+                        }  
+                        $languageCode = 'tr';
                         $languageIdValue = 647;
-                        if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                                $languageIdValue = $languageId ['resultSet'][0]['id'];
-                            }
+                        if (isset($params['language_code']) && $params['language_code'] != "") {
+                            $languageCode = $params['language_code'];
                         }
+                        $languageCodeParams = array('language_code' => $languageCode,);
+                        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                        } 
 
                         $ConsultantId = 1001;
-                        $getConsultant = SysOsbConsultants::getConsultantIdForTableName(array('table_name' => 'info_firm_verbal' , 
-                                                                                        'operation_type_id' => $operationIdValue, 
-                                                                                        'language_id' => $languageIdValue,  
-                                                                                               ));
-                        if (\Utill\Dal\Helper::haveRecord($getConsultant)) {
-                            $ConsultantId = $getConsultant ['resultSet'][0]['consultant_id'];
+                        if ($operationIdValue > 0) {
+                            $url = null;
+                            $getConsultantParams = array('operation_type_id' => $operationIdValue, 'language_id' => $languageIdValue,);
+                            $getConsultant = $this->slimApp->getBLLManager()->get('beAssignedConsultantBLL');
+                            $getConsultantArray = $getConsultant->getBeAssignedConsultant($getConsultantParams);
+                            if (\Utill\Dal\Helper::haveRecord($getConsultantArray)) {
+                                $ConsultantId = $getConsultantArray ['resultSet'][0]['consultant_id'];
+                            }
                         }
-
                         $profilePublic = 0;
                         if ((isset($params['profile_public']) && $params['profile_public'] != "")) {
                             $profilePublic = intval($params['profile_public']);
@@ -374,16 +401,21 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                         if ($errorInfo[0] != "00000" && $errorInfo[1] != NULL && $errorInfo[2] != NULL)
                             throw new \PDOException($errorInfo[0]);
                         
-                        $xjobs = ActProcessConfirm::insert(array(
-                                'op_user_id' => intval($opUserIdValue),
-                                'operation_type_id' => intval($operationIdValue),
-                                'table_column_id' => intval($insertID),
-                                'cons_id' => intval($ConsultantId),
-                                'preferred_language_id' => intval($languageIdValue),
-                                    )
-                        );
-                         if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                        throw new \PDOException($xjobs['errorInfo']);
+                        $consultantProcessSendParams = array(
+                            'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                            'operation_type_id' => intval($operationIdValue), // operasyon 
+                            'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                            'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                            'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                         );
+                        $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                        $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                        if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                                $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                                $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                            throw new \PDOException($setConsultantProcessSendArray['errorInfo']);
                         
                         $pdo->commit();
 
@@ -424,7 +456,9 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         try { 
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();             
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
              
@@ -435,20 +469,42 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                     $kontrol = $this->haveRecords(array('id' => $params['id'],'firm_id' => $getFirmId,));
                     if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
                         $this->makePassive(array('id' => $params['id']));
-                        $operationIdValue = -2;
-                        $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                        array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 32, 'type_id' => 2,));
-                        if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                            $operationIdValue = $operationId ['resultSet'][0]['id'];
-                        }
-                        $languageId = NULL;
-                        $languageIdValue = 647;
-                        if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                                $languageIdValue = $languageId ['resultSet'][0]['id'];
+                        $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];                 
+                        $url = null;
+                        if (isset($params['url']) && $params['url'] != "") {
+                            $url = $params['url'];
+                        }    
+                        $m = null;
+                        if (isset($params['m']) && $params['m'] != "") {
+                            $m = $params['m'];
+                        }  
+                        $a = null;
+                        if (isset($params['a']) && $params['a'] != "") {
+                            $a = $params['a'];
+                        }  
+                        $operationIdValue =  0;
+                        $assignDefinitionIdValue = 0;
+                        $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);
+                        $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                        $operationTypesValue = $operationTypes->getUpdateOperationId($operationTypeParams);
+                        if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                            $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                            $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];
+                            if ($operationIdValue > 0) {
+                                $url = null;
                             }
+                        }      
+                        $languageCode = 'tr';
+                        $languageIdValue = 647;
+                        if (isset($params['language_code']) && $params['language_code'] != "") {
+                            $languageCode = $params['language_code'];
                         }
+                        $languageCodeParams = array('language_code' => $languageCode,);
+                        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                        } 
                         $profilePublic = 0;
                         if ((isset($params['profile_public']) && $params['profile_public'] != "")) {
                             $profilePublic = intval($params['profile_public']);
@@ -563,17 +619,21 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                             // $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
                         }
 
-                        $xjobs = ActProcessConfirm::insert(array(
-                                    'op_user_id' => intval($opUserIdValue), // işlemi yapan user
-                                    'operation_type_id' => intval($operationIdValue), // operasyon 
-                                    'table_column_id' => intval($insertID), // işlem yapılan tablo id si
-                                    'cons_id' => intval($ConsultantId), // atanmış olan danısman 
-                                    'preferred_language_id' => intval($languageIdValue), // dil bilgisi
-                                        )
-                        );
-
-                        if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                           throw new \PDOException($xjobs['errorInfo']);                  
+                        $consultantProcessSendParams = array(
+                            'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                            'operation_type_id' => intval($operationIdValue), // operasyon 
+                            'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                            'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                            'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                         );
+                        $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                        $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                        if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                                $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                                $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                            throw new \PDOException($setConsultantProcessSendArray['errorInfo']);                  
                         $pdo->commit();
                         return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
                     } else {
@@ -638,13 +698,16 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         } else {
             $order = "ASC";
         }
-        $languageId = NULL;
+        $languageCode = 'tr';
         $languageIdValue = 647;
-        if ((isset($args['language_code']) && $args['language_code'] != "")) {
-            $languageId = SysLanguage::getLanguageId(array('language_code' => $args['language_code']));
-            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                $languageIdValue = $languageId ['resultSet'][0]['id'];
-            }
+        if (isset($args['language_code']) && $args['language_code'] != "") {
+            $languageCode = $args['language_code'];
+        }
+        $languageCodeParams = array('language_code' => $languageCode,);
+        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
         } 
 
         try {
@@ -745,15 +808,17 @@ class InfoFirmVerbal extends \DAL\DalSlim {
     public function fillGridRowTotalCount($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-
-            $languageId = NULL;
+            $languageCode = 'tr';
             $languageIdValue = 647;
-            if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                    $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                }
-            }  
+            if (isset($params['language_code']) && $params['language_code'] != "") {
+                $languageCode = $params['language_code'];
+            }
+            $languageCodeParams = array('language_code' => $languageCode,);
+            $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+            $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+            if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+            } 
             $whereSQL = " WHERE a.deleted = 0 AND a.active =0 AND a.language_parent_id =0 "; 
 
             $sql = "
@@ -978,6 +1043,7 @@ class InfoFirmVerbal extends \DAL\DalSlim {
     }
 
     /**
+     * @author Okan CIRAN
      * delete olayında önce kaydın active özelliğini pasif e olarak değiştiriyoruz. 
      * daha sonra deleted= 1 ve active = 1 olan kaydı oluşturuyor. 
      * böylece tablo içerisinde loglama mekanizması için gerekli olan kayıt oluşuyor.
@@ -991,7 +1057,9 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
             $pdo->beginTransaction();
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $getFirm = InfoFirmProfile :: getCheckIsThisFirmRegisteredUser(array('cpk' => $params['cpk'], 'op_user_id' => $opUserIdValue));
@@ -1001,20 +1069,43 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                     $kontrol = $this->haveRecords(array('id' => $params['id'],'firm_id' => $getFirmId,));                    
                     if (!\Utill\Dal\Helper::haveRecord($kontrol)) {
                         $this->makePassive(array('id' => $params['id']));
-                        $operationIdValue = -3;
-                        $operationId = SysOperationTypes::getTypeIdToGoOperationId(
-                                        array('parent_id' => 3, 'main_group' => 3, 'sub_grup_id' => 32, 'type_id' => 3,));
-                        if (\Utill\Dal\Helper::haveRecord($operationId)) {
-                            $operationIdValue = $operationId ['resultSet'][0]['id'];
-                        }
-                        $languageId = NULL;
-                        $languageIdValue = 647;
-                        if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                            $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                            if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                                $languageIdValue = $languageId ['resultSet'][0]['id'];
+                        $opUserRoleIdValue = $opUserId ['resultSet'][0]['role_id'];
+                            
+                        $url = null;
+                        if (isset($params['url']) && $params['url'] != "") {
+                            $url = $params['url'];
+                        }    
+                        $m = null;
+                        if (isset($params['m']) && $params['m'] != "") {
+                            $m = $params['m'];
+                        }  
+                        $a = null;
+                        if (isset($params['a']) && $params['a'] != "") {
+                            $a = $params['a'];
+                        }  
+                        $operationIdValue =  0;
+                        $assignDefinitionIdValue = 0;
+                        $operationTypeParams = array('url' => $url, 'role_id' => $opUserRoleIdValue, 'm' => $m,'a' => $a,);
+                        $operationTypes = $this->slimApp-> getBLLManager()->get('operationsTypesBLL');  
+                        $operationTypesValue = $operationTypes->getDeleteOperationId($operationTypeParams);
+                        if (\Utill\Dal\Helper::haveRecord($operationTypesValue)) { 
+                            $operationIdValue = $operationTypesValue ['resultSet'][0]['id']; 
+                            $assignDefinitionIdValue = $operationTypesValue ['resultSet'][0]['assign_definition_id'];
+                            if ($operationIdValue > 0) {
+                                $url = null;
                             }
+                        }  
+                        $languageCode = 'tr';
+                        $languageIdValue = 647;
+                        if (isset($params['language_code']) && $params['language_code'] != "") {
+                            $languageCode = $params['language_code'];
                         }
+                        $languageCodeParams = array('language_code' => $languageCode,);
+                        $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                        $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                        if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                            $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                        } 
 
                         $profilePublic = 0;
                         if ((isset($params['profile_public']) && $params['profile_public'] != "")) {
@@ -1101,17 +1192,21 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                             $languageIdValue = $consIdAndLanguageId ['resultSet'][0]['language_id'];                       
                         }
 
-                        $xjobs = ActProcessConfirm::insert(array(
-                                    'op_user_id' => intval($opUserIdValue), // işlemi yapan user
-                                    'operation_type_id' => intval($operationIdValue), // operasyon 
-                                    'table_column_id' => intval($insertID), // işlem yapılan tablo id si
-                                    'cons_id' => intval($ConsultantId), // atanmış olan danısman 
-                                    'preferred_language_id' => intval($languageIdValue), // dil bilgisi
-                                        )
-                        );
-
-                        if ($xjobs['errorInfo'][0] != "00000" && $xjobs['errorInfo'][1] != NULL && $xjobs['errorInfo'][2] != NULL)
-                            throw new \PDOException($xjobs['errorInfo']);
+                        $consultantProcessSendParams = array(
+                            'op_user_id' => intval($opUserIdValue), // işlemi yapan user
+                            'operation_type_id' => intval($operationIdValue), // operasyon 
+                            'table_column_id' => intval($insertID), // işlem yapılan tablo id si
+                            'cons_id' => intval($ConsultantId), // atanmış olan danısman 
+                            'preferred_language_id' => intval($languageIdValue), // dil bilgisi
+                            'url' => $url,
+                            'assign_definition_id' => $assignDefinitionIdValue, // operasyon atama tipi
+                         );
+                        $setConsultantProcessSend = $this->slimApp-> getBLLManager()->get('consultantProcessSendBLL');  
+                        $setConsultantProcessSendArray= $setConsultantProcessSend->insert($consultantProcessSendParams);
+                        if ($setConsultantProcessSendArray['errorInfo'][0] != "00000" &&
+                                $setConsultantProcessSendArray['errorInfo'][1] != NULL &&
+                                $setConsultantProcessSendArray['errorInfo'][2] != NULL)
+                            throw new \PDOException($setConsultantProcessSendArray['errorInfo']);
                         $pdo->commit();
                         return array("found" => true, "errorInfo" => $errorInfo, "affectedRowsCount" => $affectedRows);
                     } else {
@@ -1150,18 +1245,23 @@ class InfoFirmVerbal extends \DAL\DalSlim {
     public function fillUsersFirmVerbalNpk($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {    
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $addSql = "";
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                    }
-                }  
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                } 
 
                 $networkKey = "-1";
                 if ((isset($params['network_key']) && $params['network_key'] != "")) {                
@@ -1204,8 +1304,8 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                             LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0
                             LEFT JOIN info_firm_verbal ax ON (ax.id = a.id OR ax.language_parent_id=a.id) AND ax.language_id =lx.id AND ax.cons_allow_id =2 
                             INNER JOIN info_firm_keys ifk ON  ifk.network_key = '" . $params['network_key'] . "'                   
-                            INNER JOIN info_firm_profile fp ON fp.id = ifk.firm_id AND fp.language_parent_id =0 AND fp.cons_allow_id =2
-                            LEFT JOIN info_firm_profile fpx ON (fpx.id =ifk.firm_id OR fpx.language_parent_id=ifk.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2 
+                            INNER JOIN info_firm_profile fp ON fp.act_parent_id = ifk.firm_id AND fp.language_parent_id =0 AND fp.cons_allow_id =2
+                            LEFT JOIN info_firm_profile fpx ON (fpx.act_parent_id =ifk.firm_id OR fpx.language_parent_id=ifk.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2 
                             LEFT JOIN info_firm_users ifu ON ifu.firm_id = ifk.firm_id AND ifu.active =0 AND ifu.deleted =0 AND ifu.language_parent_id = 0 AND ifu.user_id = " . intval($opUserIdValue) . "
                             WHERE 
                                 a.cons_allow_id=2  AND 
@@ -1249,8 +1349,8 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                     LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0
                     LEFT JOIN info_firm_verbal ax ON (ax.id = a.id OR ax.language_parent_id=a.id)  AND ax.active = 0 AND ax.deleted = 0 AND ax.language_id =lx.id AND ax.cons_allow_id =2
                     INNER JOIN info_users u ON u.id = a.op_user_id
-                    INNER JOIN info_firm_profile fp ON fp.id = a.firm_id AND fp.language_parent_id =0  AND fp.cons_allow_id =2
-                    LEFT JOIN info_firm_profile fpx ON (fpx.id = a.firm_id OR fpx.language_parent_id=a.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
+                    INNER JOIN info_firm_profile fp ON fp.act_parent_id = a.firm_id AND fp.language_parent_id =0  AND fp.cons_allow_id =2
+                    LEFT JOIN info_firm_profile fpx ON (fpx.act_parent_id = a.firm_id OR fpx.language_parent_id=a.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
                     INNER JOIN info_firm_keys ifk ON fp.act_parent_id = ifk.firm_id                                              
                     LEFT JOIN info_firm_users ifu ON ifu.firm_id = ifk.firm_id AND ifu.active =0 AND ifu.deleted =0 AND ifu.language_parent_id = 0 AND ifu.user_id = " . intval($opUserIdValue) . "
                     WHERE 
@@ -1293,14 +1393,17 @@ class InfoFirmVerbal extends \DAL\DalSlim {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');            
                 $addSql = "";
-                $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {                
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];                    
-                    }
-                }  
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
+                }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                } 
 
                 $networkKey = "-1";
                 if ((isset($params['network_key']) && $params['network_key'] != "")) {                
@@ -1343,8 +1446,8 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                             LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0
                             LEFT JOIN info_firm_verbal ax ON (ax.id = a.id OR ax.language_parent_id=a.id) AND ax.language_id =lx.id AND ax.cons_allow_id =2 
                             INNER JOIN info_firm_keys ifk ON  ifk.network_key = '" . $params['network_key'] . "'
-                            INNER JOIN info_firm_profile fp ON fp.id = ifk.firm_id AND fp.language_parent_id =0 AND fp.cons_allow_id =2
-                            LEFT JOIN info_firm_profile fpx ON (fpx.id =ifk.firm_id OR fpx.language_parent_id=ifk.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
+                            INNER JOIN info_firm_profile fp ON fp.act_parent_id = ifk.firm_id AND fp.language_parent_id =0 AND fp.cons_allow_id =2
+                            LEFT JOIN info_firm_profile fpx ON (fpx.act_parent_id =ifk.firm_id OR fpx.language_parent_id=ifk.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
                             WHERE 
                                 a.cons_allow_id=2  AND 
                                 a.language_parent_id =0 AND
@@ -1387,8 +1490,8 @@ class InfoFirmVerbal extends \DAL\DalSlim {
                     LEFT JOIN sys_language lx ON lx.id = " . intval($languageIdValue) . " AND lx.deleted =0 AND lx.active =0
                     LEFT JOIN info_firm_verbal ax ON (ax.id = a.id OR ax.language_parent_id=a.id)  AND ax.active = 0 AND ax.deleted = 0 AND ax.language_id =lx.id AND ax.cons_allow_id =2
                     INNER JOIN info_users u ON u.id = a.op_user_id
-                    INNER JOIN info_firm_profile fp ON fp.id = a.firm_id AND fp.language_parent_id =0  AND fp.cons_allow_id =2
-                    LEFT JOIN info_firm_profile fpx ON (fpx.id = a.firm_id OR fpx.language_parent_id=a.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
+                    INNER JOIN info_firm_profile fp ON fp.act_parent_id = a.firm_id AND fp.language_parent_id =0  AND fp.cons_allow_id =2
+                    LEFT JOIN info_firm_profile fpx ON (fpx.act_parent_id = a.firm_id OR fpx.language_parent_id=a.firm_id) AND fpx.language_id =lx.id AND fpx.cons_allow_id =2
                     INNER JOIN info_firm_keys ifk ON fp.act_parent_id = ifk.firm_id
                     WHERE 
                         a.cons_allow_id=2  AND 
@@ -1424,21 +1527,26 @@ class InfoFirmVerbal extends \DAL\DalSlim {
     public function getFirmVerbalConsultant($params = array()) {
         try {
             $pdo = $this->slimApp->getServiceManager()->get('pgConnectFactory');
-            $opUserId = InfoUsers::getUserId(array('pk' => $params['pk']));
+            $opUserIdParams = array('pk' =>  $params['pk'],);
+            $opUserIdArray = $this->slimApp-> getBLLManager()->get('opUserIdBLL');  
+            $opUserId = $opUserIdArray->getUserId($opUserIdParams);
             if (\Utill\Dal\Helper::haveRecord($opUserId)) {
                 $opUserIdValue = $opUserId ['resultSet'][0]['user_id'];
                 $getFirm = InfoFirmProfile :: getCheckIsThisFirmRegisteredUser(array('cpk' => $params['cpk'], 'op_user_id' => $opUserIdValue));
                 if (\Utill\Dal\Helper::haveRecord($getFirm)) {
                     $getFirmId = $getFirm ['resultSet'][0]['firm_id'];
                
-                    $languageId = NULL;
+                $languageCode = 'tr';
                 $languageIdValue = 647;
-                if ((isset($params['language_code']) && $params['language_code'] != "")) {
-                    $languageId = SysLanguage::getLanguageId(array('language_code' => $params['language_code']));
-                    if (\Utill\Dal\Helper::haveRecord($languageId)) {
-                        $languageIdValue = $languageId ['resultSet'][0]['id'];
-                    }
+                if (isset($params['language_code']) && $params['language_code'] != "") {
+                    $languageCode = $params['language_code'];
                 }
+                $languageCodeParams = array('language_code' => $languageCode,);
+                $languageId = $this->slimApp-> getBLLManager()->get('languageIdBLL');  
+                $languageIdsArray = $languageId->getLanguageId($languageCodeParams);
+                if (\Utill\Dal\Helper::haveRecord($languageIdsArray)) {
+                    $languageIdValue = $languageIdsArray ['resultSet'][0]['id'];
+                } 
 
                 $sql = "
                 SELECT DISTINCT 
@@ -1518,7 +1626,7 @@ class InfoFirmVerbal extends \DAL\DalSlim {
            $message = $mailTemplate->replaceAndGetTemplateContent(array('{[herkimse]}' => 'asd sdsdf',
                                                                         '{[kume]}' => 'OSSA',
                                                                         '{[rol]}' => 'URGE',
-                                                                        '{[link]}' => 'https://zeynel.sanalfabrika.com/ostim/sanalfabrika/signupconfirmation?key=zfdkxoyyyzdMphRk1a'));
+                                                                        '{[link]}' => 'https://zeynel.uretimosb.com/imalat/OSB/signupconfirmation?key=zfdkxoyyyzdMphRk1a'));
             
            $mail = new \Utill\Mail\PhpMailer\PhpMailInfoWrapper();
            $mail->setCharset('UTF-8');

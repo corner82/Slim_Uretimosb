@@ -115,7 +115,7 @@ class BLLManagerConfig{
                  'sysOsbPersonBLL' => 'BLL\BLL\SysOsbPerson',
                  'infoUsersSendingMailBLL' => 'BLL\BLL\InfoUsersSendingMail',
                  'sysMachineToolModelMaterialsBLL' => 'BLL\BLL\SysMachineToolModelMaterials',
-               
+                'infoFirmNaceBLL' => 'BLL\BLL\InfoFirmNace',
                       
                  'logConnectionBLL' => 'BLL\BLL\LogConnection',  
                  'logServicesBLL' => 'BLL\BLL\LogServices',
